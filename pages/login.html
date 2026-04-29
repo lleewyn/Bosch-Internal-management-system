@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Bosch Identity</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                <span class="brand-name">BOSCH</span>
+                <span class="app-subtitle">Internal Management System</span>
+            </div>
+            <div class="header-right">
+                <i class="fa-solid fa-globe"></i>
+                <span>English</span>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="login-card">
+            <div class="card-header">
+                <h1>Đăng nhập</h1>
+                <p>Truy cập hệ thống quản lý nội bộ</p>
+            </div>
+            <form class="auth-form">
+                <div class="form-group">
+                    <label>Email hoặc tên đăng nhập</label>
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="VD: user@bosch.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock prefix-icon"></i>
+                        <input type="password" placeholder="Nhập mật khẩu" required style="padding-left: 40px;">
+                        <i class="fa-regular fa-eye suffix-icon"></i>
+                    </div>
+                </div>
+
+                <p class="login-note">Lưu ý: Tài khoản sẽ bị khóa nếu nhập sai quá 5 lần</p>
+
+                <div class="form-row">
+                    <label class="checkbox-container">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        Ghi nhớ tài khoản
+                    </label>
+                    <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Đăng nhập <i class="fa-solid fa-arrow-right-to-bracket" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="#">IMPRINT</a>
+                <a href="#">PRIVACY POLICY</a>
+                <a href="#">TERMS OF USE</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
