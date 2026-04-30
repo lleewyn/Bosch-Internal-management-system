@@ -31,6 +31,12 @@
                 <p>Truy cập hệ thống quản lý nội bộ</p>
             </div>
             <form class="auth-form">
+                <!-- Thông báo tài khoản bị khóa -->
+                <div class="alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p>Tài khoản đã bị khóa do nhập sai quá 5 lần. Vui lòng gửi yêu cầu để được cấp lại mật khẩu.</p>
+                </div>
+
                 <div class="form-group">
                     <label>Email hoặc tên đăng nhập</label>
                     <div class="input-wrapper">
@@ -58,6 +64,7 @@
                     <a href="forgot-password.html" class="forgot-link">Quên mật khẩu?</a>
                 </div>
 
+                <!-- Nút Đăng nhập bình thường -->
                 <button type="submit" class="btn-primary">
                     Đăng nhập <i class="fa-solid fa-arrow-right-to-bracket" style="margin-left: 8px;"></i>
                 </button>
