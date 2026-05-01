@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Bosch HR Management</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="brand-name">BOSCH</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <i class="fa-solid fa-chart-line"></i>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Quản lý nhân sự
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Quản lý ngân sách
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="account.html" style="text-decoration: none; color: inherit;">
+                <div class="user-snippet">
+                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=random" alt="Avatar" class="user-avatar-sm">
+                    <div class="user-info-sm">
+                        <h4>John Doe</h4>
+                        <p>Quản trị viên hệ thống</p>
+                    </div>
+                </div>
+            </a>
+            <a href="index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout">
+        <header class="dashboard-header">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Tìm kiếm người dùng hoặc chức năng...">
+            </div>
+            <div class="header-actions">
+                <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
+            </div>
+        </header>
+
+        <main class="content-wrapper">
+            <div class="page-title">
+                <h1>Chào mừng trở lại, John!</h1>
+                <p>Hệ thống quản lý nhân sự Bosch đang sẵn sàng.</p>
+            </div>
+
+            <!-- Nội dung trống để sau này vẽ Dashboard -->
+            <div style="border: 2px dashed #E5E7EB; border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; color: #9CA3AF;">
+                Nội dung Dashboard sẽ được cập nhật tại đây...
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,320 @@
+:root {
+    --sidebar-width: 260px;
+    --header-height: 72px;
+    --bg-light: #F9FAFB;
+    --border-ui: #EDF0F2;
+    --text-main: #1C1F22;
+    --text-muted: #6B7280;
+    --bosch-blue: #007BC0;
+}
+
+body {
+    background-color: #FFFFFF; /* Đổi sang màu trắng tinh */
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 256px;
+    height: 100vh;
+    background: #F8FAFC; /* Xám xanh nhạt chuẩn Figma */
+    border-right: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 32px 0; /* Tăng padding trên dưới */
+    position: fixed;
+    z-index: 100;
+}
+
+.sidebar-logo {
+    padding: 32px 40px;
+}
+
+.brand-name {
+    font-weight: 900;
+    font-size: 24px;
+    color: #ED0007;
+    letter-spacing: -1px;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 40px;
+    color: #4B5563;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-item i {
+    width: 20px;
+    font-size: 16px; /* Nhỏ hơn cho thanh thoát */
+    color: #9CA3AF;
+    opacity: 0.7; /* Làm mờ icon để giống Figma */
+}
+
+.nav-item:hover {
+    background: #F3F4F6;
+    color: var(--text-main);
+}
+
+.nav-item.active {
+    background: #F3F4F6;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border-ui);
+}
+
+.user-snippet {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.user-avatar-sm {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info-sm h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.user-info-sm p {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* MAIN CONTENT */
+.main-layout {
+    margin-left: 256px;
+    flex: 1;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    height: var(--header-height);
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--border-ui);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+}
+
+.search-bar {
+    background: #F3F4F6;
+    border-radius: 8px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 440px;
+}
+
+.search-bar i {
+    color: #9CA3AF;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+/* CONTENT AREA */
+.content-wrapper {
+    padding: 48px 64px;
+    width: 100%;
+    max-width: 2300px; /* Mở rộng kịch trần lên 2300px */
+    min-height: 1112px;
+    margin: 0 auto;
+}
+
+.page-title h1 {
+    font-size: 28px; /* Giảm nhẹ kích thước tiêu đề */
+    font-weight: 800; /* Đậm hơn một chút */
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.page-title p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 40px;
+}
+
+/* CARDS */
+.info-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-ui);
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.user-avatar-lg {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+}
+
+.profile-text h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.profile-text p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* FORM GRID */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 40px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    background-color: #F8F9FA;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    outline: none;
+}
+
+.input-wrapper input[readonly] {
+    cursor: default;
+}
+
+/* TABLE */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 32px;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 16px 0;
+    font-size: 12px;
+    color: #9CA3AF;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-ui);
+}
+
+.data-table td {
+    padding: 20px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #F9FAFB;
+}
+
+.status-active {
+    background: #ECFDF5;
+    color: #059669;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-outline-danger {
+    background: transparent;
+    border: 1px solid #FEE2E2;
+    color: #EF4444;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-outline-danger:hover {
+    background: #FEF2F2;
+    border-color: #FECACA;
+}
+
+.btn-blue {
+    background: var(--bosch-blue);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-blue:hover {
+    background: #00639B;
+}

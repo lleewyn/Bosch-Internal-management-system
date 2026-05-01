@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản cá nhân | Bosch HR Management</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="brand-name">BOSCH</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fa-solid fa-chart-pie"></i>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Quản lý nhân sự
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Quản lý ngân sách
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="account.html" style="text-decoration: none; color: inherit;">
+                <div class="user-snippet">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Avatar" class="user-avatar-sm">
+                    <div class="user-info-sm">
+                        <h4>John Doe</h4>
+                        <p>Quản trị viên hệ thống</p>
+                    </div>
+                </div>
+            </a>
+            <a href="index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout">
+        <header class="dashboard-header">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Tìm kiếm người dùng hoặc chức năng...">
+            </div>
+            <div class="header-actions">
+                <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
+            </div>
+        </header>
+
+        <main class="content-wrapper">
+            <div class="page-title">
+                <h1>Tài khoản cá nhân</h1>
+                <p>Cập nhật thông tin cá nhân và thiết lập bảo mật hệ thống Bosch.</p>
+            </div>
+
+            <!-- Card: Thông tin cá nhân -->
+            <section class="info-card">
+                <div class="profile-section">
+                    <div class="profile-img-container">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Profile" class="user-avatar-lg">
+                        <div class="edit-avatar-badge">
+                            <i class="fa-solid fa-pen"></i>
+                        </div>
+                    </div>
+                    <div class="profile-text">
+                        <h2>John Doe</h2>
+                        <p>Kỹ sư cơ khí</p>
+                        <a href="#" style="color: var(--bosch-blue); font-size: 14px; font-weight: 600; text-decoration: none;">Thay đổi ảnh ></a>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        <div class="input-wrapper">
+                            <input type="text" value="Nguyễn Văn A" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Chức danh</label>
+                        <div class="input-wrapper">
+                            <input type="text" value="Kỹ sư cơ khí" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <div class="input-wrapper">
+                            <input type="text" value="+84 901 234 567">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <div class="input-wrapper" style="position: relative;">
+                            <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #9CA3AF;"></i>
+                            <input type="email" value="van.a.nguyen@bosch.com" readonly style="padding-left: 40px; color: #9CA3AF;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                    <button class="btn-blue">Chỉnh sửa</button>
+                </div>
+            </section>
+
+            <!-- Card: Lịch sử thiết bị -->
+            <section class="info-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Lịch sử thiết bị</h2>
+                        <p style="color: #6B7280; font-size: 14px;">Quản lý các phiên đăng nhập gần đây</p>
+                    </div>
+                    <button class="btn-outline-danger">
+                        Đăng xuất khỏi tất cả các thiết bị khác
+                    </button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Thiết bị</th>
+                            <th>Địa chỉ IP</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="fa-solid fa-laptop" style="margin-right: 16px; color: #9CA3AF;"></i> MacBook Pro 16"</td>
+                            <td>192.168.1.15</td>
+                            <td>Hiện tại</td>
+                            <td><span class="status-active"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-mobile-screen" style="margin-right: 16px; color: #9CA3AF;"></i> iPhone 14 Pro</td>
+                            <td>192.168.1.22</td>
+                            <td>2 giờ trước</td>
+                            <td style="color: #9CA3AF; font-size: 12px; font-weight: 700;">ĐÃ ĐĂNG XUẤT</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-desktop" style="margin-right: 16px; color: #9CA3AF;"></i> Workstation-B02</td>
+                            <td>10.20.44.102</td>
+                            <td>Hôm qua, 09:15</td>
+                            <td style="color: #9CA3AF; font-size: 12px; font-weight: 700;">ĐÃ ĐĂNG XUẤT</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: #9CA3AF; font-size: 13px;">
+                    <span>Hiển thị 1-3 của 12 phiên hoạt động</span>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <i class="fa-solid fa-chevron-left" style="cursor: pointer;"></i>
+                        <span style="background: #F3F4F6; color: black; padding: 6px 12px; border-radius: 6px; font-weight: 700;">1</span>
+                        <i class="fa-solid fa-chevron-right" style="cursor: pointer;"></i>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
