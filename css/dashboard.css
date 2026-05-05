@@ -9,10 +9,14 @@
 }
 
 body {
-    background-color: #FFFFFF; /* Đổi sang màu trắng tinh */
+    background-color: #FFFFFF;
     font-family: 'Inter', sans-serif;
     color: var(--text-main);
     display: flex;
+}
+
+input, button, select, textarea {
+    font-family: 'Inter', sans-serif;
 }
 
 /* SIDEBAR */
@@ -324,12 +328,165 @@ body {
     border: none;
     padding: 12px 28px;
     border-radius: 8px;
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 15px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .btn-blue:hover {
     background: #00639B;
+}
+/* MODAL */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    display: none; /* Ẩn mặc định */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #FFFFFF;
+    width: 448px;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 32px;
+    border-bottom: 1px solid #F3F4F6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #374151;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.close-modal {
+    font-size: 18px;
+    color: #9CA3AF;
+    cursor: pointer;
+    transition: color 0.2s;
+    font-weight: 300;
+}
+
+.close-modal:hover {
+    color: var(--text-main);
+}
+
+.modal-body {
+    padding: 24px 32px 32px 32px;
+}
+
+.modal-footer {
+    padding: 0 32px 32px 32px;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: flex-end;
+    gap: 24px;
+    align-items: center;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: none;
+    color: #5F3F3A;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 10px 16px;
+}
+
+.btn-ghost:hover {
+    color: #111827;
+}
+
+.modal-form-group {
+    margin-bottom: 24px;
+}
+
+.modal-form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: #5F3F3A; /* Màu nâu đậm theo Figma */
+    margin-bottom: 10px;
+    line-height: 24px;
+    letter-spacing: 0;
+}
+
+.modal-input-wrapper {
+    position: relative;
+}
+
+.modal-input-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 14px;
+}
+
+.modal-input-wrapper input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1F2937;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-input-wrapper input:focus {
+    border-color: var(--bosch-blue);
+    box-shadow: 0 0 0 4px rgba(0, 123, 192, 0.1);
+}
+
+.modal-input-wrapper i + input {
+    padding-left: 48px;
+}
+
+.modal-input-wrapper i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #714B4B;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.modal-input-wrapper input[readonly] {
+    background: #F9FAFB;
+    color: #9CA3AF;
+    border-color: #E5E7EB;
+}
+
+.input-hint {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: 8px;
+    font-weight: 400;
 }

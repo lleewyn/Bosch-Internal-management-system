@@ -107,7 +107,7 @@
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-                    <button class="btn-blue">Chỉnh sửa</button>
+                    <button class="btn-blue" id="editProfileBtn">Chỉnh sửa</button>
                 </div>
             </section>
 
@@ -165,5 +165,76 @@
             </section>
         </main>
     </div>
+    <!-- MODAL EDIT PROFILE -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Chỉnh sửa thông tin cá nhân</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeModal"></i>
+            </div>
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label>Họ và tên</label>
+                    <div class="modal-input-wrapper">
+                        <input type="text" value="Nguyen Van A">
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Chức danh</label>
+                    <div class="modal-input-wrapper">
+                        <input type="text" value="Kỹ sư cơ khí">
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Số điện thoại</label>
+                    <div class="modal-input-wrapper">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="text" value="+84 987 654 321">
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Email</label>
+                    <div class="modal-input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="email" value="nguyenvana@corporate.com" readonly>
+                    </div>
+                    <p class="input-hint">Email không thể thay đổi để đảm bảo bảo mật hệ thống.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-ghost" id="cancelBtn">Hủy</button>
+                <button class="btn-blue" id="saveBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modalOverlay = document.getElementById('modalOverlay');
+        const editBtn = document.getElementById('editProfileBtn');
+        const closeBtn = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        // Mở modal
+        editBtn.addEventListener('click', () => {
+            modalOverlay.classList.add('active');
+        });
+
+        // Đóng modal
+        const closeModal = () => {
+            modalOverlay.classList.remove('active');
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        saveBtn.addEventListener('click', closeModal);
+
+        // Đóng khi click ngoài modal
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
