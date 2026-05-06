@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 260px;
-    --header-height: 72px;
+    --header-height: 56px; /* Đã giảm từ 72px xuống 56px */
     --bg-light: #F9FAFB;
     --border-ui: #EDF0F2;
     --text-main: #1C1F22;

@@ -36,7 +36,7 @@
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Avatar" class="user-avatar-sm">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
                         <h4 id="sidebarName">Đang tải...</h4>
                         <p id="sidebarPosition">Đang tải...</p>
@@ -68,15 +68,15 @@
             <section class="info-card">
                 <div class="profile-section">
                     <div class="profile-img-container">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Profile" class="user-avatar-lg">
-                        <div class="edit-avatar-badge">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="Profile" class="user-avatar-lg" id="profileAvatar">
+                        <div class="edit-avatar-badge" id="changeAvatarBadgeBtn" style="cursor: pointer;">
                             <i class="fa-solid fa-pen"></i>
                         </div>
                     </div>
                     <div class="profile-text">
                         <h2 id="profileName">Đang tải...</h2>
                         <p id="profilePosition">Đang tải...</p>
-                        <a href="#" style="color: var(--bosch-blue); font-size: 14px; font-weight: 600; text-decoration: none;">Thay đổi ảnh ></a>
+                        <a href="#" id="changeAvatarTextBtn" style="color: var(--bosch-blue); font-size: 14px; font-weight: 600; text-decoration: none;">Thay đổi ảnh ></a>
                     </div>
                 </div>
 
@@ -213,6 +213,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Input ẩn để chọn file ảnh -->
+    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
 
     <script>
         const modalOverlay = document.getElementById('modalOverlay');
