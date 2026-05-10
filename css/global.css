@@ -1,12 +1,12 @@
 :root {
-    --primary-color: #ED0007; /* Bosch Red chuẩn */
+    --primary-color: #BC0004; /* Bosch Red chuẩn */
     --primary-hover: #C50006;
     --text-main: #1C1F22;
     --text-muted: #6B7280; /* Màu chuẩn #6B7280 từ Figma */
     --bg-body: #F9FAFB;
     --bg-card: #FFFFFF;
     --border-color: #E5E7EB;
-    --input-focus: #ED0007;
+    --input-focus: #BC0004;
     --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --radius: 8px;
     --font-family: 'Inter', sans-serif;

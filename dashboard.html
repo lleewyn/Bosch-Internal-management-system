@@ -6,19 +6,21 @@
     <title>Dashboard | Bosch HR Management</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <span class="brand-name">BOSCH</span>
+            <div class="logo-wrapper">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Bosch-logo.svg" alt="Bosch Logo" class="brand-img">
+            </div>
         </div>
         
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item active">
-                <i class="fa-solid fa-chart-line"></i>
+                <i class="fa-solid fa-chart-pie"></i>
                 Dashboard
             </a>
             <a href="#" class="nav-item">
@@ -29,15 +31,19 @@
                 <i class="fa-solid fa-wallet"></i>
                 Quản lý ngân sách
             </a>
+            <a href="activity-log.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Nhật ký hoạt động
+            </a>
         </nav>
 
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=random" alt="Avatar" class="user-avatar-sm">
+                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bc0&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
-                        <h4>John Doe</h4>
-                        <p>Quản trị viên hệ thống</p>
+                        <h4 id="sidebarName">John Doe</h4>
+                        <p id="sidebarPosition">Quản trị viên hệ thống</p>
                     </div>
                 </div>
             </a>
@@ -49,24 +55,776 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="main-layout">
-        <header class="dashboard-header">
-            <div class="header-actions">
-                <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
+    <div class="main-layout" style="padding-top: 8px;">
+        <div class="dashboard-top-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 48px 8px 48px;">
+            <div class="tabs-group" style="margin-bottom: 0;">
+                <button class="tab-item active" data-tab="revenue">Doanh thu</button>
+                <button class="tab-item" data-tab="hr">Nhân sự</button>
+                <button class="tab-item" data-tab="projects">Dự án</button>
             </div>
-        </header>
+            
+            <div class="dashboard-top-actions" style="display: flex; gap: 16px;">
+                <button class="btn-report-auto">
+                    <i class="fa-regular fa-clock"></i>
+                    Gửi báo cáo tự động
+                </button>
+                <button class="btn-export">
+                    <i class="fa-solid fa-download"></i>
+                    Xuất báo cáo
+                </button>
+            </div>
+        </div>
 
-        <main class="content-wrapper">
-            <div class="page-title">
-                <h1>Chào mừng trở lại, John!</h1>
-                <p>Hệ thống quản lý nhân sự Bosch đang sẵn sàng.</p>
+        <div class="dashboard-filters-row" style="display: flex; justify-content: flex-end; padding: 0 48px 32px 48px;">
+            <div class="date-filters">
+                <div class="period-toggle">
+                    <button class="period-btn active">Tháng</button>
+                    <button class="period-btn">Quý</button>
+                    <button class="period-btn">Năm</button>
+                </div>
+                <div class="date-picker-custom">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>01/01/2025 - 31/12/2025</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <main class="content-wrapper" style="padding-top: 0;">
+
+            <!-- REVENUE VIEW (Default) -->
+            <div id="revenueView">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>TỔNG DOANH THU</p>
+                                <h3>5.2B <span>VND</span></h3>
+                            </div>
+                            <div class="stat-icon revenue">
+                                <i class="fa-solid fa-money-bill-trend-up"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-up"><i class="fa-solid fa-chart-line"></i> +8.4% so với tháng trước</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>TĂNG TRƯỞNG</p>
+                                <h3>+12.5%</h3>
+                            </div>
+                            <div class="stat-icon growth">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-up">↑ Vượt chỉ tiêu (10%)</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>DỰ ÁN HOẠT ĐỘNG</p>
+                                <h3>42</h3>
+                            </div>
+                            <div class="stat-icon projects">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-neutral">⊙ 92% chỉ số ổn định</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>HIỆU SUẤT</p>
+                                <h3>94.8%</h3>
+                            </div>
+                            <div class="stat-icon performance">
+                                <i class="fa-solid fa-gauge-high"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-down">! -0.2% biến động</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-row">
+                    <!-- Left: Revenue Chart -->
+                    <div class="chart-container main-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h4>Doanh thu theo thời gian</h4>
+                                <p>Phân tích dòng tiền định kỳ năm 2024</p>
+                            </div>
+                            <div class="chart-actions">
+                                <i class="fa-solid fa-download"></i>
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div class="mock-area-chart">
+                                <div class="step-bar" style="height: 30%; width: 10%;"><span>T1</span></div>
+                                <div class="step-bar" style="height: 45%; width: 10%;"><span>T2</span></div>
+                                <div class="step-bar" style="height: 55%; width: 10%;"><span>T3</span></div>
+                                <div class="step-bar" style="height: 70%; width: 10%;"><span>T4</span></div>
+                                <div class="step-bar" style="height: 75%; width: 10%;"><span>T5</span></div>
+                                <div class="step-bar" style="height: 85%; width: 10%;"><span>T6</span></div>
+                                <div class="step-bar" style="height: 85%; width: 10%;"><span>T7</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Distribution -->
+                    <div class="chart-container side-panel">
+                        <div class="panel-header">
+                            <h4>Phân bổ</h4>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active">Dự án</button>
+                                <button class="toggle-btn">Dịch vụ</button>
+                            </div>
+                        </div>
+                        <p class="panel-desc">Các đơn vị đóng góp doanh thu hàng đầu</p>
+                        
+                        <div class="distribution-list">
+                            <div class="dist-item">
+                                <div class="dist-info">
+                                    <div class="dist-name-wrapper">
+                                        <div class="color-indicator" style="background: #B90202;"></div>
+                                        <span>Industrial AI Core</span>
+                                    </div>
+                                    <span class="dist-val">1.8B VND</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-info">
+                                    <div class="dist-name-wrapper">
+                                        <div class="color-indicator" style="background: #3B82F6;"></div>
+                                        <span>Smart Logistics</span>
+                                    </div>
+                                    <span class="dist-val">1.2B VND</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-info">
+                                    <div class="dist-name-wrapper">
+                                        <div class="color-indicator" style="background: #60A5FA;"></div>
+                                        <span>Edge Computing Node</span>
+                                    </div>
+                                    <span class="dist-val">0.9B VND</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-info">
+                                    <div class="dist-name-wrapper">
+                                        <div class="color-indicator" style="background: #93C5FD;"></div>
+                                        <span>Automated Testing</span>
+                                    </div>
+                                    <span class="dist-val">0.8B VND</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Nội dung trống để sau này vẽ Dashboard -->
-            <div style="border: 2px dashed #E5E7EB; border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; color: #9CA3AF;">
-                Nội dung Dashboard sẽ được cập nhật tại đây...
+            <!-- HR VIEW (Hidden by default) -->
+            <div id="hrView" style="display: none;">
+                <div class="stats-grid hr-stats">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>Tổng số nhân viên</p>
+                                <h3 class="hr-main-num">1,248</h3>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4% so với tháng trước</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>Tỷ lệ hoàn thành training</p>
+                                <h3 class="hr-main-num">88%</h3>
+                            </div>
+                        </div>
+                        <div class="progress-container-inline">
+                            <div class="progress-bar-lg">
+                                <div class="progress-fill-blue" style="width: 88%;"></div>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-neutral">Mục tiêu quý: 90%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>Tỷ lệ nhân viên chưa có dự án</p>
+                                <h3 class="hr-main-num danger-text">5%</h3>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-down"><i class="fa-solid fa-triangle-exclamation"></i> Cần tối ưu 62 nhân sự</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-row hr-row-main">
+                    <!-- Left: Heatmap -->
+                    <div class="chart-container flex-2">
+                        <div class="chart-header">
+                            <div>
+                                <h4>Mức độ tham gia dự án (%)</h4>
+                                <p>Theo dõi mật độ công việc trong 12 tháng qua</p>
+                            </div>
+                            <button class="btn-outline-sm">
+                                <i class="fa-solid fa-user-plus"></i> Chọn nhân sự
+                            </button>
+                        </div>
+                        <div class="heatmap-container">
+                            <div class="heatmap-y-labels">
+                                <span>MON</span>
+                                <span>WED</span>
+                                <span>FRI</span>
+                            </div>
+                            <div class="heatmap-grid" id="heatmapGrid">
+                                <!-- JS will populate this -->
+                            </div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <span>Less</span>
+                            <div class="legend-box level-0"></div>
+                            <div class="legend-box level-1"></div>
+                            <div class="legend-box level-2"></div>
+                            <div class="legend-box level-3"></div>
+                            <div class="legend-box level-4"></div>
+                            <span>More</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: HR Roles -->
+                    <div class="chart-container flex-1">
+                        <div class="panel-header">
+                            <h4>Số nhân sự</h4>
+                        </div>
+                        <div class="filter-pills">
+                            <span class="pill active">Vị trí</span>
+                            <span class="pill">Mảng dịch vụ</span>
+                            <span class="pill">Kỹ năng</span>
+                            <span class="pill">Dự án</span>
+                        </div>
+                        <div class="hr-role-distribution">
+                            <div class="role-stat-item">
+                                <span class="role-count">420</span>
+                                <span class="role-label">Dev</span>
+                            </div>
+                            <div class="role-stat-item">
+                                <span class="role-count">215</span>
+                                <span class="role-label">Tester</span>
+                            </div>
+                            <div class="role-stat-item">
+                                <span class="role-count">310</span>
+                                <span class="role-label">Design</span>
+                            </div>
+                            <div class="role-stat-item">
+                                <span class="role-count">180</span>
+                                <span class="role-label">PM</span>
+                            </div>
+                            <div class="role-stat-item">
+                                <span class="role-count">123</span>
+                                <span class="role-label">BA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Joiners Section -->
+                <div class="new-joiners-section mt-32">
+                    <div class="section-header">
+                        <h4>Nhân sự mới gia nhập</h4>
+                        <a href="#" class="view-all-link">Xem tất cả <i class="fa-solid fa-chevron-right"></i></a>
+                    </div>
+                    <div class="joiners-grid">
+                        <div class="joiner-card">
+                            <img src="https://i.pravatar.cc/150?u=1" alt="User">
+                            <div class="joiner-info">
+                                <h5>Nguyễn Văn An</h5>
+                                <p>Senior DevOps</p>
+                            </div>
+                        </div>
+                        <div class="joiner-card">
+                            <img src="https://i.pravatar.cc/150?u=2" alt="User">
+                            <div class="joiner-info">
+                                <h5>Lê Thị Bình</h5>
+                                <p>UI/UX Designer</p>
+                            </div>
+                        </div>
+                        <div class="joiner-card">
+                            <img src="https://i.pravatar.cc/150?u=3" alt="User">
+                            <div class="joiner-info">
+                                <h5>Trần Hoàng Long</h5>
+                                <p>Backend Engineer</p>
+                            </div>
+                        </div>
+                        <div class="joiner-card">
+                            <img src="https://i.pravatar.cc/150?u=4" alt="User">
+                            <div class="joiner-info">
+                                <h5>Phạm Thảo</h5>
+                                <p>Business Analyst</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROJECTS VIEW (Hidden by default) -->
+            <div id="projectsView" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>TỔNG SỐ DỰ ÁN</p>
+                                <h3>42</h3>
+                            </div>
+                            <div class="stat-icon revenue">
+                                <i class="fa-solid fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +5%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>TỶ LỆ HOÀN THÀNH</p>
+                                <h3>76%</h3>
+                            </div>
+                            <div class="stat-icon growth">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>DỰ ÁN TRỄ HẠN</p>
+                                <h3 class="danger-text">08</h3>
+                            </div>
+                            <div class="stat-icon projects">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-down"><i class="fa-solid fa-arrow-trend-down"></i> -12%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">
+                                <p>NGUỒN LỰC PHÂN BỔ</p>
+                                <h3>92%</h3>
+                            </div>
+                            <div class="stat-icon performance">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                        </div>
+                        <div class="stat-footer">
+                            <span class="trend-neutral">Ổn định</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-row">
+                    <!-- Left: Project Status Donut -->
+                    <div class="chart-container flex-1">
+                        <div class="chart-header">
+                            <h4>Trạng thái dự án</h4>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="donut-chart-wrapper">
+                            <div class="donut-chart">
+                                <div class="donut-inner">
+                                    <span class="donut-num">42</span>
+                                    <span class="donut-label">Dự án</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="donut-legend">
+                            <div class="legend-item">
+                                <span class="dot" style="background: #FBBF24;"></span>
+                                <span>Đang thực hiện</span>
+                                <span class="val">17</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="dot" style="background: #10B981;"></span>
+                                <span>Đã hoàn thành</span>
+                                <span class="val">15</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="dot" style="background: #F87171;"></span>
+                                <span>Tạm dừng</span>
+                                <span class="val">6</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="dot" style="background: #BC0004;"></span>
+                                <span>Trễ hạn</span>
+                                <span class="val">4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Delivery Progress Bar Chart -->
+                    <div class="chart-container flex-2">
+                        <div class="chart-header">
+                            <div>
+                                <h4>Biểu đồ tiến độ bàn giao</h4>
+                                <p>Hiệu suất vận hành theo chu kỳ</p>
+                            </div>
+                            <div class="toggle-group-sm">
+                                <button class="toggle-btn-sm">Theo tuần</button>
+                                <button class="toggle-btn-sm active">Theo tháng</button>
+                            </div>
+                        </div>
+                        <div class="delivery-chart">
+                            <div class="bar-item">
+                                <div class="bar-fill" style="height: 60%;"></div>
+                                <span>T5</span>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-fill" style="height: 45%;"></div>
+                                <span>T6</span>
+                            </div>
+                            <div class="bar-item active">
+                                <div class="bar-fill" style="height: 85%;">
+                                    <div class="tooltip-val">36</div>
+                                </div>
+                                <span class="blue-text">T7</span>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-fill" style="height: 65%;"></div>
+                                <span>T8</span>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-fill" style="height: 50%;"></div>
+                                <span>T9</span>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-fill" style="height: 80%;"></div>
+                                <span>T10</span>
+                            </div>
+                        </div>
+                        <div class="chart-bottom-info">
+                            <div class="info-stat">
+                                <span class="label">SẢN LƯỢNG CAO NHẤT</span>
+                                <span class="val">42 Đơn vị</span>
+                            </div>
+                            <div class="info-stat border-l">
+                                <span class="label">HIỆU SUẤT</span>
+                                <span class="val blue-text">98.4%</span>
+                            </div>
+                            <a href="#" class="details-link">Chi tiết vận hành <i class="fa-solid fa-chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Projects Table -->
+                <div class="table-container-projects mt-32">
+                    <div class="table-header">
+                        <h4>Danh sách dự án trọng điểm</h4>
+                        <button class="btn-view-all">Xem tất cả</button>
+                    </div>
+                    <table class="project-table">
+                        <thead>
+                            <tr>
+                                <th>Mã dự án</th>
+                                <th>Tên dự án</th>
+                                <th>Phụ trách</th>
+                                <th>Tiến độ</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bold">BOS-2023-001</td>
+                                <td>Precision Sensor Module - V2</td>
+                                <td>
+                                    <div class="assignee">
+                                        <div class="avatar-circle">TN</div>
+                                        <span>Tùng Nguyễn</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress-cell">
+                                        <div class="progress-dot red"></div>
+                                        <span>80%</span>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge active">HOẠT ĐỘNG</span></td>
+                                <td><i class="fa-solid fa-pen action-icon"></i></td>
+                            </tr>
+                            <tr>
+                                <td class="bold">BOS-2023-002</td>
+                                <td>Automated QC Gateway</td>
+                                <td>
+                                    <div class="assignee">
+                                        <div class="avatar-circle pink">HL</div>
+                                        <span>Hương Ly</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress-cell">
+                                        <div class="progress-dot red"></div>
+                                        <span>33%</span>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge warning">TRỄ HẠN</span></td>
+                                <td><i class="fa-solid fa-pen action-icon"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="fab-add"><i class="fa-solid fa-plus"></i></button>
+                </div>
             </div>
         </main>
     </div>
+
+    <!-- MODAL: GỬI BÁO CÁO TỰ ĐỘNG -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-content report-modal">
+            <div class="modal-header">
+                <h3>Gửi báo cáo tự động</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeReportModal"></i>
+            </div>
+            <div class="modal-body">
+                <div class="form-group-row">
+                    <div class="modal-form-group flex-1">
+                        <label>Chu kỳ</label>
+                        <div class="modal-input-wrapper">
+                            <select class="modal-select">
+                                <option>Tháng</option>
+                                <option>Quý</option>
+                                <option>Năm</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group-row gap-16">
+                    <div class="modal-form-group flex-1">
+                        <label>Ngày gửi (hàng tháng)</label>
+                        <div class="modal-input-wrapper">
+                            <input type="text" placeholder="Vd: 05">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </div>
+                    </div>
+                    <div class="modal-form-group flex-1">
+                        <label>Giờ gửi</label>
+                        <div class="modal-input-wrapper">
+                            <input type="text" placeholder="--:-- --">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-form-group">
+                    <label>Danh sách người nhận (Email)</label>
+                    <div class="email-tag-container">
+                        <div class="email-tag">manager@bosch.com <i class="fa-solid fa-xmark"></i></div>
+                        <div class="email-tag">quality.lead@bosch.com <i class="fa-solid fa-xmark"></i></div>
+                        <input type="text" placeholder="Thêm email người nhận..." class="tag-input">
+                    </div>
+                </div>
+
+                <div class="modal-form-group">
+                    <label>Nội dung báo cáo (Tiêu đề & Ghi chú)</label>
+                    <textarea class="modal-textarea" placeholder="Nhập lời nhắn hoặc ghi chú kèm theo báo cáo..."></textarea>
+                </div>
+
+                <div class="form-footer-options">
+                    <div class="file-format-group">
+                        <label>Định dạng file</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="format" checked> <span class="radio-custom"></span> PDF</label>
+                            <label class="radio-label"><input type="radio" name="format"> <span class="radio-custom"></span> Excel (.xlsx)</label>
+                        </div>
+                    </div>
+                    <div class="activation-toggle">
+                        <span>Tự động kích hoạt</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer no-border">
+                <button class="btn-cancel" id="cancelReportBtn">Hủy</button>
+                <button class="btn-save-settings">Lưu thiết lập</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: XUẤT BÁO CÁO -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal-content export-modal-v2">
+            <div class="modal-header">
+                <h3>Xuất báo cáo</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeExportModal"></i>
+            </div>
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label>Tên báo cáo</label>
+                    <div class="modal-input-wrapper">
+                        <input type="text" placeholder="Báo cáo_Du_An_Q4_2024" class="modal-input-text">
+                    </div>
+                </div>
+
+                <div class="modal-form-group">
+                    <label>Chọn định dạng xuất file</label>
+                    <div class="export-format-grid">
+                        <div class="format-card active" data-format="pdf">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </div>
+                        <div class="format-card" data-format="excel">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-note-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p>Báo cáo sẽ bao gồm tất cả các thông số kỹ thuật, biểu đồ hiệu suất và dữ liệu nhật ký của Quý 4 năm 2024.</p>
+                </div>
+            </div>
+            <div class="modal-footer no-border">
+                <button class="btn-cancel" id="cancelExportBtn">Hủy</button>
+                <button class="btn-confirm-export">Xác nhận xuất báo cáo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                const name = user.full_name || user.Username || "John Doe";
+                document.getElementById('sidebarName').textContent = name;
+                if (user.avatar) {
+                    document.getElementById('sidebarAvatar').src = user.avatar;
+                }
+            }
+
+            // MODAL LOGIC (Multi-modal support)
+            const reportModal = document.getElementById('reportModal');
+            const exportModal = document.getElementById('exportModal');
+            
+            const openReportBtn = document.querySelector('.btn-report-auto');
+            const openExportBtn = document.querySelector('.btn-export');
+            
+            const closeReportBtn = document.getElementById('closeReportModal');
+            const cancelReportBtn = document.getElementById('cancelReportBtn');
+            
+            const closeExportBtn = document.getElementById('closeExportModal');
+            const cancelExportBtn = document.getElementById('cancelExportBtn');
+
+            const openMdl = (mdl) => { mdl.style.display = 'flex'; };
+            const closeMdl = (mdl) => { mdl.style.display = 'none'; };
+
+            if (openReportBtn) openReportBtn.addEventListener('click', () => openMdl(reportModal));
+            if (openExportBtn) openExportBtn.addEventListener('click', () => openMdl(exportModal));
+
+            if (closeReportBtn) closeReportBtn.addEventListener('click', () => closeMdl(reportModal));
+            if (cancelReportBtn) cancelReportBtn.addEventListener('click', () => closeMdl(reportModal));
+
+            if (closeExportBtn) closeExportBtn.addEventListener('click', () => closeMdl(exportModal));
+            if (cancelExportBtn) cancelExportBtn.addEventListener('click', () => closeMdl(exportModal));
+
+            // FORMAT CARDS IN EXPORT MODAL
+            const formatCards = document.querySelectorAll('.format-card');
+            formatCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    formatCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                });
+            });
+
+            // TAB SWITCHING
+            const tabButtons = document.querySelectorAll('.tab-item');
+            const revenueView = document.getElementById('revenueView');
+            const hrView = document.getElementById('hrView');
+            const projectsView = document.getElementById('projectsView');
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const tab = btn.getAttribute('data-tab');
+                    revenueView.style.display = 'none';
+                    hrView.style.display = 'none';
+                    projectsView.style.display = 'none';
+
+                    if (tab === 'hr') {
+                        hrView.style.display = 'block';
+                        renderHeatmap();
+                    } else if (tab === 'revenue') {
+                        revenueView.style.display = 'block';
+                    } else if (tab === 'projects') {
+                        projectsView.style.display = 'block';
+                    }
+                });
+            });
+
+            // HEATMAP RENDERING
+            function renderHeatmap() {
+                const grid = document.getElementById('heatmapGrid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                
+                // Render 52 weeks * 3 rows (simulated)
+                for (let i = 0; i < 52 * 3; i++) {
+                    const level = Math.floor(Math.random() * 5);
+                    const cell = document.createElement('div');
+                    cell.className = `heatmap-cell level-${level}`;
+                    grid.appendChild(cell);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

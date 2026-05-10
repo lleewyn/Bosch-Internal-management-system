@@ -1,7 +1,7 @@
 /* Style cho thông báo lỗi (Alert) */
 .alert-error {
     background-color: #FFF1F2;
-    border-left: 4px solid #ED0007;
+    border-left: 4px solid #BC0004;
     padding: 12px 16px;
     margin-bottom: 24px;
     display: none; /* Ẩn mặc định */
@@ -11,13 +11,13 @@
 }
 
 .alert-error i {
-    color: #ED0007;
+    color: #BC0004;
     margin-top: 2px;
 }
 
 .alert-error p {
     font-size: 13px;
-    color: #ED0007;
+    color: #BC0004;
     line-height: 1.5;
     font-weight: 500;
 }

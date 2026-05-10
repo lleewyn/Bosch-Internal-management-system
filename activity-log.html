@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật ký hoạt động | Bosch HR Management</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ACTIVITY LOG SPECIFIC STYLES (Refined) */
+        .log-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #F3F4F6;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th {
+            text-align: left;
+            padding: 16px 20px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #9CA3AF;
+            background: #F9FAFB;
+            border-bottom: 1px solid #F3F4F6;
+            text-transform: uppercase;
+        }
+
+        .log-table td {
+            padding: 24px 20px;
+            vertical-align: top;
+            border-bottom: 1px solid #F3F4F6;
+            font-size: 13px;
+            color: #4B5563;
+        }
+
+        .time-cell .date {
+            font-weight: 800;
+            color: #111827;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .time-cell .sub {
+            color: #9CA3AF;
+            font-size: 11px;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar-text {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4B5563;
+        }
+
+        .user-info-text .name {
+            font-weight: 800;
+            color: #111827;
+            display: block;
+        }
+
+        .user-info-text .id {
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+
+        .cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .cat-salary { background: #EFF6FF; color: #2563EB; }
+        .cat-denied { background: #FEF2F2; color: #EF4444; }
+        .cat-login { background: #ECFDF5; color: #10B981; }
+        .cat-data { background: #FFF7ED; color: #F97316; }
+
+        .action-desc {
+            max-width: 450px;
+            line-height: 1.6;
+        }
+
+        .action-desc .highlight {
+            font-weight: 700;
+            color: #10B981;
+        }
+
+        .tech-info {
+            font-size: 11px;
+            color: #9CA3AF;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tech-info span b {
+            color: #4B5563;
+            margin-right: 4px;
+        }
+
+        .log-filter-bar {
+            display: flex;
+            gap: 16px;
+            background: #FFFFFF;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #F3F4F6;
+            margin-top: 32px;
+            align-items: center;
+        }
+
+        .log-search {
+            flex: 1;
+            position: relative;
+        }
+
+        .log-search input {
+            width: 100%;
+            height: 44px;
+            padding-left: 44px;
+            background: #F9FAFB;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .log-search i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+        }
+
+        .log-dropdown {
+            height: 44px;
+            padding: 0 16px;
+            background: #F9FAFB;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4B5563;
+            cursor: pointer;
+        }
+
+        .btn-clear-log {
+            height: 44px;
+            padding: 0 20px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4B5563;
+            cursor: pointer;
+        }
+
+        .log-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+        }
+
+        .pagination-pages {
+            display: flex;
+            gap: 8px;
+        }
+
+        .p-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4B5563;
+            cursor: pointer;
+        }
+
+        .p-btn.active {
+            background: #BC0004;
+            color: white;
+            border-color: #BC0004;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-wrapper">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Bosch-logo.svg" alt="Bosch Logo" class="brand-img">
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fa-solid fa-chart-pie"></i>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Quản lý nhân sự
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Quản lý ngân sách
+            </a>
+            <a href="activity-log.html" class="nav-item active">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Nhật ký hoạt động
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="account.html" style="text-decoration: none; color: inherit;">
+                <div class="user-snippet">
+                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bc0&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <div class="user-info-sm">
+                        <h4 id="sidebarName">John Doe</h4>
+                        <p id="sidebarPosition">Quản trị viên hệ thống</p>
+                    </div>
+                </div>
+            </a>
+            <a href="index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout" style="padding-top: 0;">
+        <main class="content-wrapper">
+            <div class="view-title-area" style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="title-text">
+                    <h1 style="font-size: 32px; font-weight: 800; color: #111827; margin-bottom: 8px;">Nhật ký hoạt động</h1>
+                    <p style="font-size: 14px; color: #6B7280;">Bản ghi chi tiết về tất cả các tương tác hệ thống và thay đổi dữ liệu.</p>
+                </div>
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
+                </div>
+            </div>
+
+            <!-- Top Stats -->
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">
+                            <p>TỔNG HOẠT ĐỘNG HÔM NAY</p>
+                            <h3>1,284</h3>
+                        </div>
+                        <div class="stat-icon performance">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12% so với hôm qua</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">
+                            <p>CẢNH BÁO BẢO MẬT</p>
+                            <h3 class="danger-text">03</h3>
+                        </div>
+                        <div class="stat-icon revenue">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="status-badge warning">Yêu cầu hành động</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">
+                            <p>PHIÊN HOẠT ĐỘNG</p>
+                            <h3>42</h3>
+                        </div>
+                        <div class="stat-icon projects">
+                            <i class="fa-solid fa-user-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="status-badge">Đang hoạt động</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="log-filter-bar">
+                <div class="log-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Tìm kiếm Mã nhân viên, Tên hoặc từ khóa...">
+                </div>
+                <div class="log-dropdown">
+                    <span>Khoảng thời gian</span>
+                    <i class="fa-regular fa-calendar"></i>
+                </div>
+                <div class="log-dropdown">
+                    <span>Loại hành động</span>
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <button class="btn-clear-log">
+                    <i class="fa-solid fa-rotate-right"></i> Xóa bộ lọc
+                </button>
+            </div>
+
+            <!-- Log Table -->
+            <div class="log-table-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Người thực hiện</th>
+                            <th>Danh mục</th>
+                            <th>Mô tả hành động</th>
+                            <th>Thông tin kỹ thuật</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="time-cell">
+                                <span class="date">24 thg 10, 2023</span>
+                                <span class="sub">14:32:15 GMT+7</span>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-text">NV</div>
+                                    <div class="user-info-text">
+                                        <span class="name">Nguyễn Văn An</span>
+                                        <span class="id">ID: BOS-9921</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cat-badge cat-salary">
+                                    <i class="fa-solid fa-money-bill-transfer"></i> Sửa lương bổng
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-desc">
+                                    Nguyễn Văn An đã sửa lương nhân viên Trần Thị B từ 25.000.000 thành <span class="highlight">27.500.000 VND</span>. Hiệu lực từ kỳ lương tháng 11.
+                                </div>
+                            </td>
+                            <td>
+                                <div class="tech-info">
+                                    <span><b>IP:</b> 192.168.1.45</span>
+                                    <span><b>Thiết bị:</b> Chrome v118 / macOS</span>
+                                    <span><i class="fa-solid fa-location-dot"></i> TP. Hồ Chí Minh, VN</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="time-cell">
+                                <span class="date">24 thg 10, 2023</span>
+                                <span class="sub">12:10:04 GMT+7</span>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-text">LT</div>
+                                    <div class="user-info-text">
+                                        <span class="name">Lê Văn T</span>
+                                        <span class="id">ID: BOS-4412</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cat-badge cat-denied">
+                                    <i class="fa-solid fa-lock"></i> Truy cập bị từ chối
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-desc">
+                                    Cố gắng truy cập mô-đun Cài đặt Admin không có quyền hạn hợp lệ. Hệ thống đã tự động khóa phiên làm việc trong 5 phút để bảo mật.
+                                </div>
+                            </td>
+                            <td>
+                                <div class="tech-info">
+                                    <span><b>IP:</b> 10.0.4.112</span>
+                                    <span><b>Thiết bị:</b> Safari / iOS</span>
+                                    <span><i class="fa-solid fa-location-dot"></i> Hà Nội, VN</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="time-cell">
+                                <span class="date">24 thg 10, 2023</span>
+                                <span class="sub">09:00:33 GMT+7</span>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-text">TV</div>
+                                    <div class="user-info-text">
+                                        <span class="name">Trần Văn C</span>
+                                        <span class="id">ID: BOS-1209</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cat-badge cat-login">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập thành công
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-desc">
+                                    Đăng nhập thành công vào hệ thống quản trị nội bộ thông qua SSO của tập đoàn. Thời gian phiên dự kiến 8 tiếng.
+                                </div>
+                            </td>
+                            <td>
+                                <div class="tech-info">
+                                    <span><b>IP:</b> 172.16.254.1</span>
+                                    <span><b>Thiết bị:</b> Firefox / Windows 11</span>
+                                    <span><i class="fa-solid fa-location-dot"></i> Đà Nẵng, VN</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="time-cell">
+                                <span class="date">23 thg 10, 2023</span>
+                                <span class="sub">17:45:10 GMT+7</span>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar-text">PT</div>
+                                    <div class="user-info-text">
+                                        <span class="name">Phạm Thị D</span>
+                                        <span class="id">ID: BOS-7734</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cat-badge cat-data">
+                                    <i class="fa-solid fa-file-pen"></i> Sửa dữ liệu
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-desc">
+                                    Cập nhật thông tin liên hệ khẩn cấp cho nhân viên Hoàng Văn E. Đã đính kèm tài liệu xác nhận PDF.
+                                </div>
+                            </td>
+                            <td>
+                                <div class="tech-info">
+                                    <span><b>IP:</b> 192.168.1.12</span>
+                                    <span><b>Thiết bị:</b> Chrome / macOS</span>
+                                    <span><i class="fa-solid fa-location-dot"></i> Bình Dương, VN</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="log-pagination">
+                <div class="results-count" style="font-size: 12px; color: #9CA3AF;">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</div>
+                <div class="pagination-pages">
+                    <div class="p-btn"><i class="fa-solid fa-chevron-left"></i></div>
+                    <div class="p-btn active">1</div>
+                    <div class="p-btn">2</div>
+                    <div class="p-btn">3</div>
+                    <div class="p-btn"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                const name = user.full_name || user.FullName || user.Username || "John Doe";
+                const role = user.role || "Quản trị viên hệ thống";
+                const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=BC0004&color=fff`;
+                
+                document.getElementById('sidebarName').textContent = name;
+                document.getElementById('sidebarPosition').textContent = role;
+                document.getElementById('sidebarAvatar').src = avatar;
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

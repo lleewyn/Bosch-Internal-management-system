@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     // 1. Kiểm tra trạng thái đăng nhập
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) {
@@ -7,190 +7,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const currentUser = JSON.parse(userStr);
-    const userId = currentUser.UserID || currentUser.user_id;
-    const empId = currentUser.EmployeeID || currentUser.employee_id;
     
-    // 2. Gắn Email
-    const emailStr = currentUser.Email || currentUser.email;
+    // 2. Lấy thông tin từ localStorage
+    const fullName = currentUser.full_name || currentUser.FullName || currentUser.Username || "John Doe";
+    const emailStr = currentUser.Email || currentUser.email || "";
+    const phone = currentUser.phone_number || currentUser.PhoneNumber || "";
+    const role = currentUser.role || "Quản trị viên hệ thống";
+    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=BC0004&color=fff`;
+
+    // 3. Cập nhật giao diện
+    const sidebarName = document.getElementById('sidebarName');
+    const profileName = document.getElementById('profileName');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const sidebarPosition = document.getElementById('sidebarPosition');
+    const profilePosition = document.getElementById('profilePosition');
+    
+    const fullNameInput = document.getElementById('inputFullName');
     const emailInput = document.getElementById('inputEmail');
-    const editEmail = document.getElementById('editEmail');
+    const phoneInput = document.getElementById('inputPhone');
+    const positionInput = document.getElementById('inputPosition');
+
+    if (sidebarName) sidebarName.textContent = fullName;
+    if (profileName) profileName.textContent = fullName;
+    if (sidebarAvatar) sidebarAvatar.src = avatarUrl;
+    if (profileAvatar) profileAvatar.src = avatarUrl;
+    if (sidebarPosition) sidebarPosition.textContent = role;
+    if (profilePosition) profilePosition.textContent = role;
+
+    if (fullNameInput) fullNameInput.value = fullName;
     if (emailInput) emailInput.value = emailStr;
-    if (editEmail) editEmail.value = emailStr;
+    if (phoneInput) phoneInput.value = phone;
+    if (positionInput) positionInput.value = role;
 
-    // 3. Truy vấn bảng Users để lấy Avatar
-    if (userId) {
-        try {
-            const { data: userData } = await supabaseClient
-                .from('users')
-                .select('avatar')
-                .eq('user_id', userId)
-                .single();
-                
-            if (userData && userData.avatar) {
-                const profileAvatar = document.getElementById('profileAvatar');
-                const sidebarAvatar = document.getElementById('sidebarAvatar');
-                if (profileAvatar) profileAvatar.src = userData.avatar;
-                if (sidebarAvatar) sidebarAvatar.src = userData.avatar;
-            }
-        } catch (err) {
-            console.error("Lỗi lấy avatar:", err);
-        }
+    // 4. CẬP NHẬT MODAL CHỈNH SỬA
+    const editFullName = document.getElementById('editFullName');
+    const editPhone = document.getElementById('editPhone');
+    const editPosition = document.getElementById('editPosition');
+
+    if (editFullName) editFullName.value = fullName;
+    if (editPhone) editPhone.value = phone;
+    if (editPosition) editPosition.value = role;
+
+    // 5. XỬ LÝ LƯU THAY ĐỔI (Local Only)
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.onclick = () => {
+            const newName = editFullName.value;
+            const newPhone = editPhone.value;
+            
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = "Đang lưu...";
+            
+            // Cập nhật đối tượng người dùng trong localStorage
+            currentUser.full_name = newName;
+            currentUser.phone_number = newPhone;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                alert("Cập nhật thông tin thành công!");
+                window.location.reload();
+            }, 500);
+        };
     }
 
-    // 4. Truy vấn bảng Employees để lấy thông tin chi tiết
-    if (empId) {
-        try {
-            const { data: empData, error: empError } = await supabaseClient
-                .from('employees')
-                .select('*')
-                .eq('employee_id', empId)
-                .single();
-
-            if (empData) {
-                const fullName = empData.full_name || empData.FullName || "Chưa cập nhật tên";
-                const phone = empData.phone_number || empData.PhoneNumber || "";
-                const positionId = empData.position_id || empData.PositionID;
-
-                // CẬP NHẬT MÀN HÌNH CHÍNH
-                const sidebarName = document.getElementById('sidebarName');
-                const profileName = document.getElementById('profileName');
-                const fullNameInput = document.getElementById('inputFullName');
-                const phoneInput = document.querySelectorAll('.form-grid input[type="text"]')[2];
-                
-                if (sidebarName) sidebarName.textContent = fullName;
-                if (profileName) profileName.textContent = fullName;
-                if (fullNameInput) fullNameInput.value = fullName;
-                if (phoneInput && phone) phoneInput.value = phone;
-
-                // CẬP NHẬT MODAL CHỈNH SỬA
-                const editFullName = document.getElementById('editFullName');
-                const editPhone = document.getElementById('editPhone');
-                if (editFullName) editFullName.value = fullName;
-                if (editPhone) editPhone.value = phone;
-
-                // Lấy Tên Chức danh từ bảng positions
-                let positionName = "Nhân viên";
-                if (positionId) {
-                    const { data: posData } = await supabaseClient
-                        .from('positions')
-                        .select('position_name')
-                        .eq('position_id', positionId)
-                        .single();
-
-                    if (posData) {
-                        positionName = posData.position_name || posData.PositionName || "Nhân viên";
-                    }
-                }
-                
-                const sidebarPos = document.getElementById('sidebarPosition');
-                const profilePos = document.getElementById('profilePosition');
-                const inputPos = document.getElementById('inputPosition');
-                if (sidebarPos) sidebarPos.textContent = positionName;
-                if (profilePos) profilePos.textContent = positionName;
-                if (inputPos) inputPos.value = positionName;
-                
-                const editPos = document.getElementById('editPosition');
-                if (editPos) editPos.value = positionName;
-
-                // XỬ LÝ LƯU THAY ĐỔI
-                const saveBtn = document.getElementById('saveBtn');
-                if (saveBtn) {
-                    saveBtn.addEventListener('click', async (e) => {
-                        const newName = editFullName.value;
-                        const newPhone = editPhone.value;
-                        
-                        const originalText = saveBtn.textContent;
-                        saveBtn.textContent = "Đang lưu...";
-                        
-                        const { error: updateError } = await supabaseClient
-                            .from('employees')
-                            .update({ 
-                                full_name: newName, 
-                                phone_number: newPhone 
-                            })
-                            .eq('employee_id', empId);
-                            
-                        if (updateError) {
-                            console.error("Lỗi cập nhật Supabase:", updateError);
-                            alert("Có lỗi xảy ra khi lưu thay đổi lên máy chủ!");
-                        } else {
-                            if (sidebarName) sidebarName.textContent = newName;
-                            if (profileName) profileName.textContent = newName;
-                            if (fullNameInput) fullNameInput.value = newName;
-                            if (phoneInput) phoneInput.value = newPhone;
-                        }
-                        saveBtn.textContent = originalText;
-                    });
-                }
-
-            } else if (empError) {
-                console.error("Lỗi lấy thông tin NV:", empError);
-            }
-        } catch (err) {
-            console.error("Lỗi hệ thống:", err);
-        }
-    }
-    
-    // 5. XỬ LÝ THAY ĐỔI AVATAR (MỚI)
+    // 6. XỬ LÝ THAY ĐỔI AVATAR
     const avatarUpload = document.getElementById('avatarUpload');
     const textBtn = document.getElementById('changeAvatarTextBtn');
     const badgeBtn = document.getElementById('changeAvatarBadgeBtn');
     
-    [textBtn, badgeBtn].forEach(btn => {
-        if(btn) btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            avatarUpload.click(); // Kích hoạt hộp thoại chọn file
-        });
-    });
+    const handleAvatarClick = (e) => {
+        e.preventDefault();
+        if(avatarUpload) avatarUpload.click();
+    };
+
+    if(textBtn) textBtn.addEventListener('click', handleAvatarClick);
+    if(badgeBtn) badgeBtn.addEventListener('click', handleAvatarClick);
 
     if(avatarUpload) {
-        avatarUpload.addEventListener('change', async (e) => {
+        avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(!file) return;
 
-            // Hiệu ứng loading
-            const oldText = textBtn.textContent;
-            textBtn.textContent = "Đang tải...";
-
-            // Chuyển đổi file ảnh thành chuỗi Base64
             const reader = new FileReader();
-            reader.onload = async (event) => {
+            reader.onload = (event) => {
                 const base64String = event.target.result;
                 
-                // Hiển thị ngay lập tức lên web
-                const profileAvatar = document.getElementById('profileAvatar');
-                const sidebarAvatar = document.getElementById('sidebarAvatar');
+                // Cập nhật hiển thị
                 if(profileAvatar) profileAvatar.src = base64String;
                 if(sidebarAvatar) sidebarAvatar.src = base64String;
 
-                // Cập nhật lưu vào cột avatar của bảng users trên Supabase
-                if(userId) {
-                    const { error } = await supabaseClient
-                        .from('users')
-                        .update({ avatar: base64String })
-                        .eq('user_id', userId);
-                        
-                    if(error) {
-                        console.error("Lỗi cập nhật Avatar:", error);
-                        alert("Không thể lưu ảnh lên máy chủ! Hãy kiểm tra lại kết nối.");
-                    }
-                }
+                // Lưu vào localStorage
+                currentUser.avatar = base64String;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                textBtn.textContent = oldText; // Trả lại chữ ban đầu
+                alert("Thay đổi ảnh đại diện thành công!");
             };
-            
-            // Bắt đầu đọc file ảnh
             reader.readAsDataURL(file);
-        });
-    }
-
-    // 6. Đăng xuất
-    const logoutBtn = document.querySelector('.logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('currentUser'); 
-            window.location.href = 'index.html';    
         });
     }
 });
