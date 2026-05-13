@@ -1917,16 +1917,21 @@ input:checked + .slider:before { transform: translateX(20px); }
     color: #FFFFFF;
 }
 
-/* MODERN DISTRIBUTION LIST */
-.distribution-list {
-    gap: 24px;
-}
 
+/* REFINED DISTRIBUTION LIST */
 .dist-info {
     font-size: 14px;
-    font-weight: 700;
-    color: #111827;
+    font-weight: 600; /* Medium for names */
+    color: #1F2937;
     margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dist-val {
+    font-weight: 800; /* Bold for values as in design */
+    color: #111827;
 }
 
 .progress-bar-modern {
@@ -1935,6 +1940,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     border-radius: 10px;
     width: 100%;
     overflow: hidden;
+    margin-bottom: 4px;
 }
 
 .progress-fill-modern {
