@@ -1968,3 +1968,54 @@ input:checked + .slider:before { transform: translateX(20px); }
     background: #F1F5F9;
     border-radius: 10px;
 }
+
+/* CHART ACTIONS */
+.view-details-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: #007BC0;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.view-details-link:hover {
+    color: #005691;
+}
+
+.view-details-link i {
+    font-size: 10px;
+}
+
+/* REFINED TOGGLE */
+.toggle-group-modern {
+    background: #F1F3F5;
+    padding: 3px;
+    border-radius: 20px; /* More rounded */
+    display: flex;
+    gap: 2px;
+}
+
+.toggle-btn-modern {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 18px; /* More rounded */
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6B7280;
+}
+
+/* REFINED PROGRESS BARS */
+.progress-bar-modern {
+    height: 8px;
+    background: #F1F5F9; /* Match design's light grey */
+    border-radius: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
