@@ -503,25 +503,6 @@
         </main>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const userStr = localStorage.getItem('currentUser');
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                const name = user.full_name || user.FullName || user.Username || "John Doe";
-                const role = user.role || "Quản trị viên hệ thống";
-                const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=BC0004&color=fff`;
-                
-                document.getElementById('sidebarName').textContent = name;
-                document.getElementById('sidebarPosition').textContent = role;
-                document.getElementById('sidebarAvatar').src = avatar;
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-    </script>
+    <script src="js/common.js"></script>
 </body>
 </html>

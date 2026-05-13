@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Kiểm tra trạng thái đăng nhập
+    // 1. Kiểm tra trạng thái đăng nhập (đã được common.js xử lý)
     const userStr = localStorage.getItem('currentUser');
-    if (!userStr) {
-        window.location.href = 'index.html';
-        return;
-    }
+    if (!userStr) return;
 
     const currentUser = JSON.parse(userStr);
     
@@ -15,26 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = currentUser.role || "Quản trị viên hệ thống";
     const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=BC0004&color=fff`;
 
-    // 3. Cập nhật giao diện
-    const sidebarName = document.getElementById('sidebarName');
+    // 3. Cập nhật giao diện (sidebar đã được common.js xử lý, chỉ cập nhật phần nội dung chính)
     const profileName = document.getElementById('profileName');
-    const sidebarAvatar = document.getElementById('sidebarAvatar');
     const profileAvatar = document.getElementById('profileAvatar');
-    const sidebarPosition = document.getElementById('sidebarPosition');
     const profilePosition = document.getElementById('profilePosition');
     
     const fullNameInput = document.getElementById('inputFullName');
     const emailInput = document.getElementById('inputEmail');
     const phoneInput = document.getElementById('inputPhone');
     const positionInput = document.getElementById('inputPosition');
-
-    if (sidebarName) sidebarName.textContent = fullName;
+ 
     if (profileName) profileName.textContent = fullName;
-    if (sidebarAvatar) sidebarAvatar.src = avatarUrl;
     if (profileAvatar) profileAvatar.src = avatarUrl;
-    if (sidebarPosition) sidebarPosition.textContent = role;
     if (profilePosition) profilePosition.textContent = role;
-
+ 
     if (fullNameInput) fullNameInput.value = fullName;
     if (emailInput) emailInput.value = emailStr;
     if (phoneInput) phoneInput.value = phone;
@@ -105,6 +96,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Thay đổi ảnh đại diện thành công!");
             };
             reader.readAsDataURL(file);
+        });
+    }
+
+    // 7. XỬ LÝ ĐĂNG XUẤT THIẾT BỊ KHÁC
+    const logoutOthersBtn = document.querySelector('.btn-outline-danger');
+    if (logoutOthersBtn) {
+        logoutOthersBtn.addEventListener('click', () => {
+            const originalText = logoutOthersBtn.textContent;
+            logoutOthersBtn.textContent = "Đang xử lý...";
+            logoutOthersBtn.disabled = true;
+            logoutOthersBtn.style.opacity = "0.5";
+            logoutOthersBtn.style.cursor = "not-allowed";
+
+            setTimeout(() => {
+                alert("Đã đăng xuất khỏi tất cả các thiết bị khác thành công!");
+                logoutOthersBtn.textContent = originalText;
+                logoutOthersBtn.disabled = false;
+                logoutOthersBtn.style.opacity = "1";
+                logoutOthersBtn.style.cursor = "pointer";
+                
+                // Cập nhật lại bảng (giả lập xóa các dòng không phải 'Hiện tại')
+                const rows = document.querySelectorAll('.data-table tbody tr');
+                rows.forEach((row, index) => {
+                    if (index > 0) { // Giữ lại dòng đầu tiên (hiện tại)
+                        row.style.opacity = "0.3";
+                        const statusCell = row.querySelector('.status-inactive');
+                        if (statusCell) {
+                            statusCell.innerHTML = '<i class="fa-solid fa-circle" style="font-size: 6px;"></i> VỪA ĐĂNG XUẤT';
+                        }
+                    }
+                });
+            }, 1000);
         });
     }
 });

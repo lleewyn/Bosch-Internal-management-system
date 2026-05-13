@@ -148,13 +148,22 @@
             border-bottom: 1px solid #F3F4F6;
         }
 
-        .status-active {
-            color: #10B981;
+        .status-active, .status-inactive {
             font-weight: 700;
             font-size: 11px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            color: #10B981;
+        }
+
+        .status-inactive {
+            color: #9CA3AF;
         }
 
         .btn-outline-danger {
@@ -207,7 +216,7 @@
                     </div>
                 </div>
             </a>
-            <a href="#" class="logout-btn" onclick="logout()">
+            <a href="#" class="logout-btn">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 Đăng xuất
             </a>
@@ -311,7 +320,7 @@
                             <td>192.168.1.22</td>
                             <td style="text-align: center;">2 giờ trước</td>
                             <td style="text-align: center;">TP. Hồ Chí Minh</td>
-                            <td style="text-align: center; color: #9CA3AF; font-size: 12px; font-weight: 700;">ĐÃ ĐĂNG XUẤT</td>
+                            <td style="text-align: center;"><span class="status-inactive"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -347,13 +356,9 @@
     <!-- Input ẩn để chọn file ảnh -->
     <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
 
+    <script src="js/common.js"></script>
     <script src="js/account.js"></script>
     <script>
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-        
         // Modal logic
         const modal = document.getElementById('modalOverlay');
         const editBtn = document.getElementById('editProfileBtn');

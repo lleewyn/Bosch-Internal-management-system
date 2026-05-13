@@ -9,6 +9,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'dashboard.html';
     }
 
+    // Xử lý ẩn/hiện mật khẩu
+    const togglePassword = document.querySelector('.suffix-icon');
+    const passwordInput = document.getElementById('loginPassword');
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            // Chuyển đổi type của input
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Chuyển đổi icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    }
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault(); // Ngăn form load lại trang
