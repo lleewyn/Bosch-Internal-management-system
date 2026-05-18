@@ -28,8 +28,8 @@
                 Quản lý nhân sự
             </a>
             <a href="#" class="nav-item">
-                <i class="fa-solid fa-wallet"></i>
-                Quản lý ngân sách
+                <i class="fa-solid fa-diagram-project"></i>
+                Quản lý dự án
             </a>
             <a href="activity-log.html" class="nav-item">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -40,7 +40,7 @@
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <div class="profile-avatar-circle" id="sidebarAvatar">QU</div>
+                    <img src="" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
                         <h4 id="sidebarName">quynhbikhung</h4>
                         <p id="sidebarPosition">Nhân viên</p>
@@ -144,7 +144,7 @@
                                 <p>Phân tích dòng tiền định kỳ năm 2025</p>
                             </div>
                             <div class="chart-actions">
-                                <a href="#" class="view-details-link">Xem chi tiết <i class="fa-solid fa-chevron-right"></i></a>
+                                <a href="#" class="view-details-link" id="viewRevenueDetail">Xem chi tiết <i class="fa-solid fa-chevron-right"></i></a>
                             </div>
                         </div>
                         <div class="chart-content">
@@ -177,8 +177,8 @@
                         <div class="panel-header">
                             <h4>Phân bổ</h4>
                             <div class="toggle-group-modern">
-                                <button class="toggle-btn-modern active">Dự án</button>
-                                <button class="toggle-btn-modern">Dịch vụ</button>
+                                <button class="toggle-btn-modern">Dự án</button>
+                                <button class="toggle-btn-modern active">Dịch vụ</button>
                             </div>
                         </div>
                         <p class="panel-desc">Các đơn vị đóng góp doanh thu hàng đầu</p>
@@ -186,25 +186,25 @@
                         <div class="distribution-list">
                             <div class="dist-item">
                                 <div class="dist-info">
-                                    <span class="dist-name">Industrial AI Core</span>
-                                    <span class="dist-val">1.8B VND</span>
-                                </div>
-                                <div class="progress-bar-modern">
-                                    <div class="progress-fill-modern" style="width: 85%; background: #00153D;"></div>
-                                </div>
-                            </div>
-                            <div class="dist-item">
-                                <div class="dist-info">
-                                    <span class="dist-name">Smart Logistics</span>
+                                    <span class="dist-name">Engineering Services</span>
                                     <span class="dist-val">1.2B VND</span>
                                 </div>
                                 <div class="progress-bar-modern">
-                                    <div class="progress-fill-modern" style="width: 65%; background: #0056D2;"></div>
+                                    <div class="progress-fill-modern" style="width: 60%; background: #00153D;"></div>
                                 </div>
                             </div>
                             <div class="dist-item">
                                 <div class="dist-info">
-                                    <span class="dist-name">Edge Computing Node</span>
+                                    <span class="dist-name">Business Services</span>
+                                    <span class="dist-val">1.9B VND</span>
+                                </div>
+                                <div class="progress-bar-modern">
+                                    <div class="progress-fill-modern" style="width: 92%; background: #0056D2;"></div>
+                                </div>
+                            </div>
+                            <div class="dist-item">
+                                <div class="dist-info">
+                                    <span class="dist-name">Digital & IT Solutions</span>
                                     <span class="dist-val">0.9B VND</span>
                                 </div>
                                 <div class="progress-bar-modern">
@@ -213,11 +213,11 @@
                             </div>
                             <div class="dist-item">
                                 <div class="dist-info">
-                                    <span class="dist-name">Automated Testing</span>
-                                    <span class="dist-val">0.8B VND</span>
+                                    <span class="dist-name">Consulting & Project</span>
+                                    <span class="dist-val">1.1B VND</span>
                                 </div>
                                 <div class="progress-bar-modern">
-                                    <div class="progress-fill-modern" style="width: 40%; background: #7FBBE3;"></div>
+                                    <div class="progress-fill-modern" style="width: 55%; background: #7FBBE3;"></div>
                                 </div>
                             </div>
                         </div>
@@ -920,6 +920,147 @@
             </div>
         </div>
     </div>
+    <!-- MODAL: CHI TIẾT DOANH THU THEO DỰ ÁN -->
+    <div class="modal-overlay" id="revenueDetailModal">
+        <div class="modal-content project-list-modal" style="width: 1000px;">
+            <div class="modal-header">
+                <button class="btn-back-modal" id="backRevenueModal">
+                    <i class="fa-solid fa-arrow-left"></i> Quay lại
+                </button>
+                <h3 class="modal-title-center">Chi tiết doanh thu theo dự án - năm 2025</h3>
+                <div class="modal-header-right">
+                    <button class="btn-save-red">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu kết quả
+                    </button>
+                    <i class="fa-solid fa-xmark close-modal" id="closeRevenueModal"></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <!-- Summary Cards inside Modal -->
+                <div class="modal-stats-row mb-24">
+                    <div class="modal-stat-card-simple">
+                        <p class="stat-label">Tổng Doanh thu (YTD)</p>
+                        <h4 class="stat-val red">5.2B VND</h4>
+                    </div>
+                    <div class="modal-stat-card-simple">
+                        <p class="stat-label">Dự án Hoạt động</p>
+                        <h4 class="stat-val">12</h4>
+                    </div>
+                    <div class="modal-stat-card-simple">
+                        <p class="stat-label">Tăng trưởng so với 2023</p>
+                        <h4 class="stat-val blue">+18.4%</h4>
+                    </div>
+                    <div class="modal-stat-card-simple">
+                        <p class="stat-label">Trạng thái kế hoạch</p>
+                        <h4 class="stat-val">Đúng tiến độ</h4>
+                    </div>
+                </div>
+
+                <div class="selection-table-container">
+                    <table class="selection-table project-detail-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Dự án</th>
+                                <th>T1</th>
+                                <th>T2</th>
+                                <th>T3</th>
+                                <th>T4</th>
+                                <th>T5</th>
+                                <th>T6</th>
+                                <th>T7</th>
+                                <th class="red-text">Tổng cộng</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bold">Industrial AI Core</td>
+                                <td>120M</td>
+                                <td>145M</td>
+                                <td>130M</td>
+                                <td>160M</td>
+                                <td>185M</td>
+                                <td>190M</td>
+                                <td>210M</td>
+                                <td class="bold red-text">1.14M</td>
+                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Bosch Smart Sensors V2</td>
+                                <td>85M</td>
+                                <td>90M</td>
+                                <td>88M</td>
+                                <td>95M</td>
+                                <td>110M</td>
+                                <td>105M</td>
+                                <td>120M</td>
+                                <td class="bold red-text">693M</td>
+                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Hydrogen Powertrain Lab</td>
+                                <td>250M</td>
+                                <td>250M</td>
+                                <td>300M</td>
+                                <td>280M</td>
+                                <td>310M</td>
+                                <td>340M</td>
+                                <td>320M</td>
+                                <td class="bold red-text">2.05M</td>
+                                <td><span class="status-pill gray">HOÀN THÀNH</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Eco-Braking System</td>
+                                <td>45M</td>
+                                <td>45M</td>
+                                <td>50M</td>
+                                <td>48M</td>
+                                <td>55M</td>
+                                <td>60M</td>
+                                <td>65M</td>
+                                <td class="bold red-text">368M</td>
+                                <td><span class="status-pill orange">TẠM HOÃN</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Autonomous Logistics Drone</td>
+                                <td>70M</td>
+                                <td>72M</td>
+                                <td>75M</td>
+                                <td>80M</td>
+                                <td>85M</td>
+                                <td>92M</td>
+                                <td>100M</td>
+                                <td class="bold red-text">574M</td>
+                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer-info-row">
+                    <div class="info-box-sm">
+                        <span>Phân bổ Doanh thu (Quý 2)</span>
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                    <div class="info-box-sm">
+                        <span>Ghi chú vận hành</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-pagination">
+                <div class="pagination-left">
+                    Hiển thị 1 - 5 trong tổng số 12 dự án
+                </div>
+                <div class="pagination-controls">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span>Trang 1 / 3</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal-overlay" id="exportModal">
         <div class="modal-content export-modal-v2">
             <div class="modal-header">
@@ -1006,6 +1147,19 @@
             if (closeProjectBtn) closeProjectBtn.addEventListener('click', () => closeMdl(projectListModal));
             if (backProjectModalBtn) backProjectModalBtn.addEventListener('click', () => closeMdl(projectListModal));
 
+            // REVENUE DETAIL MODAL
+            const revenueDetailModal = document.getElementById('revenueDetailModal');
+            const openRevenueDetailBtn = document.getElementById('viewRevenueDetail');
+            const closeRevenueDetailBtn = document.getElementById('closeRevenueModal');
+            const backRevenueBtn = document.getElementById('backRevenueModal');
+
+            if (openRevenueDetailBtn) openRevenueDetailBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openMdl(revenueDetailModal);
+            });
+            if (closeRevenueDetailBtn) closeRevenueDetailBtn.addEventListener('click', () => closeMdl(revenueDetailModal));
+            if (backRevenueBtn) backRevenueBtn.addEventListener('click', () => closeMdl(revenueDetailModal));
+
             // FORMAT CARDS IN EXPORT MODAL
             const formatCards = document.querySelectorAll('.format-card');
             formatCards.forEach(card => {
@@ -1056,6 +1210,101 @@
                     grid.appendChild(cell);
                 }
             }
+
+            // DISTRIBUTION TOGGLE LOGIC
+            const distToggleBtns = document.querySelectorAll('.toggle-btn-modern');
+            const distList = document.querySelector('.distribution-list');
+            
+            const projectData = `
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Industrial AI Core</span>
+                        <span class="dist-val">1.8B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 85%; background: #00153D;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Smart Logistics</span>
+                        <span class="dist-val">1.2B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 65%; background: #0056D2;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Edge Computing Node</span>
+                        <span class="dist-val">0.98B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 45%; background: #2563EB;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Automated Testing</span>
+                        <span class="dist-val">0.8B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 40%; background: #7FBBE3;"></div>
+                    </div>
+                </div>
+            `;
+            
+            const serviceData = `
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Engineering Services</span>
+                        <span class="dist-val">1.2B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 60%; background: #00153D;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Business Services</span>
+                        <span class="dist-val">1.9B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 92%; background: #0056D2;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Digital & IT Solutions</span>
+                        <span class="dist-val">0.9B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 45%; background: #2563EB;"></div>
+                    </div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-info">
+                        <span class="dist-name">Consulting & Project</span>
+                        <span class="dist-val">1.1B VND</span>
+                    </div>
+                    <div class="progress-bar-modern">
+                        <div class="progress-fill-modern" style="width: 55%; background: #7FBBE3;"></div>
+                    </div>
+                </div>
+            `;
+
+            distToggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    distToggleBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (btn.textContent.includes('Dự án')) {
+                        distList.innerHTML = projectData;
+                    } else {
+                        distList.innerHTML = serviceData;
+                    }
+                });
+            });
 
             // PILL FILTER LOGIC
             const pills = document.querySelectorAll('.pill');

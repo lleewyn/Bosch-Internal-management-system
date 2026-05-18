@@ -34,7 +34,7 @@ function updateSidebar(user) {
 
     const name = user.full_name || user.FullName || user.Username || "User";
     const role = user.role || "Nhân viên";
-    const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=BC0004&color=fff`;
+    const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=BC0004&color=fff&rounded=true`;
 
     if (sidebarName) sidebarName.textContent = name;
     if (sidebarPosition) sidebarPosition.textContent = role;

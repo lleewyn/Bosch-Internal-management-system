@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarUpload = document.getElementById('avatarUpload');
     const textBtn = document.getElementById('changeAvatarTextBtn');
     const badgeBtn = document.getElementById('changeAvatarBadgeBtn');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
     
     const handleAvatarClick = (e) => {
         e.preventDefault();

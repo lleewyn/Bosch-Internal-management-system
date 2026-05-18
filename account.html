@@ -148,22 +148,28 @@
             border-bottom: 1px solid #F3F4F6;
         }
 
-        .status-active, .status-inactive {
-            font-weight: 700;
+        .status-pill {
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 11px;
-            display: flex;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            text-transform: uppercase;
         }
 
-        .status-active {
+        .status-pill.success {
+            background: #ECFDF5;
             color: #10B981;
         }
 
-        .status-inactive {
-            color: #9CA3AF;
+        .status-pill.muted {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .data-table tr:hover {
+            background: #F9FAFB;
         }
 
         .btn-outline-danger {
@@ -175,6 +181,12 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-danger:hover {
+            background: #FEF2F2;
+            border-color: #EF4444;
         }
     </style>
 </head>
@@ -197,8 +209,8 @@
                 Quản lý nhân sự
             </a>
             <a href="#" class="nav-item">
-                <i class="fa-solid fa-wallet"></i>
-                Quản lý ngân sách
+                <i class="fa-solid fa-diagram-project"></i>
+                Quản lý dự án
             </a>
             <a href="activity-log.html" class="nav-item">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -302,25 +314,25 @@
                         <tr>
                             <th>Thiết bị</th>
                             <th>Địa chỉ IP</th>
-                            <th style="text-align: center;">Thời gian</th>
-                            <th style="text-align: center;">Vị trí</th>
-                            <th style="text-align: center;">Trạng thái</th>
+                            <th>Thời gian</th>
+                            <th>Vị trí</th>
+                            <th style="text-align: right;">Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td style="font-weight: 800; color: #111827;"><i class="fa-solid fa-laptop" style="margin-right: 12px; color: #9CA3AF;"></i> MacBook Pro 16"</td>
                             <td>192.168.1.15</td>
-                            <td style="text-align: center;">Hiện tại</td>
-                            <td style="text-align: center;">TP. Hồ Chí Minh</td>
-                            <td style="text-align: center;"><span class="status-active"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
+                            <td>Hiện tại</td>
+                            <td>TP. Hồ Chí Minh</td>
+                            <td style="text-align: right;"><span class="status-pill success"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight: 800; color: #111827;"><i class="fa-solid fa-mobile-screen" style="margin-right: 12px; color: #9CA3AF;"></i> iPhone 14 Pro</td>
                             <td>192.168.1.22</td>
-                            <td style="text-align: center;">2 giờ trước</td>
-                            <td style="text-align: center;">TP. Hồ Chí Minh</td>
-                            <td style="text-align: center;"><span class="status-inactive"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
+                            <td>2 giờ trước</td>
+                            <td>TP. Hồ Chí Minh</td>
+                            <td style="text-align: right;"><span class="status-pill muted"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
                         </tr>
                     </tbody>
                 </table>
