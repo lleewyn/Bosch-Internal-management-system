@@ -13,7 +13,7 @@
         .log-table-container {
             background: white;
             border-radius: 12px;
-            border: 1px solid #F3F4F6;
+            border: 1px solid var(--border-light);
             overflow: hidden;
             margin-top: 24px;
         }
@@ -28,29 +28,29 @@
             padding: 16px 20px;
             font-size: 11px;
             font-weight: 800;
-            color: #9CA3AF;
-            background: #F9FAFB;
-            border-bottom: 1px solid #F3F4F6;
+            color: var(--text-muted);
+            background: var(--bg-body);
+            border-bottom: 1px solid var(--border-light);
             text-transform: uppercase;
         }
 
         .log-table td {
             padding: 24px 20px;
             vertical-align: top;
-            border-bottom: 1px solid #F3F4F6;
+            border-bottom: 1px solid var(--border-light);
             font-size: 13px;
-            color: #4B5563;
+            color: var(--text-secondary);
         }
 
         .time-cell .date {
             font-weight: 800;
-            color: #111827;
+            color: var(--text-main);
             display: block;
             margin-bottom: 4px;
         }
 
         .time-cell .sub {
-            color: #9CA3AF;
+            color: var(--text-muted);
             font-size: 11px;
         }
 
@@ -64,24 +64,24 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #F3F4F6;
+            background: var(--border-light);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 11px;
             font-weight: 700;
-            color: #4B5563;
+            color: var(--text-secondary);
         }
 
         .user-info-text .name {
             font-weight: 800;
-            color: #111827;
+            color: var(--text-main);
             display: block;
         }
 
         .user-info-text .id {
             font-size: 11px;
-            color: #9CA3AF;
+            color: var(--text-muted);
         }
 
         .cat-badge {
@@ -111,24 +111,24 @@
 
         .tech-info {
             font-size: 11px;
-            color: #9CA3AF;
+            color: var(--text-muted);
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
         .tech-info span b {
-            color: #4B5563;
+            color: var(--text-secondary);
             margin-right: 4px;
         }
 
         .log-filter-bar {
             display: flex;
             gap: 16px;
-            background: #FFFFFF;
+            background: var(--bg-card);
             padding: 16px 20px;
             border-radius: 12px;
-            border: 1px solid #F3F4F6;
+            border: 1px solid var(--border-light);
             margin-top: 32px;
             align-items: center;
         }
@@ -142,7 +142,7 @@
             width: 100%;
             height: 44px;
             padding-left: 44px;
-            background: #F9FAFB;
+            background: var(--bg-body);
             border: none;
             border-radius: 8px;
             font-size: 14px;
@@ -153,27 +153,27 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: #9CA3AF;
+            color: var(--text-muted);
         }
 
         .log-dropdown {
             height: 44px;
             padding: 0 16px;
-            background: #F9FAFB;
+            background: var(--bg-body);
             border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
             font-size: 13px;
             font-weight: 600;
-            color: #4B5563;
+            color: var(--text-secondary);
             cursor: pointer;
         }
 
         .btn-clear-log {
             height: 44px;
             padding: 0 20px;
-            background: #F3F4F6;
+            background: var(--border-light);
             border-radius: 8px;
             border: none;
             display: flex;
@@ -181,7 +181,7 @@
             gap: 8px;
             font-size: 13px;
             font-weight: 700;
-            color: #4B5563;
+            color: var(--text-secondary);
             cursor: pointer;
         }
 
@@ -204,18 +204,18 @@
             align-items: center;
             justify-content: center;
             border-radius: 6px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid var(--border-main);
             background: white;
             font-size: 12px;
             font-weight: 600;
-            color: #4B5563;
+            color: var(--text-secondary);
             cursor: pointer;
         }
 
         .p-btn.active {
-            background: #BC0004;
+            background: var(--bosch-red);
             color: white;
-            border-color: #BC0004;
+            border-color: var(--bosch-red);
         }
     </style>
 </head>
@@ -230,16 +230,24 @@
         
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item">
-                <i class="fa-solid fa-chart-pie"></i>
-                Dashboard
+                <i class="fa-solid fa-chart-line"></i>
+                Tổng quan
             </a>
-            <a href="#" class="nav-item">
+            <a href="hr.html" class="nav-item">
                 <i class="fa-solid fa-users"></i>
-                Quản lý nhân sự
+                Nhân sự
             </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-diagram-project"></i>
-                Quản lý dự án
+            <a href="operations.html" class="nav-item">
+                <i class="fa-solid fa-building"></i>
+                Vận hành
+            </a>
+            <a href="budget.html" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Ngân sách
+            </a>
+            <a href="organization.html" class="nav-item">
+                <i class="fa-solid fa-sitemap"></i>
+                Cơ cấu tổ chức
             </a>
             <a href="activity-log.html" class="nav-item active">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -250,7 +258,7 @@
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bc0&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=BC0004&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
                         <h4 id="sidebarName">John Doe</h4>
                         <p id="sidebarPosition">Quản trị viên hệ thống</p>
@@ -265,23 +273,21 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="main-layout" style="padding-top: 0;">
-        <main class="content-wrapper">
-            <div class="view-title-area" style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start;">
-                <div class="title-text">
-                    <h1 style="font-size: 32px; font-weight: 800; color: #111827; margin-bottom: 8px;">Nhật ký hoạt động</h1>
-                    <p style="font-size: 14px; color: #6B7280;">Bản ghi chi tiết về tất cả các tương tác hệ thống và thay đổi dữ liệu.</p>
-                </div>
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
-                </div>
+    <div class="main-layout">
+        <div class="dashboard-top-bar">
+            <h2 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">Nhật ký hoạt động</h2>
+            <div class="header-actions">
+                <i class="fa-regular fa-bell" style="font-size: 20px; color: var(--text-secondary); cursor: pointer;"></i>
             </div>
+        </div>
+
+        <main class="content-wrapper">
 
             <!-- Top Stats -->
             <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
+                <div class="bosch-stat-card">
+                    <div class="bosch-stat-header">
+                        <div class="bosch-stat-title">
                             <p>TỔNG HOẠT ĐỘNG HÔM NAY</p>
                             <h3>1,284</h3>
                         </div>
@@ -294,9 +300,9 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
+                <div class="bosch-stat-card">
+                    <div class="bosch-stat-header">
+                        <div class="bosch-stat-title">
                             <p>CẢNH BÁO BẢO MẬT</p>
                             <h3 class="danger-text">03</h3>
                         </div>
@@ -309,9 +315,9 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
+                <div class="bosch-stat-card">
+                    <div class="bosch-stat-header">
+                        <div class="bosch-stat-title">
                             <p>PHIÊN HOẠT ĐỘNG</p>
                             <h3>42</h3>
                         </div>
@@ -346,7 +352,7 @@
 
             <!-- Log Table -->
             <div class="log-table-container">
-                <table class="log-table">
+                <table class="bosch-table">
                     <thead>
                         <tr>
                             <th>Thời gian</th>
@@ -372,9 +378,9 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="cat-badge cat-salary">
-                                    <i class="fa-solid fa-money-bill-transfer"></i> Sửa lương bổng
-                                </div>
+                                <span class="badge badge-info">
+                                    <i class="fa-solid fa-money-check-dollar"></i> Lương & Thưởng
+                                </span>
                             </td>
                             <td>
                                 <div class="action-desc">
@@ -404,9 +410,9 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="cat-badge cat-denied">
-                                    <i class="fa-solid fa-lock"></i> Truy cập bị từ chối
-                                </div>
+                                <span class="badge badge-danger">
+                                    <i class="fa-solid fa-shield-halved"></i> Cảnh báo Bảo mật
+                                </span>
                             </td>
                             <td>
                                 <div class="action-desc">
@@ -436,9 +442,9 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="cat-badge cat-login">
-                                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập thành công
-                                </div>
+                                <span class="badge badge-success">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                                </span>
                             </td>
                             <td>
                                 <div class="action-desc">
@@ -468,9 +474,9 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="cat-badge cat-data">
-                                    <i class="fa-solid fa-file-pen"></i> Sửa dữ liệu
-                                </div>
+                                <span class="badge badge-warning">
+                                    <i class="fa-solid fa-database"></i> Dữ liệu
+                                </span>
                             </td>
                             <td>
                                 <div class="action-desc">
@@ -491,7 +497,7 @@
 
             <!-- Pagination -->
             <div class="log-pagination">
-                <div class="results-count" style="font-size: 12px; color: #9CA3AF;">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</div>
+                <div class="results-count" style="font-size: 12px; color: var(--text-muted);">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</div>
                 <div class="pagination-pages">
                     <div class="p-btn"><i class="fa-solid fa-chevron-left"></i></div>
                     <div class="p-btn active">1</div>

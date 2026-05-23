@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngân sách | Bosch HR Management</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/hr.css">
+    <link rel="stylesheet" href="css/operations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .val-green { color: #10B981; font-weight: 700; }
+        .val-blue { color: var(--bosch-blue); font-weight: 700; }
+        .val-red { color: #E20015; font-weight: 700; }
+
+        .edit-icon-btn { color: #F59E0B; cursor: pointer; font-size: 14px; padding: 4px; }
+        .edit-icon-btn:hover { color: #D97706; }
+
+        .tag-project {
+            background: #f1f3f5; padding: 4px 8px; border-radius: 4px;
+            font-size: 11px; color: var(--text-secondary); display: inline-block;
+            margin-bottom: 4px; margin-right: 4px;
+        }
+
+        .ot-highlight {
+            font-size: 11px; color: #E20015; font-weight: 700;
+            display: block; margin-top: 4px;
+        }
+
+        .budget-container {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #eef2f7;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+        }
+
+        .budget-container .op-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            padding: 22px 24px;
+            border-bottom: 1px solid #eef2f7;
+            background: #fff;
+        }
+
+        .budget-container .budget-search {
+            flex: 1;
+            min-width: 240px;
+            max-width: 420px;
+            background: #f4f5f7;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .budget-container .budget-search input {
+            padding: 12px 16px 12px 40px;
+            border: none;
+            width: 100%;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .budget-container .budget-search i {
+            color: var(--text-muted);
+        }
+
+        .budget-container .budget-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .budget-container .hr-select {
+            min-width: 180px;
+            max-width: 240px;
+        }
+
+        .budget-container .table-responsive {
+            overflow-x: auto;
+            padding-bottom: 8px;
+            background: #fff;
+        }
+
+        .budget-container .bosch-table {
+            width: 100%;
+            min-width: 940px;
+            border-collapse: collapse;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .budget-container .bosch-table th {
+            background: #f8fafc;
+            color: var(--text-secondary);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 22px;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .budget-container .bosch-table td {
+            padding: 18px 22px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .budget-container .bosch-table tbody tr:hover {
+            background: #fcfcfd;
+        }
+
+        .budget-container .bosch-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .budget-container .bosch-table td:nth-child(1) {
+            color: var(--text-muted);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .budget-container .bosch-table td:nth-child(2) {
+            max-width: 240px;
+            white-space: normal;
+            line-height: 1.45;
+        }
+
+        .budget-container .bosch-table td:nth-child(3) {
+            max-width: 360px;
+            white-space: normal;
+            line-height: 1.45;
+        }
+
+        .budget-container .bosch-table td:nth-child(4) {
+            font-weight: 700;
+            color: var(--bosch-blue);
+        }
+
+        .budget-container .bosch-table td:nth-child(5),
+        .budget-container .bosch-table td:nth-child(6),
+        .budget-container .bosch-table td:nth-child(7),
+        .budget-container .bosch-table td:nth-child(8) {
+            text-align: center;
+        }
+
+        .budget-container .edit-icon-btn {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .budget-container .edit-icon-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(245, 158, 11, 0.18);
+        }
+
+        .budget-container .hr-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .budget-container .search-box input {
+            min-width: 220px;
+            width: 100%;
+        }
+
+        .budget-container .hr-select {
+            min-width: 180px;
+            max-width: 260px;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-wrapper">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Bosch-logo.svg" alt="Bosch Logo" class="brand-img">
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                Tổng quan
+            </a>
+            <a href="hr.html" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Nhân sự
+            </a>
+            <a href="operations.html" class="nav-item">
+                <i class="fa-solid fa-building"></i>
+                Vận hành
+            </a>
+            <a href="budget.html" class="nav-item active">
+                <i class="fa-solid fa-wallet"></i>
+                Ngân sách
+            </a>
+            <a href="organization.html" class="nav-item">
+                <i class="fa-solid fa-sitemap"></i>
+                Cơ cấu tổ chức
+            </a>
+            <a href="activity-log.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Nhật ký hoạt động
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="account.html" style="text-decoration: none; color: inherit;">
+                <div class="user-snippet">
+                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=BC0004&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <div class="user-info-sm">
+                        <h4 id="sidebarName">Nguyễn Văn A</h4>
+                        <p id="sidebarPosition">Quản trị viên hệ thống</p>
+                    </div>
+                </div>
+            </a>
+            <a href="index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout">
+        <div class="dashboard-top-bar">
+            <div class="bosch-tabs-container">
+                <button class="bosch-tab active" data-tab="serviceLine">Dòng dịch vụ</button>
+                <button class="bosch-tab" data-tab="participation">Mức độ tham gia</button>
+                <button class="bosch-tab" data-tab="revenue">Doanh thu dự án</button>
+            </div>
+        </div>
+
+        <main class="content-wrapper">
+
+            <!-- VIEW 1: Dòng dịch vụ -->
+            <div id="serviceLineView" class="budget-container">
+                <div class="op-controls budget-controls">
+                    <div class="search-box budget-search">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã...">
+                    </div>
+                    <div class="hr-filters budget-filters">
+                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
+                        <button class="btn-action red-btn" id="openAddServiceLineBtn">
+                            <i class="fa-solid fa-plus"></i> Tạo mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="bosch-table">
+                        <thead>
+                            <tr>
+                                <th>MÃ DỊCH VỤ</th>
+                                <th>TÊN DỊCH VỤ</th>
+                                <th>MÔ TẢ</th>
+                                <th>ĐƠN GIÁ (VND/H)</th>
+                                <th style="text-align: center;">SỐ HỢP ĐỒNG</th>
+                                <th style="text-align: center;">SỐ DỰ ÁN</th>
+                                <th style="text-align: center;">TRẠNG THÁI</th>
+                                <th style="text-align: center;">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">SL-001</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Automotive Embedded<br>Solutions</td>
+                                <td style="color: var(--text-secondary);">Development of embedded systems f...</td>
+                                <td class="val-green">1.500.000</td>
+                                <td style="text-align: center; font-weight: 700;">2</td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
+                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">SL-002</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Smart EV<br>Telematics Software</td>
+                                <td style="color: var(--text-secondary);">Telematics for Electric Vehicles</td>
+                                <td class="val-green">1.800.000</td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
+                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">SL-003</td>
+                                <td style="font-weight: 800; color: var(--text-main);">IoT Connectivity<br>& Smart Appliances</td>
+                                <td style="color: var(--text-secondary);">Smart home and appliances integration</td>
+                                <td class="val-green">1.200.000</td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
+                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">SL-004</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Edge Computing<br>Node Clusters</td>
+                                <td style="color: var(--text-secondary);">Edge computing architecture & AI</td>
+                                <td class="val-green">2.000.000</td>
+                                <td style="text-align: center; font-weight: 700;">0</td>
+                                <td style="text-align: center; font-weight: 700;">0</td>
+                                <td style="text-align: center;"><span class="badge badge-muted">Tạm ngưng</span></td>
+                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 2: Mức độ tham gia -->
+            <div id="participationView" class="budget-container" style="display: none;">
+                <div class="op-controls" style="margin-bottom: 24px; background: transparent; padding: 0; border: none;">
+                    <div class="search-box" style="flex: 1; max-width: 400px; background: var(--bg-body); border: 1px solid #f1f3f5;">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="background: transparent;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Tháng 10/2025</option></select>
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="bosch-table">
+                        <thead>
+                            <tr>
+                                <th>MÃ NS</th>
+                                <th>TÊN NHÂN SỰ</th>
+                                <th>CHỨC DANH</th>
+                                <th>DỰ ÁN THAM GIA</th>
+                                <th style="text-align: center;">% THAM GIA<br>(ĐỊNH TRƯỚC)</th>
+                                <th style="text-align: center;">GIỜ OT</th>
+                                <th style="text-align: center;">% THAM GIA<br>(THỰC TẾ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">R-01</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Nguyễn Văn A</td>
+                                <td style="color: var(--text-secondary);">Embedded Dev</td>
+                                <td>
+                                    <span class="tag-project">Audi Telematics v2</span>
+                                    <span class="tag-project">Bosch Smart Oven</span>
+                                </td>
+                                <td style="text-align: center;" class="val-blue">100%</td>
+                                <td style="text-align: center; font-weight: 700;">160h <span class="ot-highlight">+ 45h OT</span></td>
+                                <td style="text-align: center;">
+                                    <div class="val-red">128%</div>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(205h / 160h)</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">R-03</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Trần Văn C</td>
+                                <td style="color: var(--text-secondary);">Lead Architect</td>
+                                <td>
+                                    <span class="tag-project">VW Embedded Core</span>
+                                </td>
+                                <td style="text-align: center;" class="val-blue">100%</td>
+                                <td style="text-align: center; font-weight: 700;">160h <span class="ot-highlight">+ 35h OT</span></td>
+                                <td style="text-align: center;">
+                                    <div class="val-red">122%</div>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(195h / 160h)</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">R-02</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Lê Thị B</td>
+                                <td style="color: var(--text-secondary);">Backend Engineer</td>
+                                <td>
+                                    <span class="tag-project">Bosch Smart Oven</span>
+                                </td>
+                                <td style="text-align: center;" class="val-blue">100%</td>
+                                <td style="text-align: center; font-weight: 700;">150h</td>
+                                <td style="text-align: center;">
+                                    <div class="val-green">94%</div>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(150h / 160h)</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">R-04</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Phạm D</td>
+                                <td style="color: var(--text-secondary);">QA Engineer</td>
+                                <td>
+                                    <span class="tag-project">Audi Telematics v2</span>
+                                </td>
+                                <td style="text-align: center;" class="val-blue">80%</td>
+                                <td style="text-align: center; font-weight: 700;">120h</td>
+                                <td style="text-align: center;">
+                                    <div class="val-green">75%</div>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(120h / 160h)</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Doanh thu dự án -->
+            <div id="revenueView" class="budget-container" style="display: none;">
+                <div class="op-controls" style="margin-bottom: 24px; background: transparent; padding: 0; border: none;">
+                    <div class="search-box" style="flex: 1; max-width: 400px; background: var(--bg-body); border: 1px solid #f1f3f5;">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm theo tên dự án" style="background: transparent;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Tháng 10/2025</option></select>
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" style="background: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="bosch-table">
+                        <thead>
+                            <tr>
+                                <th>MÃ PROJECT</th>
+                                <th>TÊN PROJECT</th>
+                                <th>CÔNG TY</th>
+                                <th>DÒNG DỊCH VỤ</th>
+                                <th style="text-align: center;">TRẠNG THÁI</th>
+                                <th style="text-align: center;">TỔNG<br>NHÂN SỰ</th>
+                                <th style="text-align: center;">TỔNG<br>GIỜ THỰC TẾ</th>
+                                <th style="text-align: center;">DOANH THU<br>DỰ KIẾN (VND)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">PRJ-101</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Audi Telematics v2</td>
+                                <td style="color: var(--text-secondary);">Audi AG</td>
+                                <td><span class="tag-project">Smart EV Telematics S...</span></td>
+                                <td style="text-align: center;"><span class="badge badge-info">Active</span></td>
+                                <td style="text-align: center; font-weight: 700;">2</td>
+                                <td style="text-align: center;" class="val-green">200h</td>
+                                <td style="text-align: center;" class="val-blue">360.000.000</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">PRJ-102</td>
+                                <td style="font-weight: 800; color: var(--text-main);">Bosch Smart Oven</td>
+                                <td style="color: var(--text-secondary);">Bosch Home</td>
+                                <td><span class="tag-project">IoT Connectivity & Sma...</span></td>
+                                <td style="text-align: center;"><span class="badge badge-danger">Delay</span></td>
+                                <td style="text-align: center; font-weight: 700;">2</td>
+                                <td style="text-align: center;" class="val-green">230h</td>
+                                <td style="text-align: center;" class="val-blue">276.000.000</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">PRJ-103</td>
+                                <td style="font-weight: 800; color: var(--text-main);">VW Embedded Core</td>
+                                <td style="color: var(--text-secondary);">Volkswagen</td>
+                                <td><span class="tag-project">Automotive Embedded ...</span></td>
+                                <td style="text-align: center;"><span class="badge badge-info">Active</span></td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td style="text-align: center;" class="val-green">160h</td>
+                                <td style="text-align: center;" class="val-blue">240.000.000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL TẠO MỚI DÒNG DỊCH VỤ -->
+    <div class="bosch-modal-overlay" id="serviceLineModal">
+        <div class="bosch-modal-content hr-modal" style="width: 400px; padding: 0;">
+            <div class="bosch-modal-header" style="border-bottom: none; padding: 24px 24px 12px 24px;">
+                <h3 style="font-size: 15px; font-weight: 800; color: var(--bosch-blue); text-transform: uppercase;"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO MỚI DÒNG DỊCH VỤ</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeServiceLineModal" style="color: var(--text-muted);"></i>
+            </div>
+            <div class="bosch-modal-body" style="padding: 12px 24px;">
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; font-weight: 700;">Tên dịch vụ <span style="color:#E20015;">*</span></label>
+                    <input type="text" class="custom-input" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px;">
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; font-weight: 700;">Mô tả chi tiết</label>
+                    <textarea class="custom-textarea" rows="4" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px; width: 100%; resize: none;"></textarea>
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; font-weight: 700;">Đơn giá (VND/giờ) <span style="color:#E20015;">*</span></label>
+                    <input type="text" class="custom-input" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px;">
+                </div>
+                <div class="form-group mb-15" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" checked id="statusCheck" style="width: 16px; height: 16px; accent-color: var(--bosch-blue);">
+                    <label for="statusCheck" style="font-size: 12px; color: var(--text-main); margin-bottom: 0;">Trạng thái hoạt động</label>
+                </div>
+            </div>
+            <div class="bosch-modal-footer" style="justify-content: flex-end; border-top: none; padding: 12px 24px 24px 24px;">
+                <button class="btn-secondary" id="cancelServiceLineBtn" style="border: none; background: transparent; font-weight: 700;">Hủy</button>
+                <button class="btn-primary" style="padding: 10px 24px; font-size: 13px; font-weight: 700;" id="saveServiceLineBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // Tab switching logic
+        const tabs = document.querySelectorAll('.bosch-tab');
+        const svView = document.getElementById('serviceLineView');
+        const partView = document.getElementById('participationView');
+        const revView = document.getElementById('revenueView');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // reset active
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // hide all views
+                svView.style.display = 'none';
+                partView.style.display = 'none';
+                revView.style.display = 'none';
+
+                // show selected view
+                const viewId = tab.dataset.tab;
+                if (viewId === 'serviceLine') {
+                    svView.style.display = 'block';
+                } else if (viewId === 'participation') {
+                    partView.style.display = 'block';
+                } else if (viewId === 'revenue') {
+                    revView.style.display = 'block';
+                }
+            });
+        });
+
+        // Modal logic
+        const slModal = document.getElementById('serviceLineModal');
+        document.getElementById('openAddServiceLineBtn').addEventListener('click', () => {
+            slModal.classList.add('show');
+        });
+        document.getElementById('closeServiceLineModal').addEventListener('click', () => {
+            slModal.classList.remove('show');
+        });
+        document.getElementById('cancelServiceLineBtn').addEventListener('click', () => {
+            slModal.classList.remove('show');
+        });
+        document.getElementById('saveServiceLineBtn').addEventListener('click', () => {
+            slModal.classList.remove('show');
+            alert('Đã lưu dòng dịch vụ mới!');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === slModal) slModal.classList.remove('show');
+        });
+    </script>
+</body>
+</html>

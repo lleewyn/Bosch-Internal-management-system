@@ -13,7 +13,7 @@
         .info-card {
             background: white;
             border-radius: 12px;
-            border: 1px solid #F3F4F6;
+            border: 1px solid var(--border-light);
             padding: 32px;
             margin-bottom: 24px;
         }
@@ -24,7 +24,7 @@
             gap: 24px;
             margin-bottom: 32px;
             padding-bottom: 32px;
-            border-bottom: 1px solid #F3F4F6;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .profile-img-container {
@@ -38,7 +38,7 @@
             height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #F9FAFB;
+            border: 4px solid var(--bg-body);
         }
 
         .edit-avatar-badge {
@@ -47,7 +47,7 @@
             right: 0;
             width: 32px;
             height: 32px;
-            background: #BC0004;
+            background: var(--bosch-red);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -67,12 +67,12 @@
             font-size: 24px;
             font-weight: 800;
             margin-bottom: 4px;
-            color: #111827;
+            color: var(--text-main);
         }
 
         .profile-text p {
             font-size: 14px;
-            color: #6B7280;
+            color: var(--text-muted);
             margin-bottom: 12px;
         }
 
@@ -86,7 +86,7 @@
             display: block;
             font-size: 13px;
             font-weight: 700;
-            color: #4B5563;
+            color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
@@ -94,22 +94,22 @@
             width: 100%;
             height: 48px;
             padding: 0 16px;
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
+            background: var(--bg-body);
+            border: 1px solid var(--border-main);
             border-radius: 8px;
             font-size: 14px;
-            color: #111827;
+            color: var(--text-main);
             outline: none;
         }
 
         .input-wrapper input[readonly] {
-            background: #F3F4F6;
-            color: #6B7280;
+            background: var(--border-light);
+            color: var(--text-muted);
             cursor: not-allowed;
         }
 
         .btn-edit-profile {
-            background: #BC0004;
+            background: var(--bosch-red);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -121,7 +121,7 @@
         }
 
         .btn-edit-profile:hover {
-            background: #A00003;
+            background: var(--bosch-red-hover);
         }
 
         /* DATA TABLE STYLES */
@@ -136,16 +136,16 @@
             padding: 12px 16px;
             font-size: 11px;
             font-weight: 800;
-            color: #9CA3AF;
+            color: var(--text-muted);
             text-transform: uppercase;
-            border-bottom: 1px solid #F3F4F6;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .data-table td {
             padding: 16px;
             font-size: 13px;
-            color: #4B5563;
-            border-bottom: 1px solid #F3F4F6;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .status-pill {
@@ -164,12 +164,12 @@
         }
 
         .status-pill.muted {
-            background: #F3F4F6;
-            color: #6B7280;
+            background: var(--border-light);
+            color: var(--text-muted);
         }
 
         .data-table tr:hover {
-            background: #F9FAFB;
+            background: var(--bg-body);
         }
 
         .btn-outline-danger {
@@ -201,16 +201,24 @@
         
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item">
-                <i class="fa-solid fa-chart-pie"></i>
-                Dashboard
+                <i class="fa-solid fa-chart-line"></i>
+                Tổng quan
             </a>
-            <a href="#" class="nav-item">
+            <a href="hr.html" class="nav-item">
                 <i class="fa-solid fa-users"></i>
-                Quản lý nhân sự
+                Nhân sự
             </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-diagram-project"></i>
-                Quản lý dự án
+            <a href="operations.html" class="nav-item">
+                <i class="fa-solid fa-building"></i>
+                Vận hành
+            </a>
+            <a href="budget.html" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Ngân sách
+            </a>
+            <a href="organization.html" class="nav-item">
+                <i class="fa-solid fa-sitemap"></i>
+                Cơ cấu tổ chức
             </a>
             <a href="activity-log.html" class="nav-item">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -221,7 +229,7 @@
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <img src="" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=BC0004&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
                         <h4 id="sidebarName">John Doe</h4>
                         <p id="sidebarPosition">Quản trị viên hệ thống</p>
@@ -236,17 +244,15 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="main-layout" style="padding-top: 0;">
-        <main class="content-wrapper">
-            <div class="view-title-area" style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start; padding-top: 16px;">
-                <div class="title-text">
-                    <h1 style="font-size: 32px; font-weight: 800; color: #111827; margin-bottom: 8px;">Tài khoản cá nhân</h1>
-                    <p style="font-size: 14px; color: #6B7280;">Cập nhật thông tin cá nhân và thiết lập bảo mật hệ thống Bosch.</p>
-                </div>
-                <div class="header-actions">
-                    <i class="fa-regular fa-bell" style="font-size: 20px; color: #4B5563; cursor: pointer;"></i>
-                </div>
+    <div class="main-layout">
+        <div class="dashboard-top-bar">
+            <h2 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">Tài khoản cá nhân</h2>
+            <div class="header-actions">
+                <i class="fa-regular fa-bell" style="font-size: 20px; color: var(--text-secondary); cursor: pointer;"></i>
             </div>
+        </div>
+
+        <main class="content-wrapper">
 
             <!-- Card: Thông tin cá nhân -->
             <section class="info-card">
@@ -260,7 +266,7 @@
                     <div class="profile-text">
                         <h2 id="profileName">Đang tải...</h2>
                         <p id="profilePosition">Đang tải...</p>
-                        <a href="#" id="changeAvatarTextBtn" style="color: #007BC0; font-size: 14px; font-weight: 600; text-decoration: none;">Thay đổi ảnh ></a>
+                        <a href="#" id="changeAvatarTextBtn" style="color: var(--bosch-blue); font-size: 14px; font-weight: 600; text-decoration: none;">Thay đổi ảnh ></a>
                     </div>
                 </div>
 
@@ -286,14 +292,14 @@
                     <div class="form-group">
                         <label>Email</label>
                         <div class="input-wrapper" style="position: relative;">
-                            <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #9CA3AF;"></i>
+                            <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted);"></i>
                             <input type="email" readonly style="padding-left: 40px;" id="inputEmail">
                         </div>
                     </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
-                    <button class="btn-edit-profile" id="editProfileBtn">Chỉnh sửa hồ sơ</button>
+                    <button class="btn-primary" id="editProfileBtn">Chỉnh sửa hồ sơ</button>
                 </div>
             </section>
 
@@ -301,15 +307,15 @@
             <section class="info-card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
-                        <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 4px;">Lịch sử thiết bị</h2>
-                        <p style="color: #6B7280; font-size: 14px;">Quản lý các phiên đăng nhập gần đây</p>
+                        <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Lịch sử thiết bị</h2>
+                        <p style="color: var(--text-muted); font-size: 14px;">Quản lý các phiên đăng nhập gần đây</p>
                     </div>
                     <button class="btn-outline-danger">
                         Đăng xuất khỏi tất cả các thiết bị khác
                     </button>
                 </div>
 
-                <table class="data-table">
+                <table class="bosch-table">
                     <thead>
                         <tr>
                             <th>Thiết bị</th>
@@ -321,18 +327,18 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="font-weight: 800; color: #111827;"><i class="fa-solid fa-laptop" style="margin-right: 12px; color: #9CA3AF;"></i> MacBook Pro 16"</td>
+                            <td style="font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-laptop" style="margin-right: 12px; color: var(--text-muted);"></i> MacBook Pro 16"</td>
                             <td>192.168.1.15</td>
                             <td>Hiện tại</td>
                             <td>TP. Hồ Chí Minh</td>
-                            <td style="text-align: right;"><span class="status-pill success"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
+                            <td style="text-align: right;"><span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 800; color: #111827;"><i class="fa-solid fa-mobile-screen" style="margin-right: 12px; color: #9CA3AF;"></i> iPhone 14 Pro</td>
+                            <td style="font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-mobile-screen" style="margin-right: 12px; color: var(--text-muted);"></i> iPhone 14 Pro</td>
                             <td>192.168.1.22</td>
                             <td>2 giờ trước</td>
                             <td>TP. Hồ Chí Minh</td>
-                            <td style="text-align: right;"><span class="status-pill muted"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
+                            <td style="text-align: right;"><span class="badge badge-muted"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -341,26 +347,26 @@
     </div>
 
     <!-- MODAL EDIT PROFILE -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content" style="width: 500px; border-radius: 12px;">
-            <div class="modal-header" style="padding: 24px 32px; border-bottom: 1px solid #F3F4F6;">
+    <div class="bosch-modal-overlay" id="modalOverlay">
+        <div class="bosch-modal-content" style="width: 500px; border-radius: 12px;">
+            <div class="bosch-modal-header" style="padding: 24px 32px; border-bottom: 1px solid var(--border-light);">
                 <h3 style="font-size: 20px; font-weight: 800;">Chỉnh sửa thông tin cá nhân</h3>
-                <i class="fa-solid fa-xmark close-modal" id="closeModal" style="cursor: pointer;"></i>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeModal" style="cursor: pointer;"></i>
             </div>
-            <div class="modal-body" style="padding: 32px;">
+            <div class="bosch-modal-body" style="padding: 32px;">
                 <div class="modal-form-group" style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Họ và tên</label>
-                    <input type="text" id="editFullName" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    <input type="text" id="editFullName" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px;">
                 </div>
                 <div class="modal-form-group" style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Số điện thoại</label>
-                    <input type="text" id="editPhone" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    <input type="text" id="editPhone" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px;">
                 </div>
-                <p style="font-size: 12px; color: #9CA3AF; margin-top: 16px;">Lưu ý: Email và Chức danh không thể thay đổi để đảm bảo bảo mật hệ thống.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 16px;">Lưu ý: Email và Chức danh không thể thay đổi để đảm bảo bảo mật hệ thống.</p>
             </div>
-            <div class="modal-footer" style="padding: 24px 32px; background: #F9FAFB; display: flex; justify-content: flex-end; gap: 12px;">
-                <button class="btn-ghost" id="cancelBtn" style="padding: 10px 20px; border: none; background: transparent; font-weight: 700; cursor: pointer;">Hủy</button>
-                <button class="btn-edit-profile" id="saveBtn">Lưu thay đổi</button>
+            <div class="bosch-modal-footer" style="padding: 24px 32px; background: var(--bg-body); display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn-secondary" id="cancelBtn" style="padding: 10px 20px; border: none; background: transparent; font-weight: 700; cursor: pointer;">Hủy</button>
+                <button class="btn-primary" id="saveBtn">Lưu thay đổi</button>
             </div>
         </div>
     </div>
@@ -377,12 +383,12 @@
         const closeBtn = document.getElementById('closeModal');
         const cancelBtn = document.getElementById('cancelBtn');
         
-        if(editBtn) editBtn.onclick = () => modal.style.display = 'flex';
-        if(closeBtn) closeBtn.onclick = () => modal.style.display = 'none';
-        if(cancelBtn) cancelBtn.onclick = () => modal.style.display = 'none';
+        if(editBtn) editBtn.onclick = () => modal.classList.add('show');
+        if(closeBtn) closeBtn.onclick = () => modal.classList.remove('show');
+        if(cancelBtn) cancelBtn.onclick = () => modal.classList.remove('show');
         
         window.onclick = (e) => {
-            if(e.target == modal) modal.style.display = 'none';
+            if(e.target == modal) modal.classList.remove('show');
         }
     </script>
 </body>

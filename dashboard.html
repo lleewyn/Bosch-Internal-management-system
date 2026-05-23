@@ -20,16 +20,24 @@
         
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="nav-item active">
-                <i class="fa-solid fa-chart-pie"></i>
-                Dashboard
+                <i class="fa-solid fa-chart-line"></i>
+                Tổng quan
             </a>
-            <a href="#" class="nav-item">
+            <a href="hr.html" class="nav-item">
                 <i class="fa-solid fa-users"></i>
-                Quản lý nhân sự
+                Nhân sự
             </a>
-            <a href="#" class="nav-item">
-                <i class="fa-solid fa-diagram-project"></i>
-                Quản lý dự án
+            <a href="operations.html" class="nav-item">
+                <i class="fa-solid fa-building"></i>
+                Vận hành
+            </a>
+            <a href="budget.html" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Ngân sách
+            </a>
+            <a href="organization.html" class="nav-item">
+                <i class="fa-solid fa-sitemap"></i>
+                Cơ cấu tổ chức
             </a>
             <a href="activity-log.html" class="nav-item">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -40,7 +48,7 @@
         <div class="sidebar-footer">
             <a href="account.html" style="text-decoration: none; color: inherit;">
                 <div class="user-snippet">
-                    <img src="" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=BC0004&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
                     <div class="user-info-sm">
                         <h4 id="sidebarName">quynhbikhung</h4>
                         <p id="sidebarPosition">Nhân viên</p>
@@ -55,83 +63,82 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="main-layout" style="padding-top: 0;">
+    <div class="main-layout">
         <div class="dashboard-top-bar">
-            <div class="tabs-group">
-                <button class="tab-item active" data-tab="revenue">Doanh thu</button>
-                <button class="tab-item" data-tab="hr">Nhân sự</button>
-                <button class="tab-item" data-tab="projects">Dự án</button>
+            <div class="bosch-tabs-container">
+                <button class="bosch-tab active" data-tab="revenue">Doanh thu</button>
+                <button class="bosch-tab" data-tab="hr">Nhân sự</button>
+                <button class="bosch-tab" data-tab="projects">Dự án</button>
             </div>
             
-            <div class="dashboard-top-actions">
-                <button class="btn-report-auto">
-                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 14px; color: var(--bosch-red);"></i>
-                    Gửi báo cáo tự động
-                </button>
-                <button class="btn-export">
-                    <i class="fa-solid fa-download"></i>
-                    Xuất báo cáo
-                </button>
-            </div>
+                <div class="dashboard-top-actions">
+                    <div class="date-filters" style="margin-right:8px;">
+                        <div class="period-toggle">
+                            <button class="period-btn active">Tháng</button>
+                            <button class="period-btn">Quý</button>
+                            <button class="period-btn">Năm</button>
+                        </div>
+                        <div class="date-picker-custom" style="margin-left:8px;">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span>01/01/2025 - 31/12/2025</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <button class="btn-report-auto">
+                        <i class="fa-solid fa-clock-rotate-left" style="font-size: 14px; color: var(--bosch-red);"></i>
+                        Gửi báo cáo tự động
+                    </button>
+                    <button class="btn-export">
+                        <i class="fa-solid fa-download"></i>
+                        Xuất báo cáo
+                    </button>
+                </div>
         </div>
 
-        <div class="dashboard-filters-row" style="display: flex; justify-content: flex-end; padding: 0 24px 8px 24px;">
-            <div class="date-filters">
-                <div class="period-toggle">
-                    <button class="period-btn active">Tháng</button>
-                    <button class="period-btn">Quý</button>
-                    <button class="period-btn">Năm</button>
-                </div>
-                <div class="date-picker-custom">
-                    <i class="fa-regular fa-calendar"></i>
-                    <span>01/01/2025 - 31/12/2025</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
-            </div>
-        </div>
+        
 
-        <main class="content-wrapper" style="padding-top: 0;">
+        <main class="content-wrapper">
 
             <!-- REVENUE VIEW (Default) -->
             <div id="revenueView">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend up">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend up">
                                 <i class="fa-solid fa-arrow-trend-up"></i> +8.4%
                             </div>
                         </div>
-                        <p class="stat-title">TỔNG DOANH THU</p>
-                        <h2 class="stat-value">5.2B <span class="currency">VND</span></h2>
+                        <p class="bosch-stat-title">TỔNG DOANH THU</p>
+                        <h2 class="bosch-stat-value">5.2B <span class="currency">VND</span></h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend up">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend up">
                                 <i class="fa-solid fa-arrow-trend-up"></i> +10%
                             </div>
                         </div>
-                        <p class="stat-title">TĂNG TRƯỞNG</p>
-                        <h2 class="stat-value">+12.5%</h2>
+                        <p class="bosch-stat-title">TĂNG TRƯỞNG</p>
+                        <h2 class="bosch-stat-value">+12.5%</h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
                             <!-- No trend shown for projects in image, but placeholder space -->
-                            <div class="stat-trend" style="visibility: hidden;">&nbsp;</div>
+                            <div class="bosch-stat-trend" style="visibility: hidden;">&nbsp;</div>
                         </div>
-                        <p class="stat-title">DỰ ÁN HOẠT ĐỘNG</p>
-                        <h2 class="stat-value">42</h2>
+                        <p class="bosch-stat-title">DỰ ÁN HOẠT ĐỘNG</p>
+                        <h2 class="bosch-stat-value">42</h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend neutral" style="color: #007BC0; background: transparent; padding: 0;">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend neutral" style="color: var(--bosch-blue); background: transparent; padding: 0;">
                                 Ổn định
                             </div>
                         </div>
-                        <p class="stat-title">HIỆU SUẤT</p>
-                        <h2 class="stat-value">92%</h2>
+                        <p class="bosch-stat-title">HIỆU SUẤT</p>
+                        <h2 class="bosch-stat-value">92%</h2>
                     </div>
                 </div>
 
@@ -228,9 +235,9 @@
             <!-- HR VIEW (Hidden by default) -->
             <div id="hrView" style="display: none;">
                 <div class="stats-grid hr-stats">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-title">
                                 <p>Tổng số nhân viên</p>
                                 <h3 class="hr-main-num">1,248</h3>
                             </div>
@@ -240,9 +247,9 @@
                         </div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-title">
                                 <p>Tỷ lệ hoàn thành training</p>
                                 <h3 class="hr-main-num">88%</h3>
                             </div>
@@ -257,9 +264,9 @@
                         </div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-title">
                                 <p>Tỷ lệ nhân viên chưa có dự án</p>
                                 <h3 class="hr-main-num danger-text">5%</h3>
                             </div>
@@ -391,54 +398,54 @@
             <!-- PROJECTS VIEW (Hidden by default) -->
             <div id="projectsView" style="display: none;">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend up">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend up">
                                 <i class="fa-solid fa-arrow-trend-up"></i> +5%
                             </div>
                             <div class="stat-icon red">
                                 <i class="fa-solid fa-briefcase"></i>
                             </div>
                         </div>
-                        <p class="stat-title">TỔNG SỐ DỰ ÁN</p>
-                        <h2 class="stat-value">42</h2>
+                        <p class="bosch-stat-title">TỔNG SỐ DỰ ÁN</p>
+                        <h2 class="bosch-stat-value">42</h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend up">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend up">
                                 <i class="fa-solid fa-arrow-trend-up"></i> +2.4%
                             </div>
                             <div class="stat-icon blue">
                                 <i class="fa-solid fa-circle-check"></i>
                             </div>
                         </div>
-                        <p class="stat-title">TỶ LỆ HOÀN THÀNH</p>
-                        <h2 class="stat-value">76%</h2>
+                        <p class="bosch-stat-title">TỶ LỆ HOÀN THÀNH</p>
+                        <h2 class="bosch-stat-value">76%</h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend down">
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend down">
                                 <i class="fa-solid fa-arrow-trend-down"></i> -12%
                             </div>
                             <div class="stat-icon red">
                                 <i class="fa-solid fa-clock-rotate-left"></i>
                             </div>
                         </div>
-                        <p class="stat-title">DỰ ÁN TRỄ HẠN</p>
-                        <h2 class="stat-value">08</h2>
+                        <p class="bosch-stat-title">DỰ ÁN TRỄ HẠN</p>
+                        <h2 class="bosch-stat-value">08</h2>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-trend neutral">Ổn định</div>
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <div class="bosch-stat-trend neutral">Ổn định</div>
                             <div class="stat-icon blue">
                                 <i class="fa-solid fa-chart-pie"></i>
                             </div>
                         </div>
-                        <p class="stat-title">NGUỒN LỰC PHÂN BỔ</p>
-                        <h2 class="stat-value">92%</h2>
+                        <p class="bosch-stat-title">NGUỒN LỰC PHÂN BỔ</p>
+                        <h2 class="bosch-stat-value">92%</h2>
                     </div>
                 </div>
 
@@ -893,17 +900,17 @@
                 </div>
 
                 <div class="selection-footer-stats">
-                    <div class="modal-stat-card">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">THỜI GIAN CHỜ TRUNG BÌNH</p>
                         <h4 class="stat-val blue">14 Ngày</h4>
                         <div class="stat-indicator blue" style="width: 70%;"></div>
                     </div>
-                    <div class="modal-stat-card">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">KHẢ NĂNG SẴN SÀNG</p>
                         <h4 class="stat-val red">Cao (85%)</h4>
                         <div class="stat-indicator red" style="width: 85%;"></div>
                     </div>
-                    <div class="modal-stat-card">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">NHU CẦU SẮP TỚI</p>
                         <h4 class="stat-val black">9 Vị trí</h4>
                         <div class="stat-indicator black" style="width: 40%;"></div>
@@ -939,19 +946,19 @@
             <div class="modal-body">
                 <!-- Summary Cards inside Modal -->
                 <div class="modal-stats-row mb-24">
-                    <div class="modal-stat-card-simple">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">Tổng Doanh thu (YTD)</p>
                         <h4 class="stat-val red">5.2B VND</h4>
                     </div>
-                    <div class="modal-stat-card-simple">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">Dự án Hoạt động</p>
                         <h4 class="stat-val">12</h4>
                     </div>
-                    <div class="modal-stat-card-simple">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">Tăng trưởng so với 2023</p>
                         <h4 class="stat-val blue">+18.4%</h4>
                     </div>
-                    <div class="modal-stat-card-simple">
+                    <div class="bosch-stat-card">
                         <p class="stat-label">Trạng thái kế hoạch</p>
                         <h4 class="stat-val">Đúng tiến độ</h4>
                     </div>
@@ -1170,7 +1177,7 @@
             });
 
             // TAB SWITCHING
-            const tabButtons = document.querySelectorAll('.tab-item');
+            const tabButtons = document.querySelectorAll('.bosch-tab');
             const revenueView = document.getElementById('revenueView');
             const hrView = document.getElementById('hrView');
             const projectsView = document.getElementById('projectsView');

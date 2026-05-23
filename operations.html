@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vận hành | Bosch Operations</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/hr.css">
+    <link rel="stylesheet" href="css/operations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-wrapper">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Bosch-logo.svg" alt="Bosch Logo" class="brand-img">
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                Tổng quan
+            </a>
+            <a href="hr.html" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Nhân sự
+            </a>
+            <a href="operations.html" class="nav-item active">
+                <i class="fa-solid fa-building"></i>
+                Vận hành
+            </a>
+            <a href="budget.html" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                Ngân sách
+            </a>
+            <a href="organization.html" class="nav-item">
+                <i class="fa-solid fa-sitemap"></i>
+                Cơ cấu tổ chức
+            </a>
+            <a href="activity-log.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Nhật ký hoạt động
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="account.html" style="text-decoration: none; color: inherit;">
+                <div class="user-snippet">
+                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=BC0004&color=fff" alt="Avatar" class="user-avatar-sm" id="sidebarAvatar">
+                    <div class="user-info-sm">
+                        <h4 id="sidebarName">Nguyễn Văn A</h4>
+                        <p id="sidebarPosition">Quản trị viên hệ thống</p>
+                    </div>
+                </div>
+            </a>
+            <a href="index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="dashboard-top-bar">
+            <div class="bosch-tabs-container">
+                <button class="bosch-tab active" data-tab="customers">Khách hàng</button>
+                <button class="bosch-tab" data-tab="contracts">Hợp đồng</button>
+                <button class="bosch-tab" data-tab="projects">Dự án</button>
+                <button class="bosch-tab" data-tab="resources">Nguồn lực</button>
+            </div>
+        </div>
+
+        <main class="content-wrapper" style="flex: 1; overflow-y: auto;">
+            
+            <!-- CUSTOMERS VIEW -->
+            <div class="op-container" id="customersView">
+                <div class="op-controls">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm nhanh đối tác theo tên, người quản lý, ngành nghề..." style="width: 350px;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select">
+                            <option>Tất cả quốc gia</option>
+                        </select>
+                        <select class="hr-select">
+                            <option>Tất cả trạng thái hợp tác</option>
+                        </select>
+                    </div>
+                </div>
+
+                
+
+                <div class="table-responsive" style="margin-bottom: 70px;">
+                    <table class="bosch-table" id="customersTable">
+                        <thead>
+                            <tr>
+                                <th>MÃ KHÁCH HÀNG</th>
+                                <th>TÊN CÔNG TY</th>
+                                <th>NGƯỜI LIÊN HỆ</th>
+                                <th>EMAIL</th>
+                                <th>SỐ ĐIỆN THOẠI</th>
+                                <th>QUỐC GIA</th>
+                                <th>TRẠNG THÁI HỢP TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="code-col blue-text">KH-008</td>
+                                <td class="company-name">Petrovietnam Gas Node</td>
+                                <td>Mr. Le Hoang Thanh</td>
+                                <td class="light-text">hoangthanh.le@pvgas.com.vn</td>
+                                <td>02543834123</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-info">ĐÃ DEAL HỢP ĐỒNG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">KH-005</td>
+                                <td class="company-name">FPT Software Alliance</td>
+                                <td>Mr. Nguyen Quoc Hoa</td>
+                                <td class="light-text">quochoa.nguyen@fpt.com</td>
+                                <td>02437689000</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-info">ĐÃ DEAL HỢP ĐỒNG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">KH-007</td>
+                                <td class="company-name">Masan Consumer Core</td>
+                                <td>Mr. Tran Truong Tuan</td>
+                                <td class="light-text">truongtuan.tran@masan.vn</td>
+                                <td>02838275678</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-success">ĐÃ CÓ DỰ ÁN</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">KH-006</td>
+                                <td class="company-name">TH Milk Food Joint Stock</td>
+                                <td>Mrs. Cao Minh Huong</td>
+                                <td class="light-text">minhhuong.cao@thmilk.vn</td>
+                                <td>02383861234</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-success">ĐÃ CÓ DỰ ÁN</span></td>
+                            </tr>
+                            <tr class="selected-row">
+                                <td class="code-col blue-text">KH-003</td>
+                                <td class="company-name">Samsung Electronics HCMC</td>
+                                <td>Mr. Park Ji-Sung</td>
+                                <td class="light-text">jisung.park@samsung.com</td>
+                                <td>02839151111</td>
+                                <td>Hàn Quốc</td>
+                                <td><span class="badge badge-success">ĐÃ CÓ DỰ ÁN</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">KH-002</td>
+                                <td class="company-name">VinFast Trading & Production</td>
+                                <td>Mrs. Nguyen Lan Anh</td>
+                                <td class="light-text">lananh.nguyen@vinfast.vn</td>
+                                <td>02439749999</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-success">ĐÃ CÓ DỰ ÁN</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">KH-001</td>
+                                <td class="company-name">Bosch Global Software Technologies</td>
+                                <td>Mr. Martin Gaebele</td>
+                                <td class="light-text">vietnam.bosch@bosch.com</td>
+                                <td>02838122000</td>
+                                <td>Việt Nam</td>
+                                <td><span class="badge badge-success">ĐÃ CÓ DỰ ÁN</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FOOTER ACTION BAR FOR CUSTOMERS -->
+                <div class="action-footer" id="customersFooter">
+                    <div class="action-buttons">
+                        <button class="btn-action blue-btn" id="openAddCustomerModalBtn">
+                            <i class="fa-solid fa-plus"></i> Tạo khách hàng
+                        </button>
+                        <button class="btn-action yellow-btn" id="openEditCustomerModalBtn">
+                            <i class="fa-solid fa-pen"></i> Sửa
+                        </button>
+                        <button class="btn-action red-btn">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                    <div class="selection-indicator" id="custIndicator">
+                        Đang chọn: Samsung Electronics HCMC
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTRACTS VIEW -->
+            <div class="op-container" id="contractsView" style="display: none;">
+                <div class="op-controls">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm nhanh hợp đồng theo mã, tên đối tác..." style="width: 350px;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select">
+                            <option>Tất cả trạng thái</option>
+                        </select>
+                        <select class="hr-select">
+                            <option>OT / Không OT</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="op-controls" style="margin-top: -10px;">
+                    <div class="hr-filters">
+                        <select class="hr-select" style="background-color: var(--bg-body);">
+                            <option>Sắp xếp: Mặc định</option>
+                        </select>
+                    </div>
+                </div>
+
+                
+
+                <div class="table-responsive" style="margin-bottom: 70px; overflow-x: auto;">
+                    <table class="bosch-table" id="contractsTable" style="min-width: 1500px;">
+                        <thead>
+                            <tr>
+                                <th>MÃ HỢP ĐỒNG</th>
+                                <th>DOANH NGHIỆP</th>
+                                <th>NGƯỜI LIÊN HỆ</th>
+                                <th>EMAIL</th>
+                                <th>SỐ ĐT</th>
+                                <th>SERVICE LINE</th>
+                                <th>GIÁ TRỊ</th>
+                                <th>NGÀY HIỆU LỰC</th>
+                                <th>NGÀY HẾT HẠN</th>
+                                <th>DỰ ÁN (NẾU CÓ)</th>
+                                <th>OT</th>
+                                <th>BẢN KÝ</th>
+                                <th>TRẠNG THÁI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="code-col blue-text">HD-2023-SAM-03</td>
+                                <td class="company-name">Samsung Electro...</td>
+                                <td>Mr. Park Ji-Sung</td>
+                                <td class="light-text">jisung.park@s...</td>
+                                <td>02839151111</td>
+                                <td>IoT Connectivity & Smart Appliances</td>
+                                <td class="val-green">2.8B VND</td>
+                                <td>20/07/2024</td>
+                                <td class="val-red"><i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i> 20/07/2026</td>
+                                <td class="val-blue">IoT Connectivity Mesh Framework</td>
+                                <td>---</td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-danger">SẮP HẾT HẠN</span><div style="font-size: 9px; color: var(--text-muted); margin-top: 4px; text-align: center;">CÓ KHI RENEW</div></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">HD-2024-VIN-02</td>
+                                <td class="company-name">VinFast Trading ...</td>
+                                <td>Mrs. Nguyen Lan Anh</td>
+                                <td class="light-text">lananh.nguyen...</td>
+                                <td>02439749999</td>
+                                <td>Smart EV Telematics Software</td>
+                                <td class="val-green">3.2B VND</td>
+                                <td>15/06/2024</td>
+                                <td class="val-red"><i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i> 15/06/2026</td>
+                                <td class="val-blue">Industrial AI Core Platform</td>
+                                <td><span class="badge badge-info">OT</span></td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-danger">SẮP HẾT HẠN</span><div style="font-size: 9px; color: var(--text-muted); margin-top: 4px; text-align: center;">ĐANG THẢO LUẬN</div></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">HD-2023-PVN-08</td>
+                                <td class="company-name">Petrovietnam Ga...</td>
+                                <td>Mr. Le Hoang Thanh</td>
+                                <td class="light-text">hoangthanh.le...</td>
+                                <td>02543834123</td>
+                                <td>Industrial Sensing Systems Corp</td>
+                                <td class="val-green">3.8B VND</td>
+                                <td>30/11/2023</td>
+                                <td><b>30/11/2025</b></td>
+                                <td class="light-text">Chưa gắn dự án</td>
+                                <td><span class="badge badge-info">OT</span></td>
+                                <td>---</td>
+                                <td><span class="badge badge-muted">HẾT HẠN</span><div style="font-size: 9px; color: var(--text-muted); margin-top: 4px; text-align: center;">ĐANG THẢO LUẬN</div></td>
+                            </tr>
+                            <tr class="selected-row">
+                                <td class="code-col blue-text">HD-2024-TH-06</td>
+                                <td class="company-name">TH Milk Food Joi...</td>
+                                <td>Mrs. Cao Minh Huong</td>
+                                <td class="light-text">minhhuong.cao...</td>
+                                <td>02383861234</td>
+                                <td>Modern Dairy Farming IoT Hardware</td>
+                                <td class="val-green">2.2B VND</td>
+                                <td>10/11/2024</td>
+                                <td><b>10/11/2026</b></td>
+                                <td class="val-blue">Smart Logistics Warehouse Routing</td>
+                                <td>---</td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-success">CÓ HIỆU LỰC</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">HD-2024-VTE-04</td>
+                                <td class="company-name">Viettel Network ...</td>
+                                <td>Mr. Hoang Sy Hung</td>
+                                <td class="light-text">syhung.hoang@...</td>
+                                <td>02462556789</td>
+                                <td>Edge Computing Node Clusters & 5G</td>
+                                <td class="val-green">5.0B VND</td>
+                                <td>20/09/2024</td>
+                                <td><b>20/09/2027</b></td>
+                                <td class="val-blue">5G RAN Automated Testing Nodes</td>
+                                <td><span class="badge badge-info">OT</span></td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-success">CÓ HIỆU LỰC</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">HD-2023-BOS-01</td>
+                                <td class="company-name">Bosch Global Sof...</td>
+                                <td>Mr. Martin Gaebele</td>
+                                <td class="light-text">vietnam.bosch...</td>
+                                <td>02838122000</td>
+                                <td>Automotive Embedded Solutions</td>
+                                <td class="val-green">4.5B VND</td>
+                                <td>15/12/2023</td>
+                                <td><b>15/12/2026</b></td>
+                                <td class="val-blue">Automated Assembly Inspection N</td>
+                                <td>---</td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-success">CÓ HIỆU LỰC</span></td>
+                            </tr>
+                            <tr>
+                                <td class="code-col blue-text">HD-2025-FPT-05</td>
+                                <td class="company-name">FPT Software Alli...</td>
+                                <td>Mr. Nguyen Quoc Hoa</td>
+                                <td class="light-text">quochoa.nguye...</td>
+                                <td>02437689000</td>
+                                <td>Managed Test Automation Frameworks</td>
+                                <td class="val-green">1.5B VND</td>
+                                <td>01/06/2025</td>
+                                <td><i class="fa-solid fa-triangle-exclamation" style="font-size: 10px;"></i> 01/06/2026</td>
+                                <td class="light-text">Chưa gắn dự án</td>
+                                <td>---</td>
+                                <td><i class="fa-regular fa-file-pdf"></i></td>
+                                <td><span class="badge badge-danger">SẮP HẾT HẠN</span><div style="font-size: 9px; color: var(--text-muted); margin-top: 4px; text-align: center;">KHÔNG KÝ TIẾP</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FOOTER ACTION BAR FOR CONTRACTS -->
+                <div class="action-footer" id="contractsFooter" style="display: none;">
+                    <div class="action-buttons">
+                        <button class="btn-primary blue-btn" id="openAddContractModalBtn">
+                            <i class="fa-solid fa-plus"></i> Tạo hợp đồng
+                        </button>
+                        <button class="btn-primary outline-yellow-btn">
+                            <i class="fa-regular fa-pen-to-square"></i> Sửa
+                        </button>
+                        <button class="btn-primary red-btn">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                        <button class="btn-primary purple-btn" id="renewContractBtn">
+                            <i class="fa-solid fa-rotate-right"></i> Gia hạn
+                        </button>
+                        <button class="btn-primary outline-gray-btn" disabled>
+                            <i class="fa-regular fa-circle-check"></i> Kích hoạt
+                        </button>
+                    </div>
+                    <div class="selection-indicator" id="contIndicator">
+                        Đang chọn: HD-2024-TH-06
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROJECTS VIEW -->
+            <div class="op-container" id="projectsView" style="display: none;">
+                <div class="op-controls">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="width: 350px;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select"><option>Tất cả công ty</option></select>
+                        <select class="hr-select"><option>Tất cả Service Line</option></select>
+                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    </div>
+                </div>
+
+                
+
+                <div class="table-responsive" style="margin-bottom: 70px; overflow-x: auto;">
+                    <table class="bosch-table" id="projectsTable" style="min-width: 1500px;">
+                        <thead>
+                            <tr>
+                                <th>TÊN DỰ ÁN</th>
+                                <th>TÊN CÔNG TY</th>
+                                <th>KHÁCH HÀNG</th>
+                                <th>NHÂN SỰ PHỤ TRÁCH</th>
+                                <th>SERVICE LINE</th>
+                                <th>NGÂN SÁCH</th>
+                                <th>NGÀY BẮT ĐẦU</th>
+                                <th>NGÀY KẾT THÚC</th>
+                                <th>MÔ TẢ CHI TIẾT</th>
+                                <th>TIẾN ĐỘ</th>
+                                <th>TRẠNG THÁI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main);">Automated Assembly Inspection Node</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-MEC-06</div>
+                                </td>
+                                <td class="company-name">Bosch Global Software Technologies</td>
+                                <td>Mr. Martin Gaebele</td>
+                                <td style="color: #ccc; font-style: italic; font-size: 12px;">Chưa phân bổ</td>
+                                <td>Automotive Embedded...</td>
+                                <td class="val-green">1.6B <span style="font-size:10px;">VND</span></td>
+                                <td>15/12/2023</td>
+                                <td>12/04/2026</td>
+                                <td><div style="border:1px solid #eee; padding:4px 8px; border-radius:4px; font-size:11px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px;"><i class="fa-regular fa-file"></i> assembly_in...</div></td>
+                                <td>
+                                    <div style="font-size:11px; font-weight:700; margin-bottom:4px;">30%</div>
+                                    <div style="width:40px; height:4px; background:#eee; border-radius:2px;"><div style="width:30%; height:100%; background:#E20015; border-radius:2px;"></div></div>
+                                </td>
+                                <td><span class="badge badge-danger">TRỄ HẠN</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main);">Digital Supply Chain Predictive Core</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-ANL-05</div>
+                                </td>
+                                <td class="company-name">Masan Consumer Core</td>
+                                <td>Mr. Tran Truong Tuan</td>
+                                <td><span style="font-size: 11px; font-weight: 600; color: var(--bosch-blue); background: #e6f2f9; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">Đỗ Thu Hà <span style="background: var(--bosch-blue); color: var(--bg-card); font-size: 8px; padding: 1px 4px; border-radius: 2px;">LEADER</span></span></td>
+                                <td>Enterprise Digital Supp...</td>
+                                <td class="val-green">1.5B <span style="font-size:10px;">VND</span></td>
+                                <td>05/01/2024</td>
+                                <td>01/08/2025</td>
+                                <td style="color: var(--text-muted);">---</td>
+                                <td>
+                                    <div style="font-size:11px; font-weight:700; margin-bottom:4px;">55%</div>
+                                    <div style="width:40px; height:4px; background:#eee; border-radius:2px;"><div style="width:55%; height:100%; background:#E20015; border-radius:2px;"></div></div>
+                                </td>
+                                <td><span class="badge badge-danger">TRỄ HẠN</span></td>
+                            </tr>
+                            <tr class="selected-row">
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main);">5G RAN Automated Testing Nodes</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-NET-04</div>
+                                </td>
+                                <td class="company-name">Viettel Network Corporation</td>
+                                <td>Mr. Hoang Sy Hung</td>
+                                <td>
+                                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                                        <span style="font-size: 11px; font-weight: 600; color: var(--bosch-blue); background: #e6f2f9; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">Nguyễn Văn A <span style="background: var(--bosch-blue); color: var(--bg-card); font-size: 8px; padding: 1px 4px; border-radius: 2px;">LEADER</span></span>
+                                        <span style="font-size: 11px; font-weight: 600; color: var(--text-main);">Hoàng Văn E</span>
+                                    </div>
+                                </td>
+                                <td>Edge Computing Node...</td>
+                                <td class="val-green">2.1B <span style="font-size:10px;">VND</span></td>
+                                <td>20/09/2024</td>
+                                <td>30/12/2025</td>
+                                <td style="color: var(--text-muted);">---</td>
+                                <td>
+                                    <div style="font-size:11px; font-weight:700; margin-bottom:4px;">60%</div>
+                                    <div style="width:40px; height:4px; background:#eee; border-radius:2px;"><div style="width:60%; height:100%; background:#E20015; border-radius:2px;"></div></div>
+                                </td>
+                                <td><span class="badge badge-danger">TRỄ HẠN</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="action-footer" id="projectsFooter" style="display: none;">
+                    <div class="action-buttons">
+                        <button class="btn-primary blue-btn" id="openAddProjectModalBtn">
+                            <i class="fa-solid fa-plus"></i> Tạo dự án
+                        </button>
+                        <button class="btn-primary outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                            <i class="fa-regular fa-pen-to-square"></i> Sửa
+                        </button>
+                        <button class="btn-primary outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESOURCES VIEW -->
+            <div class="op-container" id="resourcesView" style="display: none;">
+                <div class="op-controls">
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="width: 350px;">
+                    </div>
+                    <div class="hr-filters">
+                        <select class="hr-select"><option>OT/Không OT</option></select>
+                        <select class="hr-select"><option>Tất cả Service Line</option></select>
+                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    </div>
+                </div>
+
+                <!-- Sub tabs for Resources -->
+                <div style="display: flex; gap: 32px; border-bottom: 1px solid #e0e0e0; margin-bottom: 24px; margin-top: 16px;">
+                    <div style="padding: 12px 0; font-size: 14px; font-weight: 700; color: var(--bosch-blue); border-bottom: 2px solid var(--bosch-blue); cursor: pointer; position: relative; top: 1px;">
+                        <i class="fa-regular fa-file-lines" style="margin-right: 6px;"></i> Danh sách yêu cầu nguồn lực của GM
+                    </div>
+                    <div style="padding: 12px 0; font-size: 14px; font-weight: 700; color: var(--text-secondary); cursor: pointer;">
+                        <i class="fa-solid fa-users-gear" style="margin-right: 6px;"></i> Đội ngũ kỹ sư hiện tại (DM)
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="margin-bottom: 70px; overflow-x: auto;">
+                    <table class="bosch-table" id="resourcesTable" style="min-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th>MÃ YÊU CẦU</th>
+                                <th>MÃ DỰ ÁN & TÊN DỰ ÁN</th>
+                                <th>THỜI GIAN THAM GIA</th>
+                                <th>YÊU CẦU OT</th>
+                                <th>VỊ TRÍ CÔNG VIỆC TUYỂN DỤNG</th>
+                                <th style="text-align: center;">SỐ LƯỢNG</th>
+                                <th>TỆP YÊU CẦU CHI TIẾT</th>
+                                <th>TRẠNG THÁI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700; color: var(--bosch-blue);">REQ-001</td>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main);">Industrial AI Core Platform</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-AI-01</div>
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 12px;">01/06/2025 đến<br>01/12/2025</td>
+                                <td>
+                                    <span style="color: #E20015; font-weight: 700; font-size: 11px;">BẮT BUỘC<br>(THEO KH-002)</span>
+                                </td>
+                                <td>
+                                    <div style="font-size: 12px; color: var(--text-main);">Industrial AI Engineer x 1</div>
+                                    <div style="font-size: 12px; color: var(--text-main); margin-top: 4px;">QA Automation Specialist x 1</div>
+                                </td>
+                                <td style="text-align: center; font-weight: 700;">2</td>
+                                <td><div style="border:1px solid #eee; padding:4px 8px; border-radius:4px; font-size:11px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px;"><i class="fa-regular fa-file"></i> ai_node_skills_v...</div></td>
+                                <td><span class="badge badge-warning">ĐANG CHỜ</span></td>
+                            </tr>
+                            <tr class="selected-row">
+                                <td style="font-weight: 700; color: var(--bosch-blue);">REQ-002</td>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text-main);">Smart Logistics Warehouse Routing</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-LOG-02</div>
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 12px;">15/02/2025 đến<br>30/08/2026</td>
+                                <td>
+                                    <span style="color: var(--text-muted); font-size: 11px; font-weight: 600;">KHÔNG YÊU CẦU</span>
+                                </td>
+                                <td>
+                                    <div style="font-size: 12px; color: var(--text-main);">Warehouse Routing Lead x 1</div>
+                                </td>
+                                <td style="text-align: center; font-weight: 700;">1</td>
+                                <td><div style="border:1px solid #eee; padding:4px 8px; border-radius:4px; font-size:11px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px;"><i class="fa-regular fa-file"></i> warehouse_spe...</div></td>
+                                <td><span class="badge badge-success">ĐÃ PHÂN BỔ</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="action-footer" id="resourcesFooter" style="display: none;">
+                    <div class="action-buttons">
+                        <button class="btn-action blue-btn" id="openAddResourceBtn">
+                            <i class="fa-solid fa-plus"></i> Tạo yêu cầu
+                        </button>
+                        <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                            <i class="fa-regular fa-pen-to-square"></i> Sửa
+                        </button>
+                        <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL TẠO/SỬA KHÁCH HÀNG -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal-content hr-modal">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main);"><i class="fa-regular fa-pen-to-square" style="color: #E20015; margin-right: 8px;"></i> SỬA THÔNG TIN KHÁCH HÀNG</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeCustomerModal"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div class="form-group mb-15">
+                    <label>TÊN CÔNG TY <span>*</span></label>
+                    <input type="text" value="Samsung Electronics HCMC" class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label style="color: var(--text-secondary);">NGƯỜI LIÊN HỆ</label>
+                    <input type="text" value="Mr. Park Ji-Sung" class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label>EMAIL <span>*</span></label>
+                    <input type="text" value="jisung.park@samsung.com" class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label>SỐ ĐIỆN THOẠI <span>*</span></label>
+                    <input type="text" value="02839151111" class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label style="color: var(--text-secondary);">QUỐC GIA</label>
+                    <p style="font-size: 13px; margin-top: 8px; color: var(--text-main); font-weight: 500;">Hàn Quốc</p>
+                </div>
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
+                <button class="btn-cancel" id="cancelCustomerBtn" style="background: transparent; padding: 10px 20px;">Hủy</button>
+                <button class="btn-update" style="padding: 10px 30px;">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TẠO HỢP ĐỒNG -->
+    <div class="modal-overlay" id="contractModal">
+        <div class="modal-content hr-modal">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO HỢP ĐỒNG MỚI</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeContractModal"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div class="form-group mb-15">
+                    <label>Khách hàng <span>*</span></label>
+                    <select class="custom-select bg-white-input">
+                        <option>--- Chọn khách hàng ---</option>
+                    </select>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Ngày hiệu lực <span>*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Ngày hết hạn <span>*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-15">
+                    <label>Service Line <span>*</span></label>
+                    <input type="text" placeholder="e.g. IT Consulting" class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label>Giá trị hợp đồng (VND) <span>*</span></label>
+                    <input type="text" placeholder="Nhập số tiền > 250,000,000" class="bg-white-input">
+                </div>
+                
+                <div class="form-group mb-15" style="flex-direction: row; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="otCheck" style="width: 16px; height: 16px;">
+                    <label for="otCheck" style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer;">Yêu cầu OT (Overtime)</label>
+                </div>
+
+                <div class="form-group mb-15">
+                    <label>File đính kèm (Bản hợp đồng đã ký)</label>
+                    <div style="border: 1px dashed #ccc; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); margin-top: 4px;">
+                        <span style="color: var(--text-muted); font-size: 13px; font-style: italic;"><i class="fa-regular fa-file-lines"></i> VD: contract_signed.pdf</span>
+                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--bosch-blue); cursor: pointer;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
+                <button class="btn-cancel" id="cancelContractBtn" style="background: transparent; padding: 10px 20px;">Hủy</button>
+                <button class="btn-update" style="padding: 10px 30px;">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GIA HẠN HỢP ĐỒNG -->
+    <div class="modal-overlay" id="renewModal">
+        <div class="modal-content hr-modal" style="width: 400px;">
+            <div class="modal-header" style="border-bottom: none; padding: 24px 24px 10px 24px;">
+                <h3 style="font-size: 13px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-rotate-right" style="color: #4f46e5; margin-right: 8px;"></i> GIA HẠN HỢP ĐỒNG</h3>
+            </div>
+            <div class="modal-body" style="padding: 10px 24px 24px 24px;">
+                <div style="background-color: #f3f4ff; color: #4f46e5; font-weight: 700; font-size: 14px; text-align: center; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+                    HD-2024-TH-06
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 12px; color: var(--text-main); font-weight: 700; margin-bottom: 8px;">Trạng thái gia hạn:</label>
+                    <select class="custom-select bg-white-input" style="width: 100%; border: 1px solid #ddd; padding: 10px 12px; border-radius: 6px; color: var(--text-main); font-size: 13px;">
+                        <option>Có kế hoạch ký tiếp (Planned)</option>
+                        <option>Đang thảo luận (Discussing)</option>
+                        <option>Không ký tiếp (Not Renewing)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 0 24px 24px 24px;">
+                <button class="btn-cancel" id="cancelRenewBtn" style="background: transparent; border: 1px solid #ddd; padding: 8px 24px; border-radius: 6px; color: var(--text-secondary); font-weight: 600; margin-right: 12px;">Hủy</button>
+                <button style="background: #4f46e5; color: var(--bg-card); border: none; padding: 8px 24px; border-radius: 6px; font-weight: 600; cursor: pointer;" id="confirmRenewBtn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TẠO DỰ ÁN MỚI -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-content hr-modal" style="width: 450px;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO DỰ ÁN MỚI</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeProjectModal"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án <span style="color:#E20015;">*</span></label>
+                    <input type="text" placeholder="Nhập tên dự án công nghệ chi tiết..." class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Liên kết hợp đồng <span style="color:#E20015;">*</span></label>
+                    <select class="custom-select bg-white-input">
+                        <option>-- Chọn hợp đồng đang hiệu lực --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Khách hàng đại diện <span style="color:#E20015;">*</span></label>
+                    <select class="custom-select bg-white-input">
+                        <option>-- Tự động liên kết theo hợp đồng --</option>
+                    </select>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu <span style="color:#E20015;">*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+                        </div>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase;">Hạn cuối dự án <span style="color:#E20015;">*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Service Line <span style="color:#E20015;">*</span></label>
+                    <input type="text" placeholder="Phạm vi dịch vụ..." class="bg-white-input">
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Ngân sách phân bổ (VND) <span style="color:#E20015;">*</span></label>
+                    <input type="text" placeholder="e.g. 1500000000" class="bg-white-input">
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Chủ trì dự án</label>
+                        <input type="text" placeholder="Họ và tên leader..." class="bg-white-input" style="border: none; padding-left: 0;">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Tên tệp mô tả chi tiết</label>
+                        <input type="text" placeholder="Ví dụ: spec_mesh_v2.pdf" class="bg-white-input" style="border: none; padding-left: 0;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
+                <button class="btn-cancel" id="cancelProjectBtn" style="background: transparent; color: var(--text-main); font-weight: 700;">Hủy</button>
+                <button class="btn-update" style="background: #C4161C; color: white; padding: 10px 30px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TẠO YÊU CẦU NHÂN LỰC MỚI -->
+    <div class="modal-overlay" id="resourceModal">
+        <div class="modal-content hr-modal" style="width: 450px;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO YÊU CẦU NHÂN LỰC MỚI</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeResourceModal"></i>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Mã dự án liên kết <span style="color:#E20015;">*</span></label>
+                    <select class="custom-select bg-white-input">
+                        <option>-- Chọn dự án kỹ thuật --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án tự động hiển thị</label>
+                    <input type="text" placeholder="Mã dự án chưa được chọn..." class="bg-white-input" style="border: none; padding-left: 0;" disabled>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu tham gia <span style="color:#E20015;">*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+                        </div>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày kết thúc tham gia <span style="color:#E20015;">*</span></label>
+                        <div class="input-with-icon">
+                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
+                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Yêu cầu làm thêm giờ (OT)</label>
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #3b5998; font-weight: 700; font-size: 13px;">Không yêu cầu</span>
+                        <span style="color: var(--text-muted); font-size: 11px;">(Tự động gán theo HĐ)</span>
+                    </div>
+                </div>
+                
+                <div style="border: 1px dashed #ccc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="font-size: 11px; text-transform: uppercase;">Vị trí công việc & Số lượng tuyển dụng <span style="color:#E20015;">*</span></label>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                            <span style="color: var(--text-muted); font-size: 13px;">Vị trí (Ví dụ: Embedded Developer)...</span>
+                            <span style="font-weight: 700;">1</span>
+                        </div>
+                        <button style="background: var(--bg-card); border: 1px solid var(--text-secondary); color: var(--text-main); padding: 8px 16px; border-radius: 4px; font-weight: 600; font-size: 12px; margin-top: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-plus"></i> Thêm vị trí công việc
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Đính kèm tệp yêu cầu chi tiết (JD/Ghi chú)</label>
+                    <div style="margin-top: 8px; color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>Ví dụ: tech_specs_v3.pdf...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
+                <button class="btn-cancel" id="cancelResourceBtn" style="background: transparent; color: var(--text-main); font-weight: 700;">Hủy</button>
+                <button class="btn-update" style="background: #C4161C; color: white; padding: 10px 30px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.bosch-tab');
+        const custView = document.getElementById('customersView');
+        const contView = document.getElementById('contractsView');
+        const projView = document.getElementById('projectsView');
+        const resView = document.getElementById('resourcesView');
+        const custFooter = document.getElementById('customersFooter');
+        const contFooter = document.getElementById('contractsFooter');
+        const projFooter = document.getElementById('projectsFooter');
+        const resFooter = document.getElementById('resourcesFooter');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                });
+                tab.classList.add('active');
+                
+                [custView, contView, projView, resView, custFooter, contFooter, projFooter, resFooter].forEach(el => el.style.display = 'none');
+
+                if (tab.dataset.tab === 'customers') {
+                    custView.style.display = 'block';
+                    custFooter.style.display = 'flex';
+                } else if (tab.dataset.tab === 'contracts') {
+                    contView.style.display = 'block';
+                    contFooter.style.display = 'flex';
+                } else if (tab.dataset.tab === 'projects') {
+                    projView.style.display = 'block';
+                    projFooter.style.display = 'flex';
+                } else if (tab.dataset.tab === 'resources') {
+                    resView.style.display = 'block';
+                    resFooter.style.display = 'flex';
+                }
+            });
+        });
+
+        // Modals
+        const custModal = document.getElementById('customerModal');
+        const contModal = document.getElementById('contractModal');
+        const renewModal = document.getElementById('renewModal');
+        const projModal = document.getElementById('projectModal');
+        const resModal = document.getElementById('resourceModal');
+
+        document.getElementById('openAddCustomerModalBtn').addEventListener('click', () => custModal.classList.add('show'));
+        document.getElementById('openEditCustomerModalBtn').addEventListener('click', () => custModal.classList.add('show'));
+        document.getElementById('closeCustomerModal').addEventListener('click', () => custModal.classList.remove('show'));
+        document.getElementById('cancelCustomerBtn').addEventListener('click', () => custModal.classList.remove('show'));
+
+        document.getElementById('openAddContractModalBtn').addEventListener('click', () => contModal.classList.add('show'));
+        document.getElementById('closeContractModal').addEventListener('click', () => contModal.classList.remove('show'));
+        document.getElementById('cancelContractBtn').addEventListener('click', () => contModal.classList.remove('show'));
+
+        document.getElementById('openAddProjectModalBtn').addEventListener('click', () => projModal.classList.add('show'));
+        document.getElementById('closeProjectModal').addEventListener('click', () => projModal.classList.remove('show'));
+        document.getElementById('cancelProjectBtn').addEventListener('click', () => projModal.classList.remove('show'));
+
+        document.getElementById('openAddResourceBtn').addEventListener('click', () => resModal.classList.add('show'));
+        document.getElementById('closeResourceModal').addEventListener('click', () => resModal.classList.remove('show'));
+        document.getElementById('cancelResourceBtn').addEventListener('click', () => resModal.classList.remove('show'));
+
+        window.addEventListener('click', (e) => {
+            if (e.target === custModal) custModal.classList.remove('show');
+            if (e.target === contModal) contModal.classList.remove('show');
+            if (e.target === renewModal) renewModal.classList.remove('show');
+            if (e.target === projModal) projModal.classList.remove('show');
+            if (e.target === resModal) resModal.classList.remove('show');
+        });
+
+        // Row Selection Logic
+        const customerRows = document.querySelectorAll('#customersTable tbody tr');
+        const contractsRows = document.querySelectorAll('#contractsTable tbody tr');
+        const projectsRows = document.querySelectorAll('#projectsTable tbody tr');
+        const resourcesRows = document.querySelectorAll('#resourcesTable tbody tr');
+        const custIndicator = document.getElementById('custIndicator');
+        const contIndicator = document.getElementById('contIndicator');
+
+        customerRows.forEach(row => {
+            row.addEventListener('click', () => {
+                customerRows.forEach(r => r.classList.remove('selected-row'));
+                row.classList.add('selected-row');
+                const companyName = row.querySelector('.company-name').innerText;
+                if(custIndicator) custIndicator.innerText = `Đang chọn: ${companyName}`;
+            });
+        });
+
+        contractsRows.forEach(row => {
+            row.addEventListener('click', () => {
+                contractsRows.forEach(r => r.classList.remove('selected-row'));
+                row.classList.add('selected-row');
+                const contractCode = row.querySelector('.code-col').innerText;
+                if(contIndicator) contIndicator.innerText = `Đang chọn: ${contractCode}`;
+            });
+        });
+
+        projectsRows.forEach(row => {
+            row.addEventListener('click', () => {
+                projectsRows.forEach(r => r.classList.remove('selected-row'));
+                row.classList.add('selected-row');
+            });
+        });
+
+        resourcesRows.forEach(row => {
+            row.addEventListener('click', () => {
+                resourcesRows.forEach(r => r.classList.remove('selected-row'));
+                row.classList.add('selected-row');
+            });
+        });
+
+        // Gia hạn button logic
+        document.getElementById('renewContractBtn').addEventListener('click', () => {
+            renewModal.classList.add('show');
+        });
+        document.getElementById('cancelRenewBtn').addEventListener('click', () => {
+            renewModal.classList.remove('show');
+        });
+        document.getElementById('confirmRenewBtn').addEventListener('click', () => {
+            renewModal.classList.remove('show');
+            alert('Đã cập nhật trạng thái gia hạn!');
+        });
+    </script>
+</body>
+</html>
