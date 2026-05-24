@@ -292,6 +292,10 @@ body {
     color: var(--text-muted);
     text-transform: uppercase;
     border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
 }
 .bosch-table td {
     padding: var(--space-4);
@@ -518,3 +522,53 @@ body {
 .bosch-stat-trend.up { color: var(--success-text); background: var(--success-bg); padding: 4px 8px; border-radius: 12px; }
 .bosch-stat-trend.down { color: var(--danger-text); background: var(--danger-bg); padding: 4px 8px; border-radius: 12px; }
 .bosch-stat-trend.neutral { color: var(--info-text); background: var(--info-bg); padding: 4px 8px; border-radius: 12px; }
+
+/* 7. PAGINATION (.bosch-pagination) */
+.bosch-pagination-bar {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--space-4) var(--space-6);
+    background-color: var(--bg-body);
+    border-top: 1px solid var(--border-light);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+    margin-top: -1px;
+}
+.bosch-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.bosch-pagination .page-info {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+.bosch-pagination .page-controls {
+    display: flex;
+    gap: var(--space-2);
+}
+.bosch-pagination .page-btn {
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0 8px;
+}
+.bosch-pagination .page-btn:hover:not(.active) {
+    background: #e5e7eb;
+}
+.bosch-pagination .page-btn.active {
+    background: var(--bosch-red);
+    color: white;
+    font-weight: var(--font-bold);
+}

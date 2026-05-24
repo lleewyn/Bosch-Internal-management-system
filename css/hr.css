@@ -1,26 +1,27 @@
 /* hr.css */
 .hr-container {
-    padding: 24px;
+    padding: 24px 0 0 0;
     background: var(--bg-card);
     border-radius: 12px;
     box-shadow: var(--shadow-panel);
     border: 1px solid #eef2f7;
-    min-height: 500px;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
+}
+
+.hr-controls {
+    padding: 0 24px 24px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
 }
 
 .hr-container .table-responsive {
     overflow-x: auto;
     flex: 1;
-    padding: 18px;
-}
-
-.hr-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
+    padding: 0;
 }
 
 .hr-filters {
@@ -89,33 +90,6 @@
     flex: 1;
 }
 
-.bosch-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.bosch-table th {
-    padding: 16px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: var(--font-bold);
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    border-bottom: 1px solid #f0f0f0;
-    background: #f8fafc;
-}
-
-.bosch-table td {
-    padding: 16px;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 13px;
-    vertical-align: top;
-}
-
-.bosch-table tr:hover td {
-    background: var(--bg-body);
-}
-
 .code-col {
     color: var(--text-muted);
     font-weight: var(--font-semibold);
@@ -150,7 +124,7 @@
 .workload-col {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 100%;
 }
 

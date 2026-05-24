@@ -1,0 +1,403 @@
+/* ===== UNIFIED TABLE STYLES ===== */
+/* Consistent table styling across all pages */
+
+/* Container for all tables */
+.table-container,
+.table-wrapper,
+.log-table-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    box-shadow: var(--shadow-panel);
+}
+
+/* Table responsive inside containers that already have styling */
+.op-container .table-responsive,
+.hr-container .table-responsive,
+.budget-container .table-responsive {
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Standard table styling */
+.bosch-table,
+.op-table,
+.log-table,
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+}
+
+/* TABLE HEADERS - Unified Style */
+.bosch-table th,
+.op-table th,
+.log-table th,
+.data-table th {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    background: var(--bg-body);
+    border-bottom: 1px solid var(--border-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* TABLE CELLS - Unified Style */
+.bosch-table td,
+.op-table td,
+.log-table td,
+.data-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-secondary);
+    vertical-align: top;
+}
+
+/* ROW HOVER EFFECT - Unified */
+.bosch-table tr:hover td,
+.op-table tr:hover td,
+.log-table tr:hover td,
+.data-table tr:hover td {
+    background: var(--bg-body);
+}
+
+/* ===== COLUMN STYLE UTILITIES ===== */
+
+/* CODE/ID COLUMNS */
+.code-col,
+.id-col {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* NAME COLUMNS */
+.name-col {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* ROLE/POSITION COLUMNS */
+.role-col,
+.position-col {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* PROJECT COLUMNS */
+.project-col {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* TIME/DATE COLUMNS */
+.time-col,
+.date-col {
+    color: var(--text-secondary);
+}
+
+.time-col .date,
+.date-col .main-date {
+    font-weight: 700;
+    color: var(--text-main);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.time-col .sub,
+.date-col .sub-text {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* USER/EMPLOYEE CELLS */
+.user-cell,
+.employee-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar,
+.employee-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.user-info,
+.employee-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info .name,
+.employee-info .name {
+    font-weight: 700;
+    color: var(--text-main);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.user-info .id,
+.employee-info .id {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ===== STATUS & BADGES ===== */
+
+/* Standard Badge */
+.status-badge,
+.badge,
+.category-badge,
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Badge Color Variations */
+.badge-success,
+.status-on-plan {
+    background: #ECFDF5;
+    color: #10B981;
+}
+
+.badge-danger,
+.status-denied {
+    background: #FEF2F2;
+    color: #EF4444;
+}
+
+.badge-warning,
+.status-warning {
+    background: #FEF3C7;
+    color: #F59E0B;
+}
+
+.badge-info,
+.status-info {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+.badge-default {
+    background: #F3F4F6;
+    color: var(--text-secondary);
+}
+
+/* Special status categories */
+.cat-salary { background: #EFF6FF; color: #2563EB; }
+.cat-denied { background: #FEF2F2; color: #EF4444; }
+.cat-login { background: #ECFDF5; color: #10B981; }
+.cat-data { background: #FFF7ED; color: #F97316; }
+.cat-system { background: #F3E8FF; color: #A855F7; }
+
+/* ===== NUMERIC VALUES ===== */
+
+.value,
+.amount {
+    font-weight: 700;
+}
+
+.value-green,
+.amount-positive {
+    color: #10B981;
+}
+
+.value-red,
+.amount-negative {
+    color: #E20015;
+}
+
+.value-blue,
+.amount-neutral {
+    color: var(--bosch-blue);
+}
+
+.value-orange,
+.amount-warning {
+    color: #F97316;
+}
+
+/* ===== PROGRESS & PERCENTAGE ===== */
+
+.progress-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #10B981;
+    border-radius: 4px;
+    transition: width 0.2s;
+}
+
+.progress-text {
+    font-weight: 700;
+    color: var(--text-main);
+    min-width: 40px;
+    text-align: right;
+    font-size: 12px;
+}
+
+/* ===== ACTION BUTTONS IN TABLES ===== */
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn,
+.table-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.action-btn:hover,
+.table-action-btn:hover {
+    background: var(--bg-body);
+    color: var(--text-main);
+}
+
+.action-btn.edit {
+    color: #F59E0B;
+}
+
+.action-btn.edit:hover {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.action-btn.delete {
+    color: #EF4444;
+}
+
+.action-btn.delete:hover {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+/* ===== SPECIAL CONTENT STYLES ===== */
+
+/* Multiple tags/items in a cell */
+.tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-item {
+    background: #f1f3f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: inline-block;
+}
+
+/* Notes/descriptions */
+.note-text,
+.description {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Highlight text */
+.highlight {
+    color: #E20015;
+    font-weight: 700;
+    font-size: 11px;
+    display: block;
+    margin-top: 4px;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+@media (max-width: 1024px) {
+    .bosch-table td,
+    .op-table td,
+    .log-table td,
+    .data-table td {
+        padding: 12px 16px;
+        font-size: 12px;
+    }
+
+    .bosch-table th,
+    .op-table th,
+    .log-table th,
+    .data-table th {
+        padding: 12px 16px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .bosch-table td,
+    .op-table td,
+    .log-table td,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+
+    .bosch-table th,
+    .op-table th,
+    .log-table th,
+    .data-table th {
+        padding: 10px 12px;
+        font-size: 9px;
+    }
+
+    .user-cell,
+    .employee-cell {
+        gap: 8px;
+    }
+
+    .user-avatar,
+    .employee-avatar {
+        width: 32px;
+        height: 32px;
+    }
+}

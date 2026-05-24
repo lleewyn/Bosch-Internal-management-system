@@ -6,6 +6,7 @@
     <title>Quản lý nhân sự | Bosch HR Management</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/hr.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -119,13 +120,20 @@
                 <!-- TABLE CONTENT -->
                 <div class="table-responsive">
                     <table class="bosch-table" id="directoryTable">
+                        <colgroup>
+                            <col style="width: 12%;">
+                            <col style="width: 20%;">
+                            <col style="width: 20%;">
+                            <col style="width: 23%;">
+                            <col style="width: 25%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>MÃ NV</th>
                                 <th>HỌ VÀ TÊN</th>
                                 <th>CHỨC DANH</th>
                                 <th>TEAM DỰ ÁN</th>
-                                <th style="text-align: right;">KHỐI LƯỢNG CÔNG VIỆC</th>
+                                <th>KHỐI LƯỢNG CÔNG VIỆC</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -168,22 +176,22 @@
                                 <td class="name-col">Lê Hoàng Nam</td>
                                 <td class="role-col">Full-stack Developer</td>
                                 <td class="project-col">
-                                    <div style="margin-bottom: 8px;">Automotive R&D</div>
-                                    <div style="padding-top: 8px; border-top: 1px solid #f0f0f0;">Security Audit</div>
+                                    <div style="margin-bottom: 12px;">Automotive R&D</div>
+                                    <div style="padding-top: 12px; border-top: 1px solid #f0f0f0;">Security Audit</div>
                                 </td>
                                 <td>
-                                    <div class="workload-col" style="margin-bottom: 8px;">
-                                        <div class="progress-bar-container" style="background: transparent;"></div>
+                                    <div class="workload-col" style="margin-bottom: 12px;">
+                                        <div class="progress-bar-container" style="background: transparent; margin-bottom: 2px;"></div>
                                         <div class="workload-info">
-                                            <span class="badge badge-muted" style="color: var(--text-secondary); font-size: 9px;">AUTOMOTIVE R&D</span>
-                                            <span class="percent-text" style="font-size: 10px;">55%</span>
+                                            <span class="badge badge-default">AUTOMOTIVE R&D</span>
+                                            <span class="percent-text">55%</span>
                                         </div>
                                     </div>
-                                    <div class="workload-col" style="margin-bottom: 8px;">
-                                        <div class="progress-bar-container" style="background: transparent;"></div>
+                                    <div class="workload-col" style="margin-bottom: 12px;">
+                                        <div class="progress-bar-container" style="background: transparent; margin-bottom: 2px;"></div>
                                         <div class="workload-info">
-                                            <span class="badge badge-muted" style="color: var(--text-secondary); font-size: 9px;">SECURITY AUDIT</span>
-                                            <span class="percent-text" style="font-size: 10px;">60%</span>
+                                            <span class="badge badge-default">SECURITY AUDIT</span>
+                                            <span class="percent-text">60%</span>
                                         </div>
                                     </div>
                                     <div class="workload-col">
@@ -227,6 +235,57 @@
                                         <div class="workload-info">
                                             <span class="badge badge-success">ỔN ĐỊNH</span>
                                             <span class="percent-text">85%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="code-col">BS2150</td>
+                                <td class="name-col">Hoàng Minh Đức</td>
+                                <td class="role-col">Backend Developer</td>
+                                <td class="project-col">IoT Connectivity Platform</td>
+                                <td>
+                                    <div class="workload-col">
+                                        <div class="progress-bar-container">
+                                            <div class="progress-fill green" style="width: 75%;"></div>
+                                        </div>
+                                        <div class="workload-info">
+                                            <span class="badge badge-success">ỔN ĐỊNH</span>
+                                            <span class="percent-text">75%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="code-col">BS2187</td>
+                                <td class="name-col">Võ Thị Hương</td>
+                                <td class="role-col">Product Manager</td>
+                                <td class="project-col">Smart Home Ecosystem</td>
+                                <td>
+                                    <div class="workload-col">
+                                        <div class="progress-bar-container">
+                                            <div class="progress-fill green" style="width: 88%;"></div>
+                                        </div>
+                                        <div class="workload-info">
+                                            <span class="badge badge-success">ỔN ĐỊNH</span>
+                                            <span class="percent-text">88%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="code-col">BS2203</td>
+                                <td class="name-col">Dương Anh Tuấn</td>
+                                <td class="role-col">DevOps Engineer</td>
+                                <td class="project-col">Cloud Infrastructure</td>
+                                <td>
+                                    <div class="workload-col">
+                                        <div class="progress-bar-container">
+                                            <div class="progress-fill yellow" style="width: 55%;"></div>
+                                        </div>
+                                        <div class="workload-info">
+                                            <span class="badge badge-warning">RẢNH RỖI</span>
+                                            <span class="percent-text">55%</span>
                                         </div>
                                     </div>
                                 </td>
@@ -290,9 +349,9 @@
                     </table>
                 </div>
 
-                <div class="hr-pagination-bar">
-                    <div class="hr-pagination">
-                        <span class="page-info">Hiển thị 1 - 5 trên 142 nhân sự</span>
+                <div class="bosch-pagination-bar">
+                    <div class="bosch-pagination">
+                        <span class="page-info">Hiển thị 1 - 8 trên 142 nhân sự</span>
                         <div class="page-controls">
                             <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
                             <button class="page-btn active">1</button>
@@ -558,6 +617,84 @@
         window.addEventListener('click', (e) => {
             if (e.target === addModal) addModal.classList.remove('show');
             if (e.target === assignModal) assignModal.classList.remove('show');
+        });
+
+        // Pagination logic
+        const pageButtons = document.querySelectorAll('.page-btn');
+        let currentPage = 1;
+
+        // Mock data generation for pagination demo
+        const dirTbody = document.querySelector('#directoryTable tbody');
+        const originalRows = Array.from(dirTbody.querySelectorAll('tr'));
+        const allRows = [];
+        
+        // Clone rows to create 3 pages of data (24 rows)
+        for (let i = 0; i < 3; i++) {
+            originalRows.forEach((row) => {
+                const clone = row.cloneNode(true);
+                // Slightly modify IDs for pages 2 and 3 to look like different data
+                if (i > 0) {
+                    const idCol = clone.querySelector('.code-col');
+                    if (idCol) {
+                        idCol.textContent = idCol.textContent.replace(/\d+/, match => parseInt(match) + i * 100);
+                    }
+                }
+                // Maintain drawer click functionality for cloned rows
+                if (clone.getAttribute('onclick')) {
+                    clone.onclick = function() { window.openDrawer(); };
+                }
+                allRows.push(clone);
+            });
+        }
+
+        function renderPage(page) {
+            dirTbody.innerHTML = '';
+            const start = (page - 1) * 8;
+            const end = Math.min(start + 8, allRows.length);
+            for (let i = start; i < end; i++) {
+                dirTbody.appendChild(allRows[i]);
+            }
+        }
+
+        // Initialize first page
+        renderPage(1);
+
+        pageButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const btnText = btn.textContent.trim();
+                
+                // Navigate pages
+                if (btnText === '1') {
+                    currentPage = 1;
+                } else if (btnText === '2') {
+                    currentPage = 2;
+                } else if (btnText === '3') {
+                    currentPage = 3;
+                } else if (btnText.includes('chevron-left')) {
+                    if (currentPage > 1) currentPage--;
+                } else if (btnText.includes('chevron-right')) {
+                    if (currentPage < 3) currentPage++;
+                }
+
+                // Update active button
+                pageButtons.forEach(b => b.classList.remove('active'));
+                // Find and activate correct page number button
+                pageButtons.forEach(b => {
+                    if (b.textContent.trim() === String(currentPage)) {
+                        b.classList.add('active');
+                    }
+                });
+
+                // Update page info
+                const startRow = (currentPage - 1) * 8 + 1;
+                const endRow = Math.min(currentPage * 8, 142);
+                document.querySelector('.page-info').textContent = `Hiển thị ${startRow} - ${endRow} trên 142 nhân sự`;
+
+                // Render the table data
+                renderPage(currentPage);
+
+                console.log(`Navigated to page ${currentPage}`);
+            });
         });
     </script>
 </body>

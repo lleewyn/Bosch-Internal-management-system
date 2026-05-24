@@ -6,6 +6,7 @@
     <title>Ngân sách | Bosch HR Management</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/hr.css">
     <link rel="stylesheet" href="css/operations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -97,61 +98,6 @@
             background: transparent;
         }
 
-        .budget-container .bosch-table th {
-            background: #f8fafc;
-            color: var(--text-secondary);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 16px 18px;
-            font-size: 11px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        .budget-container .bosch-table td {
-            padding: 16px 18px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .budget-container .bosch-table tbody tr:hover {
-            background: #fcfcfd;
-        }
-
-        .budget-container .bosch-table tbody tr:last-child td {
-            border-bottom: 0;
-        }
-
-        .budget-container .bosch-table td:nth-child(1) {
-            color: var(--text-muted);
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        }
-
-        .budget-container .bosch-table td:nth-child(2) {
-            max-width: 240px;
-            white-space: normal;
-            line-height: 1.45;
-        }
-
-        .budget-container .bosch-table td:nth-child(3) {
-            max-width: 360px;
-            white-space: normal;
-            line-height: 1.45;
-        }
-
-        .budget-container .bosch-table td:nth-child(4) {
-            font-weight: 700;
-            color: var(--bosch-blue);
-        }
-
-        .budget-container .bosch-table td:nth-child(5),
-        .budget-container .bosch-table td:nth-child(6),
-        .budget-container .bosch-table td:nth-child(7),
-        .budget-container .bosch-table td:nth-child(8) {
-            text-align: center;
-        }
 
         .budget-container .edit-icon-btn {
             width: 38px;
@@ -270,58 +216,68 @@
 
                 <div class="table-responsive">
                     <table class="bosch-table">
+                        <colgroup>
+                            <col style="width: 12%;">
+                            <col style="width: 25%;">
+                            <col style="width: 23%;">
+                            <col style="width: 15%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 5%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>MÃ DỊCH VỤ</th>
                                 <th>TÊN DỊCH VỤ</th>
                                 <th>MÔ TẢ</th>
                                 <th>ĐƠN GIÁ (VND/H)</th>
-                                <th style="text-align: center;">SỐ HỢP ĐỒNG</th>
-                                <th style="text-align: center;">SỐ DỰ ÁN</th>
-                                <th style="text-align: center;">TRẠNG THÁI</th>
-                                <th style="text-align: center;">THAO TÁC</th>
+                                <th>SỐ HỢP ĐỒNG</th>
+                                <th>SỐ DỰ ÁN</th>
+                                <th>TRẠNG THÁI</th>
+                                <th>THAO TÁC</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="color: var(--text-muted);">SL-001</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Automotive Embedded<br>Solutions</td>
-                                <td style="color: var(--text-secondary);">Development of embedded systems f...</td>
-                                <td class="val-green">1.500.000</td>
-                                <td style="text-align: center; font-weight: 700;">2</td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
-                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                                <td class="code-col">SL-001</td>
+                                <td class="name-col">Automotive Embedded<br>Solutions</td>
+                                <td class="role-col">Development of embedded systems f...</td>
+                                <td class="value-blue">1.500.000</td>
+                                <td>2</td>
+                                <td>1</td>
+                                <td><span class="badge badge-success">Hoạt động</span></td>
+                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
                             </tr>
                             <tr>
                                 <td style="color: var(--text-muted);">SL-002</td>
                                 <td style="font-weight: 800; color: var(--text-main);">Smart EV<br>Telematics Software</td>
                                 <td style="color: var(--text-secondary);">Telematics for Electric Vehicles</td>
                                 <td class="val-green">1.800.000</td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
-                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td><span class="badge badge-success">Hoạt động</span></td>
+                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">SL-003</td>
-                                <td style="font-weight: 800; color: var(--text-main);">IoT Connectivity<br>& Smart Appliances</td>
-                                <td style="color: var(--text-secondary);">Smart home and appliances integration</td>
-                                <td class="val-green">1.200.000</td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center;"><span class="badge badge-success">Hoạt động</span></td>
-                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                                <td class="code-col">SL-003</td>
+                                <td class="name-col">IoT Connectivity<br>& Smart Appliances</td>
+                                <td class="role-col">Smart home and appliances integration</td>
+                                <td class="value-blue">1.200.000</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td><span class="badge badge-success">Hoạt động</span></td>
+                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">SL-004</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Edge Computing<br>Node Clusters</td>
-                                <td style="color: var(--text-secondary);">Edge computing architecture & AI</td>
-                                <td class="val-green">2.000.000</td>
-                                <td style="text-align: center; font-weight: 700;">0</td>
-                                <td style="text-align: center; font-weight: 700;">0</td>
-                                <td style="text-align: center;"><span class="badge badge-muted">Tạm ngưng</span></td>
-                                <td style="text-align: center;"><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
+                                <td class="code-col">SL-004</td>
+                                <td class="name-col">Edge Computing<br>Node Clusters</td>
+                                <td class="role-col">Edge computing architecture & AI</td>
+                                <td class="value-blue">2.000.000</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td><span class="badge badge-muted">Tạm ngưng</span></td>
+                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
                             </tr>
                         </tbody>
                     </table>
@@ -344,72 +300,81 @@
 
                 <div class="table-responsive">
                     <table class="bosch-table">
+                        <colgroup>
+                            <col style="width: 8%;">
+                            <col style="width: 18%;">
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                            <col style="width: 12%;">
+                            <col style="width: 10%;">
+                            <col style="width: 12%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>MÃ NS</th>
                                 <th>TÊN NHÂN SỰ</th>
                                 <th>CHỨC DANH</th>
                                 <th>DỰ ÁN THAM GIA</th>
-                                <th style="text-align: center;">% THAM GIA<br>(ĐỊNH TRƯỚC)</th>
-                                <th style="text-align: center;">GIỜ OT</th>
-                                <th style="text-align: center;">% THAM GIA<br>(THỰC TẾ)</th>
+                                <th>% THAM GIA<br>(ĐỊNH TRƯỚC)</th>
+                                <th>GIỜ OT</th>
+                                <th>% THAM GIA<br>(THỰC TẾ)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="color: var(--text-muted);">R-01</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Nguyễn Văn A</td>
-                                <td style="color: var(--text-secondary);">Embedded Dev</td>
+                                <td class="code-col">R-01</td>
+                                <td class="name-col">Nguyễn Văn A</td>
+                                <td class="role-col">Embedded Dev</td>
                                 <td>
                                     <span class="tag-project">Audi Telematics v2</span>
                                     <span class="tag-project">Bosch Smart Oven</span>
                                 </td>
-                                <td style="text-align: center;" class="val-blue">100%</td>
-                                <td style="text-align: center; font-weight: 700;">160h <span class="ot-highlight">+ 45h OT</span></td>
-                                <td style="text-align: center;">
-                                    <div class="val-red">128%</div>
+                                <td class="value-blue">100%</td>
+                                <td><span class="value">160h</span> <span class="ot-highlight">+ 45h OT</span></td>
+                                <td>
+                                    <div class="value-red">128%</div>
                                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(205h / 160h)</div>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">R-03</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Trần Văn C</td>
-                                <td style="color: var(--text-secondary);">Lead Architect</td>
+                                <td class="code-col">R-03</td>
+                                <td class="name-col">Trần Văn C</td>
+                                <td class="role-col">Lead Architect</td>
                                 <td>
                                     <span class="tag-project">VW Embedded Core</span>
                                 </td>
-                                <td style="text-align: center;" class="val-blue">100%</td>
-                                <td style="text-align: center; font-weight: 700;">160h <span class="ot-highlight">+ 35h OT</span></td>
-                                <td style="text-align: center;">
-                                    <div class="val-red">122%</div>
+                                <td class="value-blue">100%</td>
+                                <td><span class="value">160h</span> <span class="ot-highlight">+ 35h OT</span></td>
+                                <td>
+                                    <div class="value-red">122%</div>
                                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(195h / 160h)</div>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">R-02</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Lê Thị B</td>
-                                <td style="color: var(--text-secondary);">Backend Engineer</td>
+                                <td class="code-col">R-02</td>
+                                <td class="name-col">Lê Thị B</td>
+                                <td class="role-col">Backend Engineer</td>
                                 <td>
                                     <span class="tag-project">Bosch Smart Oven</span>
                                 </td>
-                                <td style="text-align: center;" class="val-blue">100%</td>
-                                <td style="text-align: center; font-weight: 700;">150h</td>
-                                <td style="text-align: center;">
-                                    <div class="val-green">94%</div>
+                                <td class="value-blue">100%</td>
+                                <td><span class="value">150h</span></td>
+                                <td>
+                                    <div class="value-green">94%</div>
                                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(150h / 160h)</div>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">R-04</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Phạm D</td>
-                                <td style="color: var(--text-secondary);">QA Engineer</td>
+                                <td class="code-col">R-04</td>
+                                <td class="name-col">Phạm D</td>
+                                <td class="role-col">QA Engineer</td>
                                 <td>
                                     <span class="tag-project">Audi Telematics v2</span>
                                 </td>
-                                <td style="text-align: center;" class="val-blue">80%</td>
-                                <td style="text-align: center; font-weight: 700;">120h</td>
-                                <td style="text-align: center;">
-                                    <div class="val-green">75%</div>
+                                <td class="value-blue">80%</td>
+                                <td><span class="value">120h</span></td>
+                                <td>
+                                    <div class="value-green">75%</div>
                                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(120h / 160h)</div>
                                 </td>
                             </tr>
@@ -434,48 +399,58 @@
 
                 <div class="table-responsive">
                     <table class="bosch-table">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 18%;">
+                            <col style="width: 15%;">
+                            <col style="width: 17%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>MÃ PROJECT</th>
                                 <th>TÊN PROJECT</th>
                                 <th>CÔNG TY</th>
                                 <th>DÒNG DỊCH VỤ</th>
-                                <th style="text-align: center;">TRẠNG THÁI</th>
-                                <th style="text-align: center;">TỔNG<br>NHÂN SỰ</th>
-                                <th style="text-align: center;">TỔNG<br>GIỜ THỰC TẾ</th>
-                                <th style="text-align: center;">DOANH THU<br>DỰ KIẾN (VND)</th>
+                                <th>TRẠNG THÁI</th>
+                                <th>TỔNG<br>NHÂN SỰ</th>
+                                <th>TỔNG<br>GIỜ THỰC TẾ</th>
+                                <th>DOANH THU<br>DỰ KIẾN (VND)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="color: var(--text-muted);">PRJ-101</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Audi Telematics v2</td>
-                                <td style="color: var(--text-secondary);">Audi AG</td>
+                                <td class="code-col">PRJ-101</td>
+                                <td class="name-col">Audi Telematics v2</td>
+                                <td class="role-col">Audi AG</td>
                                 <td><span class="tag-project">Smart EV Telematics S...</span></td>
-                                <td style="text-align: center;"><span class="badge badge-info">Active</span></td>
-                                <td style="text-align: center; font-weight: 700;">2</td>
-                                <td style="text-align: center;" class="val-green">200h</td>
-                                <td style="text-align: center;" class="val-blue">360.000.000</td>
+                                <td><span class="badge badge-info">Active</span></td>
+                                <td><span class="value">2</span></td>
+                                <td class="value-green">200h</td>
+                                <td class="value-blue">360.000.000</td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">PRJ-102</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Bosch Smart Oven</td>
-                                <td style="color: var(--text-secondary);">Bosch Home</td>
+                                <td class="code-col">PRJ-102</td>
+                                <td class="name-col">Bosch Smart Oven</td>
+                                <td class="role-col">Bosch Home</td>
                                 <td><span class="tag-project">IoT Connectivity & Sma...</span></td>
-                                <td style="text-align: center;"><span class="badge badge-danger">Delay</span></td>
-                                <td style="text-align: center; font-weight: 700;">2</td>
-                                <td style="text-align: center;" class="val-green">230h</td>
-                                <td style="text-align: center;" class="val-blue">276.000.000</td>
+                                <td><span class="badge badge-danger">Delay</span></td>
+                                <td><span class="value">2</span></td>
+                                <td class="value-green">230h</td>
+                                <td class="value-blue">276.000.000</td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">PRJ-103</td>
-                                <td style="font-weight: 800; color: var(--text-main);">VW Embedded Core</td>
-                                <td style="color: var(--text-secondary);">Volkswagen</td>
+                                <td class="code-col">PRJ-103</td>
+                                <td class="name-col">VW Embedded Core</td>
+                                <td class="role-col">Volkswagen</td>
                                 <td><span class="tag-project">Automotive Embedded ...</span></td>
-                                <td style="text-align: center;"><span class="badge badge-info">Active</span></td>
-                                <td style="text-align: center; font-weight: 700;">1</td>
-                                <td style="text-align: center;" class="val-green">160h</td>
-                                <td style="text-align: center;" class="val-blue">240.000.000</td>
+                                <td><span class="badge badge-info">Active</span></td>
+                                <td><span class="value">1</span></td>
+                                <td class="value-green">160h</td>
+                                <td class="value-blue">240.000.000</td>
                             </tr>
                         </tbody>
                     </table>

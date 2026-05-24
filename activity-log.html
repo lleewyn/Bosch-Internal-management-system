@@ -6,98 +6,14 @@
     <title>Nhật ký hoạt động | Bosch HR Management</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/tables.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ACTIVITY LOG SPECIFIC STYLES (Refined) */
+        /* ACTIVITY LOG SPECIFIC STYLES */
         .log-table-container {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-            overflow: hidden;
             margin-top: 24px;
         }
-
-        .log-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .log-table th {
-            text-align: left;
-            padding: 16px 20px;
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-muted);
-            background: var(--bg-body);
-            border-bottom: 1px solid var(--border-light);
-            text-transform: uppercase;
-        }
-
-        .log-table td {
-            padding: 24px 20px;
-            vertical-align: top;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .time-cell .date {
-            font-weight: 800;
-            color: var(--text-main);
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .time-cell .sub {
-            color: var(--text-muted);
-            font-size: 11px;
-        }
-
-        .user-cell {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar-text {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }
-
-        .user-info-text .name {
-            font-weight: 800;
-            color: var(--text-main);
-            display: block;
-        }
-
-        .user-info-text .id {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .cat-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .cat-salary { background: #EFF6FF; color: #2563EB; }
-        .cat-denied { background: #FEF2F2; color: #EF4444; }
-        .cat-login { background: #ECFDF5; color: #10B981; }
-        .cat-data { background: #FFF7ED; color: #F97316; }
 
         .action-desc {
             max-width: 450px;
@@ -351,8 +267,16 @@
             </div>
 
             <!-- Log Table -->
-            <div class="log-table-container">
-                <table class="bosch-table">
+            <div class="page-panel" style="margin-top: 24px;">
+                <div class="table-responsive">
+                    <table class="bosch-table">
+                    <colgroup>
+                        <col style="width: 15%;">
+                        <col style="width: 20%;">
+                        <col style="width: 15%;">
+                        <col style="width: 30%;">
+                        <col style="width: 20%;">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Thời gian</th>
@@ -493,17 +417,20 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
+                </div>
 
-            <!-- Pagination -->
-            <div class="log-pagination">
-                <div class="results-count" style="font-size: 12px; color: var(--text-muted);">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</div>
-                <div class="pagination-pages">
-                    <div class="p-btn"><i class="fa-solid fa-chevron-left"></i></div>
-                    <div class="p-btn active">1</div>
-                    <div class="p-btn">2</div>
-                    <div class="p-btn">3</div>
-                    <div class="p-btn"><i class="fa-solid fa-chevron-right"></i></div>
+                <!-- Pagination -->
+                <div class="bosch-pagination-bar">
+                    <div class="bosch-pagination">
+                        <span class="page-info">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</span>
+                        <div class="page-controls">
+                            <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
