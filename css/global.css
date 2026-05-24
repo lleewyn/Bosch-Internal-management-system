@@ -331,7 +331,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background: var(--bg-card);
-    padding: 16px 48px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--border-main);
     margin: 0;
     width: 100%;
