@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/operations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,101 +39,7 @@
             margin-right: 4px;
         }
 
-        .log-filter-bar {
-            display: flex;
-            gap: 16px;
-            background: var(--bg-card);
-            padding: 16px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-            margin-top: 32px;
-            align-items: center;
-        }
 
-        .log-search {
-            flex: 1;
-            position: relative;
-        }
-
-        .log-search input {
-            width: 100%;
-            height: 44px;
-            padding-left: 44px;
-            background: var(--bg-body);
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .log-search i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .log-dropdown {
-            height: 44px;
-            padding: 0 16px;
-            background: var(--bg-body);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .btn-clear-log {
-            height: 44px;
-            padding: 0 20px;
-            background: var(--border-light);
-            border-radius: 8px;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .log-pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 0;
-        }
-
-        .pagination-pages {
-            display: flex;
-            gap: 8px;
-        }
-
-        .p-btn {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            border: 1px solid var(--border-main);
-            background: white;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .p-btn.active {
-            background: var(--bosch-red);
-            color: white;
-            border-color: var(--bosch-red);
-        }
     </style>
 </head>
 <body>
@@ -197,7 +104,7 @@
             </div>
         </div>
 
-        <main class="content-wrapper">
+        <main class="content-wrapper" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 24px;">
 
             <!-- Top Stats -->
             <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -247,29 +154,34 @@
                 </div>
             </div>
 
-            <!-- Filter Bar -->
-            <div class="log-filter-bar">
-                <div class="log-search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Tìm kiếm Mã nhân viên, Tên hoặc từ khóa...">
+            <!-- ACTIVITY CONTAINER (MODERN LAYOUT) -->
+            <div class="activity-container op-view-modern" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+                
+                <!-- Box 1: Search & Filters -->
+                <div class="op-box-search">
+                    <div class="search-box" style="width: 400px; height: 36px;">
+                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                        <input type="text" placeholder="Tìm kiếm Mã nhân viên, Tên hoặc từ khóa..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                    </div>
+                    <div class="hr-filters" style="display: flex; gap: 16px;">
+                        <div class="hr-select" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer;">
+                            <span>Khoảng thời gian</span>
+                            <i class="fa-regular fa-calendar" style="color: var(--bosch-blue);"></i>
+                        </div>
+                        <div class="hr-select" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer;">
+                            <span>Loại hành động</span>
+                            <i class="fa-solid fa-sliders" style="color: var(--bosch-blue);"></i>
+                        </div>
+                        <button class="btn-action" style="background-color: transparent; border: 1px solid #ddd; color: var(--text-secondary); padding: 8px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-rotate-right"></i> Xóa bộ lọc
+                        </button>
+                    </div>
                 </div>
-                <div class="log-dropdown">
-                    <span>Khoảng thời gian</span>
-                    <i class="fa-regular fa-calendar"></i>
-                </div>
-                <div class="log-dropdown">
-                    <span>Loại hành động</span>
-                    <i class="fa-solid fa-sliders"></i>
-                </div>
-                <button class="btn-clear-log">
-                    <i class="fa-solid fa-rotate-right"></i> Xóa bộ lọc
-                </button>
-            </div>
 
-            <!-- Log Table -->
-            <div class="page-panel" style="margin-top: 24px;">
-                <div class="table-responsive">
-                    <table class="bosch-table">
+                <!-- Box 2: Table -->
+                <div class="op-box-table">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                        <table class="bosch-table bosch-table-modern">
                     <colgroup>
                         <col style="width: 15%;">
                         <col style="width: 20%;">
@@ -417,19 +329,6 @@
                         </tr>
                     </tbody>
                 </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="bosch-pagination-bar">
-                    <div class="bosch-pagination">
-                        <span class="page-info">Hiển thị 1 đến 4 trong tổng số 2,450 kết quả</span>
-                        <div class="page-controls">
-                            <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                            <button class="page-btn active">1</button>
-                            <button class="page-btn">2</button>
-                            <button class="page-btn">3</button>
-                            <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
-                        </div>
                     </div>
                 </div>
             </div>
