@@ -196,26 +196,41 @@
             </div>
         </div>
 
-        <main class="content-wrapper">
+        <main class="content-wrapper" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 24px;">
 
             <!-- VIEW 1: Dòng dịch vụ -->
-            <div id="serviceLineView" class="budget-container">
-                <div class="op-controls budget-controls">
-                    <div class="search-box budget-search">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã...">
+            <div id="serviceLineView" class="budget-container op-view-modern" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+                
+                <!-- Box 1: Search & Filters -->
+                <div class="op-box-search" style="margin-bottom: 0;">
+                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
+                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
+                        <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã..." style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
                     </div>
-                    <div class="hr-filters budget-filters">
+                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select"><option>Tất cả trạng thái</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
-                        <button class="btn-action red-btn" id="openAddServiceLineBtn">
-                            <i class="fa-solid fa-plus"></i> Tạo mới
-                        </button>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="bosch-table">
+                <!-- Box 2: Actions -->
+                <div class="op-box-actions" style="margin-bottom: 0;">
+                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
+                        Đang chọn: Tất cả dòng dịch vụ
+                    </div>
+                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                        <button class="btn-action red-btn" id="openAddServiceLineBtn" style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                            <i class="fa-solid fa-plus"></i> Tạo mới
+                        </button>
+                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                    </div>
+                </div>
+
+                <!-- Box 3: Table -->
+                <div class="op-box-table">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                        <table class="bosch-table bosch-table-modern">
                         <colgroup>
                             <col style="width: 12%;">
                             <col style="width: 25%;">
@@ -281,25 +296,37 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
             <!-- VIEW 2: Mức độ tham gia -->
-            <div id="participationView" class="budget-container" style="display: none;">
-                <div class="op-controls" style="margin-bottom: 24px; background: transparent; padding: 0; border: none;">
-                    <div class="search-box" style="flex: 1; max-width: 400px; background: var(--bg-body); border: 1px solid #f1f3f5;">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="background: transparent;">
+            <div id="participationView" class="budget-container op-view-modern" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
+                <div class="op-box-search" style="margin-bottom: 0;">
+                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
+                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
+                        <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Tháng 10/2025</option></select>
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
+                        <select class="hr-select"><option>Tháng 10/2025</option></select>
+                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="bosch-table">
+                <div class="op-box-actions" style="margin-bottom: 0;">
+                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
+                        Đang chọn: Tất cả mức độ tham gia
+                    </div>
+                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
+                    </div>
+                </div>
+
+                <div class="op-box-table">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                        <table class="bosch-table bosch-table-modern">
                         <colgroup>
                             <col style="width: 8%;">
                             <col style="width: 18%;">
@@ -380,25 +407,37 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
             <!-- VIEW 3: Doanh thu dự án -->
-            <div id="revenueView" class="budget-container" style="display: none;">
-                <div class="op-controls" style="margin-bottom: 24px; background: transparent; padding: 0; border: none;">
-                    <div class="search-box" style="flex: 1; max-width: 400px; background: var(--bg-body); border: 1px solid #f1f3f5;">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" placeholder="Tìm theo tên dự án" style="background: transparent;">
+            <div id="revenueView" class="budget-container op-view-modern" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
+                <div class="op-box-search" style="margin-bottom: 0;">
+                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
+                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
+                        <input type="text" placeholder="Tìm theo tên dự án" style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Tháng 10/2025</option></select>
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select" style="background: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
+                        <select class="hr-select"><option>Tháng 10/2025</option></select>
+                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="bosch-table">
+                <div class="op-box-actions" style="margin-bottom: 0;">
+                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
+                        Đang chọn: Tất cả doanh thu
+                    </div>
+                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
+                    </div>
+                </div>
+
+                <div class="op-box-table">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                        <table class="bosch-table bosch-table-modern">
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 18%;">
@@ -454,6 +493,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
