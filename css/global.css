@@ -325,6 +325,10 @@ body {
 .badge-muted { background: var(--border-light); color: var(--text-secondary); }
 .badge-info { background: var(--info-bg); color: var(--info-text); }
 
+.badge-leader { background: #fff0f0; color: var(--bosch-red); }
+.badge-member { background: #f1f5f9; color: #475569; }
+
+
 /* 3. TABS (.bosch-tabs) & TOP BAR */
 .dashboard-top-bar {
     display: flex;
