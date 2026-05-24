@@ -1,134 +1,129 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Kiểm tra trạng thái đăng nhập (đã được common.js xử lý)
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) return;
 
     const currentUser = JSON.parse(userStr);
-    
-    // 2. Lấy thông tin từ localStorage
-    const fullName = currentUser.full_name || currentUser.FullName || currentUser.Username || "John Doe";
-    const emailStr = currentUser.Email || currentUser.email || "";
-    const phone = currentUser.phone_number || currentUser.PhoneNumber || "";
-    const role = currentUser.role || "Quản trị viên hệ thống";
-    const avatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=BC0004&color=fff`;
 
-    // 3. Cập nhật giao diện (sidebar đã được common.js xử lý, chỉ cập nhật phần nội dung chính)
-    const profileName = document.getElementById('profileName');
-    const profileAvatar = document.getElementById('profileAvatar');
-    const profilePosition = document.getElementById('profilePosition');
-    
-    const fullNameInput = document.getElementById('inputFullName');
-    const emailInput = document.getElementById('inputEmail');
-    const phoneInput = document.getElementById('inputPhone');
-    const positionInput = document.getElementById('inputPosition');
- 
-    if (profileName) profileName.textContent = fullName;
-    if (profileAvatar) profileAvatar.src = avatarUrl;
-    if (profilePosition) profilePosition.textContent = role;
- 
-    if (fullNameInput) fullNameInput.value = fullName;
-    if (emailInput) emailInput.value = emailStr;
-    if (phoneInput) phoneInput.value = phone;
-    if (positionInput) positionInput.value = role;
+    const fullName = currentUser.full_name || currentUser.FullName || currentUser.Username || 'User';
+    const emailStr = currentUser.Email || currentUser.email || '';
+    const phone = currentUser.phone_number || currentUser.PhoneNumber || '';
+    const role = currentUser.role || 'Nhân viên';
+    const avatarUrl =
+        currentUser.avatar ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=BC0004&color=fff`;
 
-    // 4. CẬP NHẬT MODAL CHỈNH SỬA
-    const editFullName = document.getElementById('editFullName');
-    const editPhone = document.getElementById('editPhone');
-    const editPosition = document.getElementById('editPosition');
-
-    if (editFullName) editFullName.value = fullName;
-    if (editPhone) editPhone.value = phone;
-    if (editPosition) editPosition.value = role;
-
-    // 5. XỬ LÝ LƯU THAY ĐỔI (Local Only)
-    const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) {
-        saveBtn.onclick = () => {
-            const newName = editFullName.value;
-            const newPhone = editPhone.value;
-            
-            const originalText = saveBtn.textContent;
-            saveBtn.textContent = "Đang lưu...";
-            
-            // Cập nhật đối tượng người dùng trong localStorage
-            currentUser.full_name = newName;
-            currentUser.phone_number = newPhone;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            setTimeout(() => {
-                saveBtn.textContent = originalText;
-                alert("Cập nhật thông tin thành công!");
-                window.location.reload();
-            }, 500);
-        };
-    }
-
-    // 6. XỬ LÝ THAY ĐỔI AVATAR
-    const avatarUpload = document.getElementById('avatarUpload');
-    const textBtn = document.getElementById('changeAvatarTextBtn');
-    const badgeBtn = document.getElementById('changeAvatarBadgeBtn');
-    const sidebarAvatar = document.getElementById('sidebarAvatar');
-    
-    const handleAvatarClick = (e) => {
-        e.preventDefault();
-        if(avatarUpload) avatarUpload.click();
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    };
+    const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
     };
 
-    if(textBtn) textBtn.addEventListener('click', handleAvatarClick);
-    if(badgeBtn) badgeBtn.addEventListener('click', handleAvatarClick);
+    setText('profileName', fullName);
+    setText('profilePosition', role);
+    const profileAvatar = document.getElementById('profileAvatar');
+    if (profileAvatar) profileAvatar.src = avatarUrl;
 
-    if(avatarUpload) {
-        avatarUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
+    setVal('inputFullName', fullName);
+    setVal('inputEmail', emailStr);
+    setVal('inputPhone', phone);
+    setVal('inputPosition', role);
+    setVal('editFullName', fullName);
+    setVal('editPhone', phone);
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64String = event.target.result;
-                
-                // Cập nhật hiển thị
-                if(profileAvatar) profileAvatar.src = base64String;
-                if(sidebarAvatar) sidebarAvatar.src = base64String;
+    function renderDevices() {
+        const tbody = document.querySelector('.info-card table tbody');
+        if (!tbody || !window.MockStore) return;
+        tbody.innerHTML = MockStore.getDevices()
+            .map(
+                (d) => `
+            <tr>
+                <td class="name-col"><i class="fa-solid ${d.icon || 'fa-laptop'}" style="margin-right:12px;color:#888;"></i> ${UI.escape(d.name)}</td>
+                <td>${UI.escape(d.ip)}</td>
+                <td>${UI.escape(d.time)}</td>
+                <td>${UI.escape(d.location)}</td>
+                <td><span class="badge ${d.active ? 'badge-success' : 'badge-muted'}"><i class="fa-solid fa-circle" style="font-size:6px;"></i> ${d.active ? 'ĐANG HOẠT ĐỘNG' : 'ĐÃ ĐĂNG XUẤT'}</span></td>
+            </tr>`
+            )
+            .join('');
+    }
 
-                // Lưu vào localStorage
-                currentUser.avatar = base64String;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert("Thay đổi ảnh đại diện thành công!");
-            };
-            reader.readAsDataURL(file);
+    renderDevices();
+
+    const modal = document.getElementById('modalOverlay');
+    const saveBtn = document.getElementById('saveBtn');
+
+    document.getElementById('editProfileBtn')?.addEventListener('click', () => modal?.classList.add('show'));
+    document.getElementById('closeModal')?.addEventListener('click', () => modal?.classList.remove('show'));
+    document.getElementById('cancelBtn')?.addEventListener('click', () => modal?.classList.remove('show'));
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+    });
+
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const form = modal.querySelector('.bosch-modal-body');
+            if (window.validateForm && form && !validateForm(form)) return;
+
+            const newName = document.getElementById('editFullName').value.trim();
+            const newPhone = document.getElementById('editPhone').value.trim();
+
+            currentUser.full_name = newName;
+            currentUser.FullName = newName;
+            currentUser.phone_number = newPhone;
+            currentUser.PhoneNumber = newPhone;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            if (window.MockStore) {
+                MockStore.logActivity('Tài khoản', `Cập nhật hồ sơ: ${newName}`);
+            }
+
+            modal.classList.remove('show');
+            if (window.showToast) {
+                showToast('Thành công', 'Đã lưu thông tin cá nhân.');
+            } else {
+                alert('Cập nhật thông tin thành công!');
+            }
+
+            setText('profileName', newName);
+            setVal('inputFullName', newName);
+            setVal('inputPhone', newPhone);
+            const sidebarName = document.getElementById('sidebarName');
+            if (sidebarName) sidebarName.textContent = newName;
         });
     }
 
-    // 7. XỬ LÝ ĐĂNG XUẤT THIẾT BỊ KHÁC
-    const logoutOthersBtn = document.querySelector('.btn-outline-danger');
-    if (logoutOthersBtn) {
-        logoutOthersBtn.addEventListener('click', () => {
-            const originalText = logoutOthersBtn.textContent;
-            logoutOthersBtn.textContent = "Đang xử lý...";
-            logoutOthersBtn.disabled = true;
-            logoutOthersBtn.style.opacity = "0.5";
-            logoutOthersBtn.style.cursor = "not-allowed";
+    const avatarUpload = document.getElementById('avatarUpload');
+    const handleAvatarClick = (e) => {
+        e.preventDefault();
+        avatarUpload?.click();
+    };
+    document.getElementById('changeAvatarTextBtn')?.addEventListener('click', handleAvatarClick);
+    document.getElementById('changeAvatarBadgeBtn')?.addEventListener('click', handleAvatarClick);
 
-            setTimeout(() => {
-                alert("Đã đăng xuất khỏi tất cả các thiết bị khác thành công!");
-                logoutOthersBtn.textContent = originalText;
-                logoutOthersBtn.disabled = false;
-                logoutOthersBtn.style.opacity = "1";
-                logoutOthersBtn.style.cursor = "pointer";
-                
-                // Cập nhật lại bảng (giả lập xóa các dòng không phải 'Hiện tại')
-                const rows = document.querySelectorAll('.data-table tbody tr');
-                rows.forEach((row, index) => {
-                    if (index > 0) { // Giữ lại dòng đầu tiên (hiện tại)
-                        row.style.opacity = "0.3";
-                        const statusCell = row.querySelector('.status-inactive');
-                        if (statusCell) {
-                            statusCell.innerHTML = '<i class="fa-solid fa-circle" style="font-size: 6px;"></i> VỪA ĐĂNG XUẤT';
-                        }
-                    }
-                });
-            }, 1000);
-        });
-    }
+    avatarUpload?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const base64String = event.target.result;
+            if (profileAvatar) profileAvatar.src = base64String;
+            document.getElementById('sidebarAvatar') &&
+                (document.getElementById('sidebarAvatar').src = base64String);
+            currentUser.avatar = base64String;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            if (window.showToast) showToast('Thành công', 'Đã đổi ảnh đại diện.');
+            if (window.MockStore) MockStore.logActivity('Tài khoản', 'Thay đổi ảnh đại diện');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.querySelector('.btn-outline-danger')?.addEventListener('click', () => {
+        if (!window.MockStore) return;
+        MockStore.logoutOtherDevices();
+        renderDevices();
+        if (window.showToast) showToast('Thành công', 'Đã đăng xuất các thiết bị khác.');
+    });
 });

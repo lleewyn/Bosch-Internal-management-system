@@ -88,20 +88,31 @@
                         <input type="text" placeholder="Tìm tên công ty đối tác, người liên hệ,..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; height: 36px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;"><option>Tất cả quốc gia</option></select>
-                        <select class="hr-select" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;"><option>Tất cả trạng thái hợp tác</option></select>
+                        <select class="hr-select" id="filterCustomerCountry" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;">
+                            <option value="">Tất cả quốc gia</option>
+                            <option value="Việt Nam">Việt Nam</option>
+                            <option value="Hàn Quốc">Hàn Quốc</option>
+                            <option value="Đức">Đức</option>
+                            <option value="Nhật Bản">Nhật Bản</option>
+                            <option value="Mỹ">Mỹ</option>
+                        </select>
+                        <select class="hr-select" id="filterCustomerStatus" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;">
+                            <option value="">Tất cả trạng thái hợp tác</option>
+                            <option value="TIỀM NĂNG">TIỀM NĂNG</option>
+                            <option value="ĐANG ĐÀM PHÁN">ĐANG ĐÀM PHÁN</option>
+                            <option value="ĐÃ CÓ DỰ ÁN">ĐÃ CÓ DỰ ÁN</option>
+                            <option value="ĐÃ DEAL HỢP ĐỒNG">ĐÃ DEAL HỢP ĐỒNG</option>
+                        </select>
                     </div>
                 </div>
 
                 <!-- Box 2: Selection & Actions -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Samsung Electronics HCMC
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                <div class="op-box-actions" style="margin-bottom: 16px;">
+                    <div class="op-badge-selection" id="customerSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action" id="openAddCustomerModalBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-plus"></i> Thêm khách hàng</button>
                         <button class="btn-action" id="openEditCustomerModalBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        <button class="btn-action" id="deleteCustomerBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
                     </div>
                 </div>
 
@@ -209,23 +220,20 @@
                         <input type="text" placeholder="Tìm nhanh hợp đồng theo mã, tên đối tác..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select"><option>OT / Không OT</option></select>
+                        <select class="hr-select" id="filterContractStatus"><option value="">Tất cả trạng thái</option><option value="Đang hiệu lực">Đang hiệu lực</option><option value="Sắp hết hạn">Sắp hết hạn</option><option value="Đã gia hạn">Đã gia hạn</option></select>
+                        <select class="hr-select" id="filterContractOt"><option value="">OT / Không OT</option><option value="ot">Có OT</option><option value="no-ot">Không OT</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
                 <!-- Box 2: Selection & Actions -->
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả hợp đồng
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                    <div class="op-badge-selection" id="contractSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action" id="openAddContractModalBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-plus"></i> Tạo hợp đồng</button>
-                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        <button class="btn-action" id="editContractBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="deleteContractBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
                         <button class="btn-action" id="renewContractBtn" style="background-color: #6f42c1; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-rotate-right"></i> Gia hạn</button>
-                        <button class="btn-action" disabled style="background-color: #f8f9fa; color: #6c757d; border: 1px solid #ddd; padding: 8px 20px; border-radius: 4px; font-weight: 700;"><i class="fa-regular fa-circle-check"></i> Kích hoạt</button>
                     </div>
                 </div>
 
@@ -388,22 +396,20 @@
                         <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>Tất cả công ty</option></select>
-                        <select class="hr-select"><option>Tất cả Service Line</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" id="filterProjectCompany"><option value="">Tất cả công ty</option></select>
+                        <select class="hr-select" id="filterProjectService"><option value="">Tất cả Service Line</option></select>
+                        <select class="hr-select" id="filterProjectStatus"><option value="">Tất cả trạng thái</option><option value="Đang triển khai">Đang triển khai</option><option value="Hoàn thành">Hoàn thành</option><option value="Đã hủy">Đã hủy</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
                 <!-- Box 2: Selection & Actions -->
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả dự án
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                    <div class="op-badge-selection" id="projectSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action" id="openAddProjectModalBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-plus"></i> Tạo dự án</button>
-                        <button class="btn-action" style="background-color: white; color: #6c757d; border: 1px solid #ddd; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: white; color: #dc3545; border: 1px solid #ddd; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        <button class="btn-action" id="editProjectBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="deleteProjectBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
                     </div>
                 </div>
 
@@ -519,22 +525,20 @@
                         <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>OT/Không OT</option></select>
-                        <select class="hr-select"><option>Tất cả Service Line</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                        <select class="hr-select" id="filterResourceOt"><option value="">OT/Không OT</option><option value="ot">Có OT</option><option value="no-ot">Không OT</option></select>
+                        <select class="hr-select" id="filterResourceService"><option value="">Tất cả Service Line</option></select>
+                        <select class="hr-select" id="filterResourceStatus"><option value="">Tất cả trạng thái</option><option value="Đã duyệt">Đã duyệt</option><option value="Chờ duyệt">Chờ duyệt</option><option value="ĐÃ PHÂN BỔ">ĐÃ PHÂN BỔ</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
                 <!-- Box 2: Selection & Actions -->
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả nguồn lực
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                    <div class="op-badge-selection" id="resourceSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action" id="openAddResourceBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-plus"></i> Tạo yêu cầu</button>
-                        <button class="btn-action" style="background-color: white; color: #6c757d; border: 1px solid #ddd; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: white; color: #dc3545; border: 1px solid #ddd; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        <button class="btn-action" id="editResourceBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="deleteResourceBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
                     </div>
                 </div>
 
@@ -542,15 +546,16 @@
                 <div class="op-box-table">
                     <!-- Sub tabs for Resources -->
                     <div style="display: flex; gap: 32px; border-bottom: 1px solid #e0e0e0; padding: 16px 24px 0 24px;">
-                        <div style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--bosch-blue); border-bottom: 2px solid var(--bosch-blue); cursor: pointer; position: relative; top: 1px;">
+                        <div id="resSubTab-gm" class="res-sub-tab res-sub-tab-active" style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--bosch-blue); border-bottom: 2px solid var(--bosch-blue); cursor: pointer; position: relative; top: 1px;">
                             <i class="fa-regular fa-file-lines" style="margin-right: 6px;"></i> Danh sách yêu cầu nguồn lực của GM
                         </div>
-                        <div style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--text-secondary); cursor: pointer;">
+                        <div id="resSubTab-dm" class="res-sub-tab" style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--text-secondary); cursor: pointer; position: relative; top: 1px;">
                             <i class="fa-solid fa-users-gear" style="margin-right: 6px;"></i> Đội ngũ kỹ sư hiện tại (DM)
                         </div>
                     </div>
 
-                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                    <!-- GM: Danh sách yêu cầu nguồn lực -->
+                    <div id="resPanel-gm" class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
                         <table class="bosch-table bosch-table-modern" id="resourcesTable" style="min-width: 1200px;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -574,45 +579,38 @@
                                 <th>TRẠNG THÁI</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="code-col">REQ-001</td>
-                                <td>
-                                    <div style="font-weight: 700; color: var(--text-main);">Industrial AI Core Platform</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-AI-01</div>
-                                </td>
-                                <td style="color: var(--text-secondary); font-size: 12px;">01/06/2025 đến<br>01/12/2025</td>
-                                <td>
-                                    <span style="color: #E20015; font-weight: 700; font-size: 11px;">BẮT BUỘC<br>(THEO KH-002)</span>
-                                </td>
-                                <td>
-                                    <div style="font-size: 12px; color: var(--text-main);">Industrial AI Engineer x 1</div>
-                                    <div style="font-size: 12px; color: var(--text-main); margin-top: 4px;">QA Automation Specialist x 1</div>
-                                </td>
-                                <td style="font-weight: 700;">2</td>
-                                <td><div style="border:1px solid #eee; padding:4px 8px; border-radius:4px; font-size:11px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px;"><i class="fa-regular fa-file"></i> ai_node_skills_v...</div></td>
-                                <td><span class="badge badge-warning">ĐANG CHỜ</span></td>
-                            </tr>
-                            <tr class="selected-row">
-                                <td class="code-col">REQ-002</td>
-                                <td>
-                                    <div style="font-weight: 700; color: var(--text-main);">Smart Logistics Warehouse Routing</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">PRJ-LOG-02</div>
-                                </td>
-                                <td style="color: var(--text-secondary); font-size: 12px;">15/02/2025 đến<br>30/08/2026</td>
-                                <td>
-                                    <span style="color: var(--text-muted); font-size: 11px; font-weight: 600;">KHÔNG YÊU CẦU</span>
-                                </td>
-                                <td>
-                                    <div style="font-size: 12px; color: var(--text-main);">Warehouse Routing Lead x 1</div>
-                                </td>
-                                <td style="font-weight: 700;">1</td>
-                                <td><div style="border:1px solid #eee; padding:4px 8px; border-radius:4px; font-size:11px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px;"><i class="fa-regular fa-file"></i> warehouse_spe...</div></td>
-                                <td><span class="badge badge-success">ĐÃ PHÂN BỔ</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
-                </div>
+                    </div>
+
+                    <!-- DM: Đội ngũ kỹ sư hiện tại -->
+                    <div id="resPanel-dm" class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0; display: none;">
+                        <table class="bosch-table bosch-table-modern" id="engineersTable" style="min-width: 1100px;">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                            <col style="width: 15%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 10%;">
+                            <col style="width: 9%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>MÃ NV</th>
+                                <th>HỌ VÀ TÊN</th>
+                                <th>CHỨC DANH</th>
+                                <th>TEAM</th>
+                                <th>GROUP</th>
+                                <th>DỰ ÁN HIỆN TẠI</th>
+                                <th>KHỐI LƯỢNG</th>
+                                <th>QUẢN LÝ</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    </div>
                 </div>
 
             </div>
@@ -630,23 +628,23 @@
             </div>
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
-                    <label>TÊN CÔNG TY <span>*</span></label>
+                    <label>TÊN CÔNG TY <span class="required-asterisk">*</span></label>
                     <input type="text" value="Samsung Electronics HCMC" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label style="color: var(--text-secondary);">NGƯỜI LIÊN HỆ</label>
+                    <label style="color: var(--text-secondary);">NGƯỜI LIÊN HỆ <span class="required-asterisk">*</span></label>
                     <input type="text" value="Mr. Park Ji-Sung" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label>EMAIL <span>*</span></label>
+                    <label>EMAIL <span class="required-asterisk">*</span></label>
                     <input type="text" value="jisung.park@samsung.com" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label>SỐ ĐIỆN THOẠI <span>*</span></label>
+                    <label>SỐ ĐIỆN THOẠI <span class="required-asterisk">*</span></label>
                     <input type="text" value="02839151111" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label style="color: var(--text-secondary);">QUỐC GIA</label>
+                    <label style="color: var(--text-secondary);">QUỐC GIA <span class="required-asterisk">*</span></label>
                     <p style="font-size: 13px; margin-top: 8px; color: var(--text-main); font-weight: 500;">Hàn Quốc</p>
                 </div>
             </div>
@@ -666,21 +664,21 @@
             </div>
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
-                    <label>Khách hàng <span>*</span></label>
+                    <label>Khách hàng <span class="required-asterisk">*</span></label>
                     <select class="custom-select bg-white-input">
                         <option>--- Chọn khách hàng ---</option>
                     </select>
                 </div>
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
-                        <label>Ngày hiệu lực <span>*</span></label>
+                        <label>Ngày hiệu lực <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar"></i>
                         </div>
                     </div>
                     <div class="form-group flex-1">
-                        <label>Ngày hết hạn <span>*</span></label>
+                        <label>Ngày hết hạn <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar"></i>
@@ -688,21 +686,21 @@
                     </div>
                 </div>
                 <div class="form-group mb-15">
-                    <label>Service Line <span>*</span></label>
+                    <label>Service Line <span class="required-asterisk">*</span></label>
                     <input type="text" placeholder="e.g. IT Consulting" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label>Giá trị hợp đồng (VND) <span>*</span></label>
+                    <label>Giá trị hợp đồng (VND) <span class="required-asterisk">*</span></label>
                     <input type="text" placeholder="Nhập số tiền > 250,000,000" class="bg-white-input">
                 </div>
                 
                 <div class="form-group mb-15" style="flex-direction: row; align-items: center; gap: 8px;">
                     <input type="checkbox" id="otCheck" style="width: 16px; height: 16px;">
-                    <label for="otCheck" style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer;">Yêu cầu OT (Overtime)</label>
+                    <label for="otCheck" style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer;">Yêu cầu OT (Overtime) <span class="required-asterisk">*</span></label>
                 </div>
 
                 <div class="form-group mb-15">
-                    <label>File đính kèm (Bản hợp đồng đã ký)</label>
+                    <label>File đính kèm (Bản hợp đồng đã ký) <span class="required-asterisk">*</span></label>
                     <div style="border: 1px dashed #ccc; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); margin-top: 4px;">
                         <span style="color: var(--text-muted); font-size: 13px; font-style: italic;"><i class="fa-regular fa-file-lines"></i> VD: contract_signed.pdf</span>
                         <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--bosch-blue); cursor: pointer;"></i>
@@ -751,31 +749,31 @@
             </div>
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án <span class="required-asterisk">*</span></label>
                     <input type="text" placeholder="Nhập tên dự án công nghệ chi tiết..." class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Liên kết hợp đồng <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Liên kết hợp đồng <span class="required-asterisk">*</span></label>
                     <select class="custom-select bg-white-input">
                         <option>-- Chọn hợp đồng đang hiệu lực --</option>
                     </select>
                 </div>
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Khách hàng đại diện <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Khách hàng đại diện <span class="required-asterisk">*</span></label>
                     <select class="custom-select bg-white-input">
                         <option>-- Tự động liên kết theo hợp đồng --</option>
                     </select>
                 </div>
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu <span style="color:#E20015;">*</span></label>
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
                         </div>
                     </div>
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Hạn cuối dự án <span style="color:#E20015;">*</span></label>
+                        <label style="font-size: 11px; text-transform: uppercase;">Hạn cuối dự án <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
@@ -783,20 +781,20 @@
                     </div>
                 </div>
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Service Line <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Service Line <span class="required-asterisk">*</span></label>
                     <input type="text" placeholder="Phạm vi dịch vụ..." class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Ngân sách phân bổ (VND) <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Ngân sách phân bổ (VND) <span class="required-asterisk">*</span></label>
                     <input type="text" placeholder="e.g. 1500000000" class="bg-white-input">
                 </div>
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Chủ trì dự án</label>
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Chủ trì dự án <span class="required-asterisk">*</span></label>
                         <input type="text" placeholder="Họ và tên leader..." class="bg-white-input" style="border: none; padding-left: 0;">
                     </div>
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Tên tệp mô tả chi tiết</label>
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Tên tệp mô tả chi tiết <span class="required-asterisk">*</span></label>
                         <input type="text" placeholder="Ví dụ: spec_mesh_v2.pdf" class="bg-white-input" style="border: none; padding-left: 0;">
                     </div>
                 </div>
@@ -817,7 +815,7 @@
             </div>
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Mã dự án liên kết <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; text-transform: uppercase;">Mã dự án liên kết <span class="required-asterisk">*</span></label>
                     <select class="custom-select bg-white-input">
                         <option>-- Chọn dự án kỹ thuật --</option>
                     </select>
@@ -828,14 +826,14 @@
                 </div>
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu tham gia <span style="color:#E20015;">*</span></label>
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu tham gia <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
                         </div>
                     </div>
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày kết thúc tham gia <span style="color:#E20015;">*</span></label>
+                        <label style="font-size: 11px; text-transform: uppercase;">Ngày kết thúc tham gia <span class="required-asterisk">*</span></label>
                         <div class="input-with-icon">
                             <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
                             <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
@@ -852,7 +850,7 @@
                 
                 <div style="border: 1px dashed #ccc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
                     <div class="form-group">
-                        <label style="font-size: 11px; text-transform: uppercase;">Vị trí công việc & Số lượng tuyển dụng <span style="color:#E20015;">*</span></label>
+                        <label style="font-size: 11px; text-transform: uppercase;">Vị trí công việc & Số lượng tuyển dụng <span class="required-asterisk">*</span></label>
                         <div style="display: flex; justify-content: space-between; margin-top: 8px;">
                             <span style="color: var(--text-muted); font-size: 13px;">Vị trí (Ví dụ: Embedded Developer)...</span>
                             <span style="font-weight: 700;">1</span>
@@ -878,128 +876,12 @@
         </div>
     </div>
 
-    <script>
-        const tabs = document.querySelectorAll('.bosch-tab');
-        const custView = document.getElementById('customersView');
-        const contView = document.getElementById('contractsView');
-        const projView = document.getElementById('projectsView');
-        const resView = document.getElementById('resourcesView');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => {
-                    t.classList.remove('active');
-                });
-                tab.classList.add('active');
-                
-                [custView, contView, projView, resView].forEach(el => {
-                    if (el) el.style.display = 'none';
-                });
-
-                if (tab.dataset.tab === 'customers') {
-                    custView.style.display = 'flex';
-                } else if (tab.dataset.tab === 'contracts') {
-                    contView.style.display = 'flex';
-                } else if (tab.dataset.tab === 'projects') {
-                    projView.style.display = 'flex';
-                } else if (tab.dataset.tab === 'resources') {
-                    resView.style.display = 'flex';
-                }
-            });
-        });
-
-        // Modals
-        const custModal = document.getElementById('customerModal');
-        const contModal = document.getElementById('contractModal');
-        const renewModal = document.getElementById('renewModal');
-        const projModal = document.getElementById('projectModal');
-        const resModal = document.getElementById('resourceModal');
-
-        document.getElementById('openAddCustomerModalBtn').addEventListener('click', () => custModal.classList.add('show'));
-        document.getElementById('openEditCustomerModalBtn').addEventListener('click', () => custModal.classList.add('show'));
-        document.getElementById('closeCustomerModal').addEventListener('click', () => custModal.classList.remove('show'));
-        document.getElementById('cancelCustomerBtn').addEventListener('click', () => custModal.classList.remove('show'));
-
-        document.getElementById('openAddContractModalBtn').addEventListener('click', () => contModal.classList.add('show'));
-        document.getElementById('closeContractModal').addEventListener('click', () => contModal.classList.remove('show'));
-        document.getElementById('cancelContractBtn').addEventListener('click', () => contModal.classList.remove('show'));
-
-        document.getElementById('openAddProjectModalBtn').addEventListener('click', () => projModal.classList.add('show'));
-        document.getElementById('closeProjectModal').addEventListener('click', () => projModal.classList.remove('show'));
-        document.getElementById('cancelProjectBtn').addEventListener('click', () => projModal.classList.remove('show'));
-
-        document.getElementById('openAddResourceBtn').addEventListener('click', () => resModal.classList.add('show'));
-        document.getElementById('closeResourceModal').addEventListener('click', () => resModal.classList.remove('show'));
-        document.getElementById('cancelResourceBtn').addEventListener('click', () => resModal.classList.remove('show'));
-
-        window.addEventListener('click', (e) => {
-            if (e.target === custModal) custModal.classList.remove('show');
-            if (e.target === contModal) contModal.classList.remove('show');
-            if (e.target === renewModal) renewModal.classList.remove('show');
-            if (e.target === projModal) projModal.classList.remove('show');
-            if (e.target === resModal) resModal.classList.remove('show');
-
-            if (!e.target.closest('#customersTable tbody tr, #contractsTable tbody tr, #projectsTable tbody tr, #resourcesTable tbody tr, .selection-indicator, .op-controls, .action-buttons, .op-actions, .search-box, .hr-filters')) {
-                clearSelection();
-            }
-        });
-
-        // Row Selection Logic
-        const customerRows = document.querySelectorAll('#customersTable tbody tr');
-        const contractsRows = document.querySelectorAll('#contractsTable tbody tr');
-        const projectsRows = document.querySelectorAll('#projectsTable tbody tr');
-        const resourcesRows = document.querySelectorAll('#resourcesTable tbody tr');
-
-        const clearSelection = () => {
-            customerRows.forEach(r => r.classList.remove('selected-row'));
-            contractsRows.forEach(r => r.classList.remove('selected-row'));
-            projectsRows.forEach(r => r.classList.remove('selected-row'));
-            resourcesRows.forEach(r => r.classList.remove('selected-row'));
-        };
-
-        clearSelection();
-
-        customerRows.forEach(row => {
-            row.addEventListener('click', () => {
-                clearSelection();
-                row.classList.add('selected-row');
-                const companyName = row.querySelector('.company-name').innerText;
-            });
-        });
-
-        contractsRows.forEach(row => {
-            row.addEventListener('click', () => {
-                clearSelection();
-                row.classList.add('selected-row');
-                const contractCode = row.querySelector('.code-col').innerText;
-            });
-        });
-
-        projectsRows.forEach(row => {
-            row.addEventListener('click', () => {
-                clearSelection();
-                row.classList.add('selected-row');
-            });
-        });
-
-        resourcesRows.forEach(row => {
-            row.addEventListener('click', () => {
-                clearSelection();
-                row.classList.add('selected-row');
-            });
-        });
-
-        // Gia hạn button logic
-        document.getElementById('renewContractBtn').addEventListener('click', () => {
-            renewModal.classList.add('show');
-        });
-        document.getElementById('cancelRenewBtn').addEventListener('click', () => {
-            renewModal.classList.remove('show');
-        });
-        document.getElementById('confirmRenewBtn').addEventListener('click', () => {
-            renewModal.classList.remove('show');
-            alert('Đã cập nhật trạng thái gia hạn!');
-        });
-    </script>
+    <script src="js/router.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/mock-store.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/page-common.js"></script>
+    <script src="js/global.js"></script>
+    <script src="js/operations-page.js"></script>
 </body>
 </html>

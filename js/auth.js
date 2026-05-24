@@ -3,9 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('loginError');
     const loginErrorMessage = document.getElementById('loginErrorMessage');
 
-    // Kiểm tra nếu đã đăng nhập thì chuyển luôn sang dashboard
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
+    // Đã đăng nhập → router chuyển sang dashboard (index.html)
+    if (window.AppRouter) {
+        AppRouter.init();
+    } else if (localStorage.getItem('currentUser')) {
         window.location.href = 'dashboard.html';
     }
 
@@ -56,15 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (data) {
                     // Đăng nhập thành công, lưu thông tin vào localStorage
                     console.log("Đăng nhập thành công:", data);
-                    localStorage.setItem('currentUser', JSON.stringify({
+                    const userPayload = {
                         UserID: data.user_id || data.UserID,
                         EmployeeID: data.employee_id || data.EmployeeID,
                         Email: data.email || data.Email,
-                        Username: data.username || data.Username
-                    }));
+                        Username: data.username || data.Username,
+                        full_name: data.full_name || data.username || data.email,
+                        role: data.role || 'Nhân viên'
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userPayload));
+                    if (window.MockStore) {
+                        MockStore.logActivity('Đăng nhập', `Đăng nhập: ${userPayload.Email}`);
+                    }
 
-                    // Chuyển hướng sang trang account hoặc dashboard
-                    window.location.href = 'account.html'; 
+                    window.location.href = window.AppRouter
+                        ? AppRouter.defaultAfterLogin
+                        : 'account.html'; 
                 }
 
                 submitBtn.innerHTML = oldBtnText; // Trả lại text cho nút
