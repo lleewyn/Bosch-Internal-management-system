@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/hr.css">
+    <link rel="stylesheet" href="css/operations.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -73,53 +74,65 @@
             </div>
         </div>
 
-        <main class="content-wrapper">
-            <div class="hr-container">
+        <main class="content-wrapper" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 24px;">
+            <div class="hr-container op-view-modern" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
                 <!-- TOP CONTROLS FOR DIRECTORY -->
-                <div class="hr-controls" id="directoryControls">
-                    <div class="hr-filters">
-                        <div class="search-box">
-                            <i class="fa-solid fa-search"></i>
-                            <input type="text" placeholder="Tìm kiếm theo tên, mã NV...">
+                <div id="directoryControls" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; flex-shrink: 0;">
+                    <div class="op-box-search" style="margin-bottom: 0;">
+                        <div class="search-box" style="width: 400px; height: 36px;">
+                            <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                            <input type="text" placeholder="Tìm kiếm theo tên, mã NV..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                         </div>
-                        <select class="hr-select">
-                            <option>Group</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>Team</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>Dự án</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>Thời gian</option>
-                        </select>
+                        <div class="hr-filters" style="display: flex; gap: 16px;">
+                            <select class="hr-select"><option>Group</option></select>
+                            <select class="hr-select"><option>Team</option></select>
+                            <select class="hr-select"><option>Dự án</option></select>
+                            <select class="hr-select"><option>Thời gian</option></select>
+                        </div>
                     </div>
                     
-                    <button class="btn-action red-btn" id="openAddModalBtn">
-                        <i class="fa-solid fa-plus"></i> Thêm nhân sự mới
-                    </button>
+                    <div class="op-box-actions" style="margin-bottom: 0;">
+                        <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
+                            Đang chọn: Tất cả nhân sự
+                        </div>
+                        <div class="action-buttons" style="display: flex; gap: 12px;">
+                            <button class="btn-action red-btn" id="openAddModalBtn" style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                <i class="fa-solid fa-plus"></i> Thêm nhân sự mới
+                            </button>
+                            <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                            <button class="btn-action" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- TOP CONTROLS FOR ROADMAP (Hidden by default) -->
-                <div class="hr-controls" id="roadmapControls" style="display: none; justify-content: space-between;">
-                    <div class="search-box">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" placeholder="Tìm kiếm theo tên, mã NV..." style="width: 400px;">
+                <div id="roadmapControls" style="display: none; flex-direction: column; gap: 16px; margin-bottom: 16px; flex-shrink: 0;">
+                    <div class="op-box-search" style="margin-bottom: 0;">
+                        <div class="search-box" style="width: 400px; height: 36px;">
+                            <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                            <input type="text" placeholder="Tìm kiếm theo tên, mã NV..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                        </div>
+                        <div class="hr-filters" style="display: flex; gap: 16px;">
+                            <select class="hr-select"><option>Cấp bậc</option></select>
+                            <select class="hr-select"><option>Trạng thái</option></select>
+                        </div>
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select">
-                            <option>Cấp bậc</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>Trạng thái</option>
-                        </select>
+                    
+                    <div class="op-box-actions" style="margin-bottom: 0;">
+                        <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
+                            Đang chọn: Tất cả lộ trình
+                        </div>
+                        <div class="action-buttons" style="display: flex; gap: 12px;">
+                            <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                            <button class="btn-action" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- TABLE CONTENT -->
-                <div class="table-responsive">
-                    <table class="bosch-table" id="directoryTable">
+                <div class="op-box-table">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
+                        <table class="bosch-table bosch-table-modern" id="directoryTable" style="min-width: 1200px;">
                         <colgroup>
                             <col style="width: 12%;">
                             <col style="width: 20%;">
@@ -293,7 +306,7 @@
                         </tbody>
                     </table>
 
-                    <table class="bosch-table" id="roadmapTable" style="display: none;">
+                    <table class="bosch-table bosch-table-modern" id="roadmapTable" style="display: none; min-width: 1000px;">
                         <thead>
                             <tr>
                                 <th>MÃ NV</th>
@@ -347,17 +360,18 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="bosch-pagination-bar">
-                    <div class="bosch-pagination">
-                        <span class="page-info">Hiển thị 1 - 8 trên 142 nhân sự</span>
-                        <div class="page-controls">
-                            <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                            <button class="page-btn active">1</button>
-                            <button class="page-btn">2</button>
-                            <button class="page-btn">3</button>
-                            <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <div class="bosch-pagination-bar" style="border-top: 1px solid #eef2f7; padding: 12px 24px; background: white;">
+                        <div class="bosch-pagination">
+                            <span class="page-info">Hiển thị 1 - 8 trên 142 nhân sự</span>
+                            <div class="page-controls">
+                                <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -198,6 +198,7 @@
     box-shadow: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
+    border: none !important;
 }
 
 .op-box-search {
