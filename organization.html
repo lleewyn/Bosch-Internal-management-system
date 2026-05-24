@@ -73,10 +73,19 @@
             width: 100%;
             height: 40px;
             padding: 0 16px 0 40px;
-            background: #f1f3f5;
-            border: none;
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
             border-radius: 20px;
             font-size: 13px;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .org-search input:focus {
+            background: #fff;
+            border-color: #cbd5e1;
+            box-shadow: 0 0 0 3px rgba(188,0,4,0.1);
+            outline: none;
         }
 
         .org-search i {
@@ -85,6 +94,10 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+        .org-search input:focus + i, .org-search input:focus ~ i {
+            color: var(--bosch-red);
         }
 
         .org-actions {
@@ -180,8 +193,12 @@
 
         .group-item:hover { background: var(--bg-body); }
         .group-item.active {
-            background: #fff8f8;
+            background: #fee2e2;
             border-left-color: var(--bosch-red);
+        }
+        .group-item.active .group-icon {
+            background: white;
+            box-shadow: 0 2px 6px rgba(188,0,4,0.1);
         }
         .group-item.active .g-id { color: var(--bosch-red); }
 
@@ -224,12 +241,12 @@
         .org-tree li::before, .org-tree li::after {
             content: '';
             position: absolute; top: 0; right: 50%;
-            border-top: 1.5px solid #fca5a5;
+            border-top: 2px solid #cbd5e1;
             width: 50%; height: 20px;
         }
         .org-tree li::after {
             right: auto; left: 50%;
-            border-left: 1.5px solid #fca5a5;
+            border-left: 2px solid #cbd5e1;
         }
         .org-tree li:only-child::after, .org-tree li:only-child::before {
             display: none;
@@ -239,37 +256,70 @@
             border: 0 none;
         }
         .org-tree li:last-child::before {
-            border-right: 1.5px solid #fca5a5;
+            border-right: 2px solid #cbd5e1;
+            border-radius: 0 12px 0 0;
+        }
+        .org-tree li:first-child::after {
+            border-radius: 12px 0 0 0;
         }
         .org-tree ul ul::before {
             content: '';
             position: absolute; top: 0; left: 50%;
-            border-left: 1.5px solid #fca5a5;
+            border-left: 2px solid #cbd5e1;
             width: 0; height: 20px;
-            transform: translateX(-0.5px);
+            transform: translateX(-1px);
         }
 
         /* Sub-teams lines (gray) */
-        .gray-lines li::before, .gray-lines li::after { border-top-color: var(--border-main); }
-        .gray-lines li::after { border-left-color: var(--border-main); }
-        .gray-lines li:last-child::before { border-right-color: var(--border-main); }
-        .gray-lines ul::before { border-left-color: var(--border-main); }
+        .gray-lines li::before, .gray-lines li::after { border-top-color: #cbd5e1; }
+        .gray-lines li::after { border-left-color: #cbd5e1; }
+        .gray-lines li:last-child::before { border-right-color: #cbd5e1; }
+        .gray-lines ul::before { border-left-color: #cbd5e1; }
 
         .org-node {
             background: white;
             border: 1px solid var(--border-main);
-            border-radius: 8px;
-            padding: 20px 16px 16px 16px;
-            display: inline-block;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            min-width: 160px;
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            min-width: 180px;
             position: relative;
+            transition: all 0.2s ease;
+        }
+        .org-node:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
         }
 
         .org-node.root-node {
-            min-width: 220px;
-            border: 1px solid #fca5a5;
-            box-shadow: 0 4px 12px rgba(188,0,4,0.08);
+            min-width: 240px;
+            border: none;
+            background: linear-gradient(135deg, #fff 0%, #fff8f8 100%);
+            border-top: 4px solid var(--bosch-red);
+            box-shadow: 0 8px 24px rgba(188,0,4,0.12);
+        }
+        .org-node.root-node:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(188,0,4,0.18);
+        }
+        
+        .n-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .sub-node .n-avatar {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 8px;
         }
 
         
@@ -459,6 +509,7 @@
                             <li>
                                 <div class="org-node root-node">
                                     <div class="badge badge-info">HEAD OF DEPARTMENT</div>
+                                    <img src="https://ui-avatars.com/api/?name=Jackson+Nguyen&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                     <div class="n-name" style="font-size: 15px;">Jackson Nguyen</div>
                                     <div class="n-role">Master Manager</div>
                                     <div class="badge badge-muted">142 nhân sự</div>
@@ -468,6 +519,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-danger">MANAGER OF GROUP-A</div>
                                             <div class="n-title">AI & ROBOTICS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Nguyễn+Thanh+Hùng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Nguyễn Thanh Hùng</div>
                                             <div class="n-role">Automation Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">4 Teams</div>
@@ -477,6 +529,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-danger">MANAGER OF GROUP-B</div>
                                             <div class="n-title">MOBILITY SOLUTIONS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Trần+Mỹ+Thanh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Trần Mỹ Thanh</div>
                                             <div class="n-role">Product Manager</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">3 Teams</div>
@@ -486,6 +539,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-danger">MANAGER OF GROUP-C</div>
                                             <div class="n-title">INNOVATION LAB</div>
+                                            <img src="https://ui-avatars.com/api/?name=Nguyễn+Minh+Hoàng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Nguyễn Minh Hoàng</div>
                                             <div class="n-role">Innovation Manager</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">4 Teams</div>
@@ -495,6 +549,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-danger">MANAGER OF GROUP-D</div>
                                             <div class="n-title">DIGITAL SERVICES</div>
+                                            <img src="https://ui-avatars.com/api/?name=Phạm+Gia+Huy&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Phạm Gia Huy</div>
                                             <div class="n-role">Search Engine Optimization</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Teams</div>
@@ -512,6 +567,7 @@
                                 <div class="org-node root-node">
                                     <div class="badge badge-danger">MANAGER OF GROUP-A</div>
                                     <div class="n-title">AI & ROBOTICS</div>
+                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Thanh+Hùng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                     <div class="n-name" style="font-size: 15px;">Nguyễn Thanh Hùng</div>
                                     <div class="n-role">Automation Engineer</div>
                                     <div class="badge badge-muted">58 thành viên</div>
@@ -521,6 +577,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">HARDWARE & MECHANICAL</div>
+                                            <img src="https://ui-avatars.com/api/?name=Trần+Đức+Dũng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Trần Đức Dũng</div>
                                             <div class="n-role">Mechanical Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Sub-team</div>
@@ -530,6 +587,7 @@
                                                 <div class="org-node sub-node">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Mechanical Design & Simulation</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Phạm+Thị+Hoa&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Phạm Thị Hoa</div>
                                                     <div class="badge badge-muted">6 thành viên</div>
                                                 </div>
@@ -538,6 +596,7 @@
                                                 <div class="org-node sub-node">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Mechatronics & Embedded Software</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Lê+Văn+Hùng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Lê Văn Hùng</div>
                                                     <div class="badge badge-muted">5 thành viên</div>
                                                 </div>
@@ -548,6 +607,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">SOFTWARE & CONTROLS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Lê+Phương+Mai&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Lê Phương Mai</div>
                                             <div class="n-role">Computer Vision Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">3 Sub-team</div>
@@ -557,18 +617,21 @@
                                                 <div class="org-node sub-node" style="margin-bottom: 20px;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Localization & Maps - SLAM</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Trần+Quốc+Bảo&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Trần Quốc Bảo</div>
                                                     <div class="badge badge-muted">8 thành viên</div>
                                                 </div>
                                                 <div class="org-node sub-node" style="margin-bottom: 20px; display:block;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Embedded Programming & RTOS</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Thị+Anh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Nguyễn Thị Anh</div>
                                                     <div class="badge badge-muted">4 thành viên</div>
                                                 </div>
                                                 <div class="org-node sub-node" style="display:block;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Control & Trajectory Algorithms</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Phạm+Đức+Duy&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Phạm Đức Duy</div>
                                                     <div class="badge badge-muted">4 thành viên</div>
                                                 </div>
@@ -579,6 +642,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">AI & MACHINE LEARNING</div>
+                                            <img src="https://ui-avatars.com/api/?name=Phạm+Hoàng+Hải&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Phạm Hoàng Hải</div>
                                             <div class="n-role">Machine Learning Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">3 Sub-team</div>
@@ -588,18 +652,21 @@
                                                 <div class="org-node sub-node" style="margin-bottom: 20px;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Computer Vision & AI Modeling</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Đặng+Quốc+Triệu&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Đặng Quốc Triệu</div>
                                                     <div class="badge badge-muted">5 thành viên</div>
                                                 </div>
                                                 <div class="org-node sub-node" style="margin-bottom: 20px; display:block;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Data Processing - Data Pipeline</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Hạ+Linh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Nguyễn Hạ Linh</div>
                                                     <div class="badge badge-muted">4 thành viên</div>
                                                 </div>
                                                 <div class="org-node sub-node" style="display:block;">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Labeling & Summarization</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Nam+Sơn&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Nguyễn Nam Sơn</div>
                                                     <div class="badge badge-muted">3 thành viên</div>
                                                 </div>
@@ -610,6 +677,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">INTEGRATION & MLOPS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Nguyễn+Hoàng+Huy&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Nguyễn Hoàng Huy</div>
                                             <div class="n-role">MLOps Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Sub-team</div>
@@ -619,6 +687,7 @@
                                                 <div class="org-node sub-node">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">System Integration & MLOps</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Tuấn+Vũ&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Nguyễn Tuấn Vũ</div>
                                                     <div class="badge badge-muted">4 thành viên</div>
                                                 </div>
@@ -627,6 +696,7 @@
                                                 <div class="org-node sub-node">
                                                     <div class="badge badge-muted" style="font-size: 6px;">KEY MEMBER</div>
                                                     <div class="n-title">Testing & Quality Assurance</div>
+                                                    <img src="https://ui-avatars.com/api/?name=Vũ+Minh+Thư&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                                     <div class="n-name">Vũ Minh Thư</div>
                                                     <div class="badge badge-muted">3 thành viên</div>
                                                 </div>
@@ -644,6 +714,7 @@
                                 <div class="org-node root-node">
                                     <div class="badge badge-danger">MANAGER OF GROUP-B</div>
                                     <div class="n-title">MOBILITY SOLUTIONS</div>
+                                    <img src="https://ui-avatars.com/api/?name=Trần+Mỹ+Thanh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                     <div class="n-name" style="font-size: 15px;">Trần Mỹ Thanh</div>
                                     <div class="n-role">Product Manager</div>
                                     <div class="badge badge-muted">42 thành viên</div>
@@ -653,6 +724,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">AUTONOMOUS DRIVING</div>
+                                            <img src="https://ui-avatars.com/api/?name=Phạm+Văn+Bình&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Phạm Văn Bình</div>
                                             <div class="n-role">Senior Software Architect</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Sub-team</div>
@@ -662,6 +734,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">CONNECTED SERVICES</div>
+                                            <img src="https://ui-avatars.com/api/?name=Trần+Minh+Đức&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Trần Minh Đức</div>
                                             <div class="n-role">Cloud Infrastructure Lead</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Sub-team</div>
@@ -671,6 +744,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">TELEMATICS SYSTEMS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Vũ+Hoàng+Nam&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Vũ Hoàng Nam</div>
                                             <div class="n-role">Firmware Engineer</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">1 Sub-team</div>
@@ -688,6 +762,7 @@
                                 <div class="org-node root-node">
                                     <div class="badge badge-danger">MANAGER OF GROUP-C</div>
                                     <div class="n-title">INNOVATION LAB</div>
+                                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Minh+Hoàng&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                     <div class="n-name" style="font-size: 15px;">Nguyễn Minh Hoàng</div>
                                     <div class="n-role">Innovation Manager</div>
                                     <div class="badge badge-muted">35 thành viên</div>
@@ -697,6 +772,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">ADVANCED RESEARCH</div>
+                                            <img src="https://ui-avatars.com/api/?name=Lê+Thị+Thảo&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Lê Thị Thảo</div>
                                             <div class="n-role">Research Scientist</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">2 Sub-team</div>
@@ -706,6 +782,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">PRODUCT PROTOTYPING</div>
+                                            <img src="https://ui-avatars.com/api/?name=Nguyễn+Văn+Minh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Nguyễn Văn Minh</div>
                                             <div class="n-role">Hardware Prototyper</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">1 Sub-team</div>
@@ -723,6 +800,7 @@
                                 <div class="org-node root-node">
                                     <div class="badge badge-danger">MANAGER OF GROUP-D</div>
                                     <div class="n-title">DIGITAL SERVICES</div>
+                                    <img src="https://ui-avatars.com/api/?name=Phạm+Gia+Huy&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                     <div class="n-name" style="font-size: 15px;">Phạm Gia Huy</div>
                                     <div class="n-role">SEO Specialist</div>
                                     <div class="badge badge-muted">21 thành viên</div>
@@ -732,6 +810,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">SEO & ANALYTICS</div>
+                                            <img src="https://ui-avatars.com/api/?name=Đỗ+Tuấn+Anh&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Đỗ Tuấn Anh</div>
                                             <div class="n-role">Analytics Lead</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">1 Sub-team</div>
@@ -741,6 +820,7 @@
                                         <div class="org-node">
                                             <div class="badge badge-muted">TEAM LEADER</div>
                                             <div class="n-title">DIGITAL MARKETING</div>
+                                            <img src="https://ui-avatars.com/api/?name=Nguyễn+Thị+Mai&background=6c757d&color=fff" class="n-avatar" alt="Avatar">
                                             <div class="n-name">Nguyễn Thị Mai</div>
                                             <div class="n-role">Marketing Solutions Lead</div>
                                             <div class="badge badge-muted" style="color:var(--text-secondary);">1 Sub-team</div>
