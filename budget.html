@@ -30,75 +30,6 @@
             display: block; margin-top: 4px;
         }
 
-        .budget-container {
-            background: #fff;
-            border-radius: 20px;
-            border: 1px solid #eef2f7;
-            box-shadow: var(--shadow-panel);
-            overflow: hidden;
-        }
-
-        .budget-container .op-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: center;
-            padding: 22px 24px;
-            border-bottom: 1px solid #eef2f7;
-            background: #fff;
-        }
-
-        .budget-container .budget-search {
-            flex: 1;
-            min-width: 240px;
-            max-width: 420px;
-            background: #f4f5f7;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-        }
-
-        .budget-container .budget-search input {
-            padding: 12px 16px 12px 40px;
-            border: none;
-            width: 100%;
-            background: transparent;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .budget-container .budget-search i {
-            color: var(--text-muted);
-        }
-
-        .budget-container .budget-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .budget-container .hr-select {
-            min-width: 180px;
-            max-width: 240px;
-        }
-
-        .budget-container .table-responsive {
-            overflow-x: auto;
-            padding: 18px;
-            background: transparent;
-        }
-
-        .budget-container .bosch-table {
-            width: 100%;
-            min-width: 940px;
-            border-collapse: collapse;
-            border-radius: 0 0 20px 20px;
-            overflow: hidden;
-            background: transparent;
-        }
-
-
         .budget-container .edit-icon-btn {
             width: 38px;
             height: 38px;
@@ -113,23 +44,6 @@
         .budget-container .edit-icon-btn:hover {
             transform: translateY(-1px);
             background: rgba(245, 158, 11, 0.18);
-        }
-
-        .budget-container .hr-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .budget-container .search-box input {
-            min-width: 220px;
-            width: 100%;
-        }
-
-        .budget-container .hr-select {
-            min-width: 180px;
-            max-width: 260px;
         }
     </style>
 </head>
@@ -202,19 +116,19 @@
             <div id="serviceLineView" class="budget-container op-view-modern" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
                 
                 <!-- Box 1: Search & Filters -->
-                <div class="op-box-search" style="margin-bottom: 0;">
-                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
-                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
-                        <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã..." style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
+                <div class="op-box-search">
+                    <div class="search-box" style="width: 400px; height: 36px;">
+                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                        <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
-                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
+                    <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select"><option>Tất cả trạng thái</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
                 <!-- Box 2: Actions -->
-                <div class="op-box-actions" style="margin-bottom: 0;">
+                <div class="op-box-actions">
                     <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
                         Đang chọn: Tất cả dòng dịch vụ
                     </div>
@@ -302,19 +216,19 @@
 
             <!-- VIEW 2: Mức độ tham gia -->
             <div id="participationView" class="budget-container op-view-modern" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
-                <div class="op-box-search" style="margin-bottom: 0;">
-                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
-                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
-                        <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
+                <div class="op-box-search">
+                    <div class="search-box" style="width: 400px; height: 36px;">
+                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                        <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
-                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
+                    <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select"><option>Tháng 10/2025</option></select>
                         <select class="hr-select"><option>Tất cả trạng thái</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
-                <div class="op-box-actions" style="margin-bottom: 0;">
+                <div class="op-box-actions">
                     <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
                         Đang chọn: Tất cả mức độ tham gia
                     </div>
@@ -413,19 +327,19 @@
 
             <!-- VIEW 3: Doanh thu dự án -->
             <div id="revenueView" class="budget-container op-view-modern" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
-                <div class="op-box-search" style="margin-bottom: 0;">
-                    <div class="search-box budget-search" style="height: 36px; display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 12px; background: #f4f5f7;">
-                        <i class="fa-solid fa-search" style="color: #6c757d; margin-left: 16px;"></i>
-                        <input type="text" placeholder="Tìm theo tên dự án" style="padding: 0; padding-left: 12px; font-size: 13px; border: none; background: transparent; width: 100%; outline: none;">
+                <div class="op-box-search">
+                    <div class="search-box" style="width: 400px; height: 36px;">
+                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                        <input type="text" placeholder="Tìm theo tên dự án" style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
-                    <div class="hr-filters budget-filters" style="display: flex; gap: 16px;">
+                    <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select"><option>Tháng 10/2025</option></select>
                         <select class="hr-select"><option>Tất cả trạng thái</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
 
-                <div class="op-box-actions" style="margin-bottom: 0;">
+                <div class="op-box-actions">
                     <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
                         Đang chọn: Tất cả doanh thu
                     </div>
