@@ -3,10 +3,17 @@
     padding: 24px;
     background: var(--bg-card);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    box-shadow: var(--shadow-panel);
+    border: 1px solid #eef2f7;
     min-height: 500px;
     display: flex;
     flex-direction: column;
+}
+
+.hr-container .table-responsive {
+    overflow-x: auto;
+    flex: 1;
+    padding: 18px;
 }
 
 .hr-controls {
@@ -82,29 +89,30 @@
     flex: 1;
 }
 
-.hr-table {
+.bosch-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.hr-table th {
-    background: #e9eff5;
+.bosch-table th {
     padding: 16px;
     text-align: left;
     font-size: 11px;
     font-weight: var(--font-bold);
     color: var(--text-secondary);
     text-transform: uppercase;
+    border-bottom: 1px solid #f0f0f0;
+    background: #f8fafc;
 }
 
-.hr-table td {
+.bosch-table td {
     padding: 16px;
     border-bottom: 1px solid #f0f0f0;
     font-size: 13px;
     vertical-align: top;
 }
 
-.hr-table tr:hover td {
+.bosch-table tr:hover td {
     background: var(--bg-body);
 }
 

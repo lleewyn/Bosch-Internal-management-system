@@ -1,5 +1,7 @@
 /* operations.css */
 .op-container {
+    display: flex;
+    flex-direction: column;
     background: var(--bg-card);
     border-radius: 12px;
     padding: 24px;
@@ -9,8 +11,30 @@
 
 .op-controls {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
+    margin-bottom: 16px;
+}
+
+.op-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.op-container .table-responsive {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
     margin-bottom: 24px;
+}
+
+.op-container .table-responsive .bosch-table {
+    border-radius: 0;
 }
 
 .op-header-block {

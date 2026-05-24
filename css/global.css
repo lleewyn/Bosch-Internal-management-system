@@ -66,6 +66,7 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --shadow-panel: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 * {
@@ -143,7 +144,6 @@ body {
 .budget-container,
 .chart-container,
 .org-chart-container,
-.table-responsive,
 .bosch-modal-content {
     background: #ffffff;
     border-radius: 12px;
@@ -185,6 +185,18 @@ body {
 /* Make table cards consistent spacing */
 .table-responsive {
     padding: 18px;
+}
+
+/* Shared panel shadow for consistent card depth */
+.page-panel,
+.panel,
+.hr-container,
+.op-container,
+.budget-container,
+.chart-container,
+.org-chart-container,
+.bosch-modal-content {
+    box-shadow: var(--shadow-panel);
 }
 
 /* Micro-interactions and typography polish */
@@ -357,6 +369,28 @@ body {
     transition: all 0.2s;
 }
 .btn-primary:hover { background: var(--bosch-red-hover); }
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.blue-btn { background: var(--bosch-blue); color: white; }
+.yellow-btn { background: #F59E0B; color: white; }
+.red-btn { background: #E20015; color: white; }
+.purple-btn { background: #6366f1; color: white; }
+.outline-yellow-btn { background: var(--bg-card); border: 1px solid #F59E0B; color: #F59E0B; }
+.outline-gray-btn { background: var(--bg-body); border: 1px solid var(--border-main); color: var(--text-muted); }
 .btn-secondary {
     background: var(--border-light);
     color: var(--text-secondary);
@@ -380,8 +414,9 @@ body {
 }
 .btn-ghost:hover { color: var(--text-secondary); }
 
-/* 5. MODALS (.bosch-modal) */
-.bosch-modal-overlay {
+/* 5. MODALS (.bosch-modal, .modal) */
+.bosch-modal-overlay,
+.modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -391,8 +426,10 @@ body {
     align-items: center;
     backdrop-filter: blur(2px);
 }
-.bosch-modal-overlay.show { display: flex; }
-.bosch-modal-content {
+.bosch-modal-overlay.show,
+.modal-overlay.show { display: flex; }
+.bosch-modal-content,
+.modal-content {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     width: 480px;
@@ -400,28 +437,35 @@ body {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
 }
-.bosch-modal-header {
+.bosch-modal-header,
+.modal-header {
     padding: var(--space-5) var(--space-6);
     border-bottom: 1px solid var(--border-light);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.bosch-modal-header h3 {
-    font-size: var(--text-lg);
+.bosch-modal-header h3,
+.modal-header h3 {
+    font-size: var(--text-xl);
     font-weight: var(--font-extrabold);
     color: var(--text-main);
+    margin: 0;
 }
-.bosch-modal-close {
+.bosch-modal-close,
+.close-modal {
     color: var(--text-muted);
     cursor: pointer;
     font-size: var(--text-lg);
 }
-.bosch-modal-close:hover { color: var(--text-secondary); }
-.bosch-modal-body {
+.bosch-modal-close:hover,
+.close-modal:hover { color: var(--text-secondary); }
+.bosch-modal-body,
+.modal-body {
     padding: var(--space-6);
 }
-.bosch-modal-footer {
+.bosch-modal-footer,
+.modal-footer {
     padding: var(--space-4) var(--space-6);
     border-top: 1px solid var(--border-light);
     display: flex;

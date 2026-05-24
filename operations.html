@@ -84,13 +84,26 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" placeholder="Tìm nhanh đối tác theo tên, người quản lý, ngành nghề..." style="width: 350px;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select">
-                            <option>Tất cả quốc gia</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>Tất cả trạng thái hợp tác</option>
-                        </select>
+                    <div class="op-actions">
+                        <div class="hr-filters">
+                            <select class="hr-select">
+                                <option>Tất cả quốc gia</option>
+                            </select>
+                            <select class="hr-select">
+                                <option>Tất cả trạng thái hợp tác</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action blue-btn" id="openAddCustomerModalBtn">
+                                <i class="fa-solid fa-plus"></i> Tạo khách hàng
+                            </button>
+                            <button class="btn-action yellow-btn" id="openEditCustomerModalBtn">
+                                <i class="fa-solid fa-pen"></i> Sửa
+                            </button>
+                            <button class="btn-action red-btn">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -179,17 +192,6 @@
 
                 <!-- FOOTER ACTION BAR FOR CUSTOMERS -->
                 <div class="action-footer" id="customersFooter">
-                    <div class="action-buttons">
-                        <button class="btn-action blue-btn" id="openAddCustomerModalBtn">
-                            <i class="fa-solid fa-plus"></i> Tạo khách hàng
-                        </button>
-                        <button class="btn-action yellow-btn" id="openEditCustomerModalBtn">
-                            <i class="fa-solid fa-pen"></i> Sửa
-                        </button>
-                        <button class="btn-action red-btn">
-                            <i class="fa-solid fa-trash"></i> Xóa
-                        </button>
-                    </div>
                     <div class="selection-indicator" id="custIndicator">
                         Đang chọn: Samsung Electronics HCMC
                     </div>
@@ -203,21 +205,35 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" placeholder="Tìm nhanh hợp đồng theo mã, tên đối tác..." style="width: 350px;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select">
-                            <option>Tất cả trạng thái</option>
-                        </select>
-                        <select class="hr-select">
-                            <option>OT / Không OT</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="op-controls" style="margin-top: -10px;">
-                    <div class="hr-filters">
-                        <select class="hr-select" style="background-color: var(--bg-body);">
-                            <option>Sắp xếp: Mặc định</option>
-                        </select>
+                    <div class="op-actions">
+                        <div class="hr-filters">
+                            <select class="hr-select">
+                                <option>Tất cả trạng thái</option>
+                            </select>
+                            <select class="hr-select">
+                                <option>OT / Không OT</option>
+                            </select>
+                            <select class="hr-select" style="background-color: var(--bg-body);">
+                                <option>Sắp xếp: Mặc định</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action blue-btn" id="openAddContractModalBtn">
+                                <i class="fa-solid fa-plus"></i> Tạo hợp đồng
+                            </button>
+                            <button class="btn-action outline-gray-btn" style="border: 1px solid #F59E0B; color: #F59E0B; background: transparent;">
+                                <i class="fa-regular fa-pen-to-square"></i> Sửa
+                            </button>
+                            <button class="btn-action red-btn">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                            <button class="btn-action purple-btn" id="renewContractBtn">
+                                <i class="fa-solid fa-rotate-right"></i> Gia hạn
+                            </button>
+                            <button class="btn-action outline-gray-btn" disabled>
+                                <i class="fa-regular fa-circle-check"></i> Kích hoạt
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -355,19 +371,19 @@
                 <!-- FOOTER ACTION BAR FOR CONTRACTS -->
                 <div class="action-footer" id="contractsFooter" style="display: none;">
                     <div class="action-buttons">
-                        <button class="btn-primary blue-btn" id="openAddContractModalBtn">
+                        <button class="btn-action blue-btn" id="openAddContractModalBtn">
                             <i class="fa-solid fa-plus"></i> Tạo hợp đồng
                         </button>
-                        <button class="btn-primary outline-yellow-btn">
+                        <button class="btn-action outline-gray-btn" style="border: 1px solid #F59E0B; color: #F59E0B; background: transparent;">
                             <i class="fa-regular fa-pen-to-square"></i> Sửa
                         </button>
-                        <button class="btn-primary red-btn">
+                        <button class="btn-action red-btn">
                             <i class="fa-solid fa-trash"></i> Xóa
                         </button>
-                        <button class="btn-primary purple-btn" id="renewContractBtn">
+                        <button class="btn-action purple-btn" id="renewContractBtn">
                             <i class="fa-solid fa-rotate-right"></i> Gia hạn
                         </button>
-                        <button class="btn-primary outline-gray-btn" disabled>
+                        <button class="btn-action outline-gray-btn" disabled>
                             <i class="fa-regular fa-circle-check"></i> Kích hoạt
                         </button>
                     </div>
@@ -384,11 +400,24 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="width: 350px;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select"><option>Tất cả công ty</option></select>
-                        <select class="hr-select"><option>Tất cả Service Line</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    <div class="op-actions">
+                        <div class="hr-filters">
+                            <select class="hr-select"><option>Tất cả công ty</option></select>
+                            <select class="hr-select"><option>Tất cả Service Line</option></select>
+                            <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                            <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action blue-btn" id="openAddProjectModalBtn">
+                                <i class="fa-solid fa-plus"></i> Tạo dự án
+                            </button>
+                            <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                                <i class="fa-regular fa-pen-to-square"></i> Sửa
+                            </button>
+                            <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -479,18 +508,9 @@
                 </div>
 
                 <div class="action-footer" id="projectsFooter" style="display: none;">
-                    <div class="action-buttons">
-                        <button class="btn-primary blue-btn" id="openAddProjectModalBtn">
-                            <i class="fa-solid fa-plus"></i> Tạo dự án
-                        </button>
-                        <button class="btn-primary outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
-                            <i class="fa-regular fa-pen-to-square"></i> Sửa
-                        </button>
-                        <button class="btn-primary outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
-                            <i class="fa-solid fa-trash"></i> Xóa
-                        </button>
-                    </div>
+                    <div class="selection-indicator" id="projIndicator"></div>
                 </div>
+
             </div>
 
             <!-- RESOURCES VIEW -->
@@ -500,11 +520,24 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="width: 350px;">
                     </div>
-                    <div class="hr-filters">
-                        <select class="hr-select"><option>OT/Không OT</option></select>
-                        <select class="hr-select"><option>Tất cả Service Line</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                    <div class="op-actions">
+                        <div class="hr-filters">
+                            <select class="hr-select"><option>OT/Không OT</option></select>
+                            <select class="hr-select"><option>Tất cả Service Line</option></select>
+                            <select class="hr-select"><option>Tất cả trạng thái</option></select>
+                            <select class="hr-select" style="background-color: var(--bg-body);"><option>Sắp xếp: Mặc định</option></select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action blue-btn" id="openAddResourceBtn">
+                                <i class="fa-solid fa-plus"></i> Tạo yêu cầu
+                            </button>
+                            <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                                <i class="fa-regular fa-pen-to-square"></i> Sửa
+                            </button>
+                            <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -573,18 +606,9 @@
                 </div>
 
                 <div class="action-footer" id="resourcesFooter" style="display: none;">
-                    <div class="action-buttons">
-                        <button class="btn-action blue-btn" id="openAddResourceBtn">
-                            <i class="fa-solid fa-plus"></i> Tạo yêu cầu
-                        </button>
-                        <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
-                            <i class="fa-regular fa-pen-to-square"></i> Sửa
-                        </button>
-                        <button class="btn-action outline-gray-btn" style="border: 1px solid #ddd; background: transparent; color: var(--text-secondary);">
-                            <i class="fa-solid fa-trash"></i> Xóa
-                        </button>
-                    </div>
+                    <div class="selection-indicator" id="resIndicator"></div>
                 </div>
+
             </div>
 
         </main>
@@ -866,7 +890,9 @@
                 });
                 tab.classList.add('active');
                 
-                [custView, contView, projView, resView, custFooter, contFooter, projFooter, resFooter].forEach(el => el.style.display = 'none');
+                [custView, contView, projView, resView, custFooter, contFooter, projFooter, resFooter].forEach(el => {
+                    if (el) el.style.display = 'none';
+                });
 
                 if (tab.dataset.tab === 'customers') {
                     custView.style.display = 'block';
@@ -914,6 +940,10 @@
             if (e.target === renewModal) renewModal.classList.remove('show');
             if (e.target === projModal) projModal.classList.remove('show');
             if (e.target === resModal) resModal.classList.remove('show');
+
+            if (!e.target.closest('#customersTable tbody tr, #contractsTable tbody tr, #projectsTable tbody tr, #resourcesTable tbody tr, .selection-indicator, .op-controls, .action-buttons, .op-actions, .search-box, .hr-filters')) {
+                clearSelection();
+            }
         });
 
         // Row Selection Logic
@@ -924,34 +954,57 @@
         const custIndicator = document.getElementById('custIndicator');
         const contIndicator = document.getElementById('contIndicator');
 
+        const clearSelection = () => {
+            customerRows.forEach(r => r.classList.remove('selected-row'));
+            contractsRows.forEach(r => r.classList.remove('selected-row'));
+            projectsRows.forEach(r => r.classList.remove('selected-row'));
+            resourcesRows.forEach(r => r.classList.remove('selected-row'));
+            if (custIndicator) {
+                custIndicator.innerText = '';
+                custIndicator.style.display = 'none';
+            }
+            if (contIndicator) {
+                contIndicator.innerText = '';
+                contIndicator.style.display = 'none';
+            }
+        };
+
+        clearSelection();
+
         customerRows.forEach(row => {
             row.addEventListener('click', () => {
-                customerRows.forEach(r => r.classList.remove('selected-row'));
+                clearSelection();
                 row.classList.add('selected-row');
                 const companyName = row.querySelector('.company-name').innerText;
-                if(custIndicator) custIndicator.innerText = `Đang chọn: ${companyName}`;
+                if (custIndicator) {
+                    custIndicator.innerText = `Đang chọn: ${companyName}`;
+                    custIndicator.style.display = 'inline-flex';
+                }
             });
         });
 
         contractsRows.forEach(row => {
             row.addEventListener('click', () => {
-                contractsRows.forEach(r => r.classList.remove('selected-row'));
+                clearSelection();
                 row.classList.add('selected-row');
                 const contractCode = row.querySelector('.code-col').innerText;
-                if(contIndicator) contIndicator.innerText = `Đang chọn: ${contractCode}`;
+                if (contIndicator) {
+                    contIndicator.innerText = `Đang chọn: ${contractCode}`;
+                    contIndicator.style.display = 'inline-flex';
+                }
             });
         });
 
         projectsRows.forEach(row => {
             row.addEventListener('click', () => {
-                projectsRows.forEach(r => r.classList.remove('selected-row'));
+                clearSelection();
                 row.classList.add('selected-row');
             });
         });
 
         resourcesRows.forEach(row => {
             row.addEventListener('click', () => {
-                resourcesRows.forEach(r => r.classList.remove('selected-row'));
+                clearSelection();
                 row.classList.add('selected-row');
             });
         });
