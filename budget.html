@@ -122,8 +122,16 @@
                         <input type="text" placeholder="Tìm theo tên dịch vụ hoặc mã..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
+                        <select class="hr-select" id="filterSlStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Hoạt động">Hoạt động</option>
+                            <option value="Ngừng">Ngừng</option>
+                        </select>
+                        <select class="hr-select" id="filterSlSort">
+                            <option value="">Sắp xếp: Mặc định</option>
+                            <option value="rate-asc">Đơn giá tăng dần</option>
+                            <option value="rate-desc">Đơn giá giảm dần</option>
+                        </select>
                     </div>
                 </div>
 
@@ -179,9 +187,19 @@
                         <input type="text" placeholder="Tìm theo tên nhân sự hoặc dự án" style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>Tháng 10/2025</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
+                        <select class="hr-select" id="filterPartProject">
+                            <option value="">Tất cả dự án</option>
+                        </select>
+                        <select class="hr-select" id="filterPartOt">
+                            <option value="">OT / Không OT</option>
+                            <option value="ot">Có OT</option>
+                            <option value="no-ot">Không OT</option>
+                        </select>
+                        <select class="hr-select" id="filterPartSort">
+                            <option value="">Sắp xếp: Mặc định</option>
+                            <option value="actual-desc">Thực tế giảm dần</option>
+                            <option value="actual-asc">Thực tế tăng dần</option>
+                        </select>
                     </div>
                 </div>
 
@@ -230,9 +248,21 @@
                         <input type="text" placeholder="Tìm theo tên dự án" style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select"><option>Tháng 10/2025</option></select>
-                        <select class="hr-select"><option>Tất cả trạng thái</option></select>
-                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
+                        <select class="hr-select" id="filterRevStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Đang triển khai">Đang triển khai</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Tạm dừng">Tạm dừng</option>
+                        </select>
+                        <select class="hr-select" id="filterRevCompany">
+                            <option value="">Tất cả công ty</option>
+                        </select>
+                        <select class="hr-select" id="filterRevSort">
+                            <option value="">Sắp xếp: Mặc định</option>
+                            <option value="revenue-desc">Doanh thu giảm dần</option>
+                            <option value="revenue-asc">Doanh thu tăng dần</option>
+                            <option value="progress-desc">Tiến độ giảm dần</option>
+                        </select>
                     </div>
                 </div>
 

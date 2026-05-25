@@ -43,44 +43,100 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Render: Dòng dịch vụ ────────────────────────────────────────────────
     function renderServiceLines() {
-        const tbody = svView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getServiceLines().map(s => `
-            <tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}">
-                <td class="code-col">${UI.escape(s.id)}</td>
-                <td class="name-col">${UI.escape(s.name)}</td>
-                <td class="role-col">${UI.escape(s.desc)}</td>
-                <td class="value-blue">${UI.formatNumber(s.rate)}</td>
-                <td>${s.contracts}</td>
-                <td>${s.projects}</td>
-                <td><span class="badge ${s.active ? 'badge-success' : 'badge-secondary'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
-                <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
-            </tr>`).join('');
-
-        tbody.querySelectorAll('tr').forEach(tr => {
-            tr.addEventListener('click', (e) => {
-                if (e.target.closest('[data-edit]')) return;
-                const id = tr.dataset.id;
-                if (selectedSlId === id) { clearSl(); return; }
-                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
-                tr.classList.add('selected-row');
-                selectedSlId = id;
-                showBadge('slSelectionBadge', `Đang chọn: ${id}`);
-            });
-        });
-        tbody.querySelectorAll('[data-edit]').forEach(icon => {
-            icon.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectedSlId = icon.dataset.edit;
-                openSlModal(true);
-            });
-        });
         applySlFilter();
     }
 
     // ── Render: Mức độ tham gia ──────────────────────────────────────────────
     function renderParticipation() {
+        // Populate project filter
+        const projSel = document.getElementById('filterPartProject');
+        if (projSel && projSel.options.length <= 1) {
+            const projects = [...new Set(MockStore.getParticipation().map(p => p.project).filter(Boolean))];
+            projects.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; projSel.appendChild(o); });
+        }
+        applyPartFilter();
+    }
+
+    // ── Render: Doanh thu dự án ──────────────────────────────────────────────
+    function revBadge(status) {
+        const ok = ['Đang triển khai', 'Hoàn thành'].includes(status);
+        const warn = ['Tạm dừng'].includes(status);
+        const cls = ok ? 'badge-success' : warn ? 'badge-warning' : 'badge-secondary';
+        return `<span class="badge ${cls}">${UI.escape(status)}</span>`;
+    }
+
+    function renderRevenue() {
+        // Populate company filter
+        const compSel = document.getElementById('filterRevCompany');
+        if (compSel && compSel.options.length <= 1) {
+            const companies = [...new Set(MockStore.getProjects().map(p => p.company).filter(Boolean))];
+            companies.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; compSel.appendChild(o); });
+        }
+        applyRevFilter();
+    }
+
+    // ── Filter logic ─────────────────────────────────────────────────────────
+    function applySlFilter() {
+        const term   = (svView.querySelector('.search-box input')?.value || '').toLowerCase();
+        const status = document.getElementById('filterSlStatus')?.value || '';
+        const sort   = document.getElementById('filterSlSort')?.value || '';
+
+        let rows = [...svView.querySelectorAll('tbody tr')];
+
+        // Sort
+        if (sort === 'rate-asc' || sort === 'rate-desc') {
+            const tbody = svView.querySelector('tbody');
+            const items = MockStore.getServiceLines().slice();
+            items.sort((a, b) => sort === 'rate-asc' ? a.rate - b.rate : b.rate - a.rate);
+            tbody.innerHTML = items.map(s => `
+                <tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}">
+                    <td class="code-col">${UI.escape(s.id)}</td>
+                    <td class="name-col">${UI.escape(s.name)}</td>
+                    <td class="role-col">${UI.escape(s.desc)}</td>
+                    <td class="value-blue">${UI.formatNumber(s.rate)}</td>
+                    <td>${s.contracts}</td><td>${s.projects}</td>
+                    <td><span class="badge ${s.active ? 'badge-success' : 'badge-secondary'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
+                    <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
+                </tr>`).join('');
+            // Re-bind events after re-render
+            tbody.querySelectorAll('tr').forEach(tr => {
+                tr.addEventListener('click', (e) => {
+                    if (e.target.closest('[data-edit]')) return;
+                    const id = tr.dataset.id;
+                    if (selectedSlId === id) { clearSl(); return; }
+                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                    tr.classList.add('selected-row');
+                    selectedSlId = id;
+                    showBadge('slSelectionBadge', `Đang chọn: ${id}`);
+                });
+            });
+            tbody.querySelectorAll('[data-edit]').forEach(icon => {
+                icon.addEventListener('click', (e) => { e.stopPropagation(); selectedSlId = icon.dataset.edit; openSlModal(true); });
+            });
+            rows = [...tbody.querySelectorAll('tr')];
+        }
+
+        rows.forEach(tr => {
+            const text = tr.textContent.toLowerCase();
+            const rowStatus = tr.querySelector('.badge')?.textContent || '';
+            const matchSearch = !term || text.includes(term);
+            const matchStatus = !status || rowStatus.includes(status);
+            tr.style.display = matchSearch && matchStatus ? '' : 'none';
+        });
+    }
+
+    function applyPartFilter() {
+        const term    = (partView.querySelector('.search-box input')?.value || '').toLowerCase();
+        const project = (document.getElementById('filterPartProject')?.value || '').toLowerCase();
+        const ot      = document.getElementById('filterPartOt')?.value || '';
+        const sort    = document.getElementById('filterPartSort')?.value || '';
+
+        let data = MockStore.getParticipation().slice();
+        if (sort === 'actual-desc') data.sort((a, b) => b.actual - a.actual);
+        if (sort === 'actual-asc')  data.sort((a, b) => a.actual - b.actual);
+
         const tbody = partView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getParticipation().map(p => {
+        tbody.innerHTML = data.map(p => {
             const actualCls = p.actual > 100 ? 'val-red' : 'val-green';
             return `<tr data-id="${p.staffId}" style="cursor:pointer;" class="${selectedPartId === p.staffId ? 'selected-row' : ''}">
                 <td class="code-col">${UI.escape(p.staffId)}</td>
@@ -104,20 +160,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 showBadge('partSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
             });
         });
-        applyPartFilter();
+
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const text = tr.textContent.toLowerCase();
+            const rowProject = tr.querySelectorAll('td')[3]?.textContent.toLowerCase() || '';
+            const rowOtCell  = tr.querySelectorAll('td')[5]?.textContent || '';
+            const hasOt = rowOtCell.includes('h') && !rowOtCell.includes('—');
+            const matchSearch  = !term    || text.includes(term);
+            const matchProject = !project || rowProject.includes(project);
+            const matchOt = !ot || (ot === 'ot' ? hasOt : !hasOt);
+            tr.style.display = matchSearch && matchProject && matchOt ? '' : 'none';
+        });
     }
 
-    // ── Render: Doanh thu dự án ──────────────────────────────────────────────
-    function revBadge(status) {
-        const ok = ['Đang triển khai', 'Hoàn thành'].includes(status);
-        const warn = ['Tạm dừng'].includes(status);
-        const cls = ok ? 'badge-success' : warn ? 'badge-warning' : 'badge-secondary';
-        return `<span class="badge ${cls}">${UI.escape(status)}</span>`;
-    }
+    function applyRevFilter() {
+        const term    = (revView.querySelector('.search-box input')?.value || '').toLowerCase();
+        const status  = (document.getElementById('filterRevStatus')?.value || '').toLowerCase();
+        const company = (document.getElementById('filterRevCompany')?.value || '').toLowerCase();
+        const sort    = document.getElementById('filterRevSort')?.value || '';
 
-    function renderRevenue() {
+        let data = MockStore.getProjects().slice();
+        if (sort === 'revenue-desc') data.sort((a, b) => (b.revenue||0) - (a.revenue||0));
+        if (sort === 'revenue-asc')  data.sort((a, b) => (a.revenue||0) - (b.revenue||0));
+        if (sort === 'progress-desc') data.sort((a, b) => b.progress - a.progress);
+
         const tbody = revView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getProjects().map(p => `
+        tbody.innerHTML = data.map(p => `
             <tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}">
                 <td class="code-col">${UI.escape(p.id)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
@@ -147,32 +215,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 showBadge('revSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
             });
         });
-        applyRevFilter();
-    }
 
-    // ── Filter logic ─────────────────────────────────────────────────────────
-    function applySlFilter() {
-        const term = (svView.querySelector('.search-box input')?.value || '').toLowerCase();
-        svView.querySelectorAll('tbody tr').forEach(tr => {
-            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
-        });
-    }
-    function applyPartFilter() {
-        const term = (partView.querySelector('.search-box input')?.value || '').toLowerCase();
-        partView.querySelectorAll('tbody tr').forEach(tr => {
-            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
-        });
-    }
-    function applyRevFilter() {
-        const term = (revView.querySelector('.search-box input')?.value || '').toLowerCase();
-        revView.querySelectorAll('tbody tr').forEach(tr => {
-            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const text       = tr.textContent.toLowerCase();
+            const rowStatus  = tr.querySelectorAll('td')[4]?.textContent.toLowerCase() || '';
+            const rowCompany = tr.querySelectorAll('td')[2]?.textContent.toLowerCase() || '';
+            const matchSearch  = !term    || text.includes(term);
+            const matchStatus  = !status  || rowStatus.includes(status);
+            const matchCompany = !company || rowCompany.includes(company);
+            tr.style.display = matchSearch && matchStatus && matchCompany ? '' : 'none';
         });
     }
 
+    // Bind search inputs
     svView.querySelector('.search-box input')?.addEventListener('input', applySlFilter);
     partView.querySelector('.search-box input')?.addEventListener('input', applyPartFilter);
     revView.querySelector('.search-box input')?.addEventListener('input', applyRevFilter);
+
+    // Bind filter selects
+    ['filterSlStatus','filterSlSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applySlFilter));
+    ['filterPartProject','filterPartOt','filterPartSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applyPartFilter));
+    ['filterRevStatus','filterRevCompany','filterRevSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applyRevFilter));
 
     // ── Modal: Dòng dịch vụ ──────────────────────────────────────────────────
     function openSlModal(edit) {
