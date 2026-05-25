@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderContracts();
     });
 
-    modals.renew?.querySelector('.btn-update')?.addEventListener('click', () => {
+    modals.renew?.querySelector('.btn-update, #confirmRenewBtn')?.addEventListener('click', () => {
         if (selected.contracts) {
             MockStore.updateContract(selected.contracts, { status: 'Đã gia hạn', end: '2026-12-31' });
             showToast('Thành công', 'Đã gia hạn hợp đồng.');
@@ -630,8 +630,24 @@ document.addEventListener('DOMContentLoaded', () => {
         b?.addEventListener('click', () => close(modals.customer)));
     document.querySelectorAll('#closeContractModal, #cancelContractBtn').forEach(b =>
         b?.addEventListener('click', () => close(modals.contract)));
+    document.querySelectorAll('#closeProjectModal, #cancelProjectBtn').forEach(b =>
+        b?.addEventListener('click', () => close(modals.project)));
+    document.querySelectorAll('#closeResourceModal, #cancelResourceBtn').forEach(b =>
+        b?.addEventListener('click', () => close(modals.resource)));
+    document.querySelectorAll('#cancelRenewBtn').forEach(b =>
+        b?.addEventListener('click', () => close(modals.renew)));
+
+    // Đóng khi click nền overlay
     Object.values(modals).forEach(m => {
         m?.addEventListener('click', e => { if (e.target === m) close(m); });
+    });
+
+    // Đóng khi click icon X (class close-modal)
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const m = btn.closest('.modal-overlay');
+            if (m) close(m);
+        });
     });
 
     refreshContractCustomers();
