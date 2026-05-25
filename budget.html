@@ -129,22 +129,20 @@
 
                 <!-- Box 2: Actions -->
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả dòng dịch vụ
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
+                    <div class="op-badge-selection" id="slSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action red-btn" id="openAddServiceLineBtn" style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                             <i class="fa-solid fa-plus"></i> Tạo mới
                         </button>
-                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
+                        <button class="btn-action" id="editServiceLineBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="deleteServiceLineBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
                     </div>
                 </div>
 
                 <!-- Box 3: Table -->
                 <div class="op-box-table">
                     <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
-                        <table class="bosch-table bosch-table-modern">
+                        <table class="bosch-table bosch-table-modern" id="serviceLineTable">
                         <colgroup>
                             <col style="width: 12%;">
                             <col style="width: 25%;">
@@ -167,48 +165,7 @@
                                 <th>THAO TÁC</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="code-col">SL-001</td>
-                                <td class="name-col">Automotive Embedded<br>Solutions</td>
-                                <td class="role-col">Development of embedded systems f...</td>
-                                <td class="value-blue">1.500.000</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><span class="badge badge-success">Hoạt động</span></td>
-                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-muted);">SL-002</td>
-                                <td style="font-weight: 800; color: var(--text-main);">Smart EV<br>Telematics Software</td>
-                                <td style="color: var(--text-secondary);">Telematics for Electric Vehicles</td>
-                                <td class="val-green">1.800.000</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td><span class="badge badge-success">Hoạt động</span></td>
-                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">SL-003</td>
-                                <td class="name-col">IoT Connectivity<br>& Smart Appliances</td>
-                                <td class="role-col">Smart home and appliances integration</td>
-                                <td class="value-blue">1.200.000</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td><span class="badge badge-success">Hoạt động</span></td>
-                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">SL-004</td>
-                                <td class="name-col">Edge Computing<br>Node Clusters</td>
-                                <td class="role-col">Edge computing architecture & AI</td>
-                                <td class="value-blue">2.000.000</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td><span class="badge badge-muted">Tạm ngưng</span></td>
-                                <td><i class="fa-regular fa-pen-to-square edit-icon-btn"></i></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                     </div>
                 </div>
@@ -229,18 +186,16 @@
                 </div>
 
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả mức độ tham gia
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
-                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
+                    <div class="op-badge-selection" id="partSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
+                        <button class="btn-action" id="editPartBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="updatePartBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
                     </div>
                 </div>
 
                 <div class="op-box-table">
                     <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
-                        <table class="bosch-table bosch-table-modern">
+                        <table class="bosch-table bosch-table-modern" id="participationTable">
                         <colgroup>
                             <col style="width: 8%;">
                             <col style="width: 18%;">
@@ -261,65 +216,7 @@
                                 <th>% THAM GIA<br>(THỰC TẾ)</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="code-col">R-01</td>
-                                <td class="name-col">Nguyễn Văn A</td>
-                                <td class="role-col">Embedded Dev</td>
-                                <td>
-                                    <span class="tag-project">Audi Telematics v2</span>
-                                    <span class="tag-project">Bosch Smart Oven</span>
-                                </td>
-                                <td class="value-blue">100%</td>
-                                <td><span class="value">160h</span> <span class="ot-highlight">+ 45h OT</span></td>
-                                <td>
-                                    <div class="value-red">128%</div>
-                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(205h / 160h)</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">R-03</td>
-                                <td class="name-col">Trần Văn C</td>
-                                <td class="role-col">Lead Architect</td>
-                                <td>
-                                    <span class="tag-project">VW Embedded Core</span>
-                                </td>
-                                <td class="value-blue">100%</td>
-                                <td><span class="value">160h</span> <span class="ot-highlight">+ 35h OT</span></td>
-                                <td>
-                                    <div class="value-red">122%</div>
-                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(195h / 160h)</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">R-02</td>
-                                <td class="name-col">Lê Thị B</td>
-                                <td class="role-col">Backend Engineer</td>
-                                <td>
-                                    <span class="tag-project">Bosch Smart Oven</span>
-                                </td>
-                                <td class="value-blue">100%</td>
-                                <td><span class="value">150h</span></td>
-                                <td>
-                                    <div class="value-green">94%</div>
-                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(150h / 160h)</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">R-04</td>
-                                <td class="name-col">Phạm D</td>
-                                <td class="role-col">QA Engineer</td>
-                                <td>
-                                    <span class="tag-project">Audi Telematics v2</span>
-                                </td>
-                                <td class="value-blue">80%</td>
-                                <td><span class="value">120h</span></td>
-                                <td>
-                                    <div class="value-green">75%</div>
-                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">(120h / 160h)</div>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                     </div>
                 </div>
@@ -340,18 +237,16 @@
                 </div>
 
                 <div class="op-box-actions">
-                    <div style="background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;">
-                        Đang chọn: Tất cả doanh thu
-                    </div>
-                    <div class="action-buttons" style="display: flex; gap: 12px;">
-                        <button class="btn-action" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
+                    <div class="op-badge-selection" id="revSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
+                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
+                        <button class="btn-action" id="editRevenueBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                        <button class="btn-action" id="syncRevenueBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-rotate"></i> Đồng bộ</button>
                     </div>
                 </div>
 
                 <div class="op-box-table">
                     <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
-                        <table class="bosch-table bosch-table-modern">
+                        <table class="bosch-table bosch-table-modern" id="revenueTable">
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 18%;">
@@ -370,42 +265,11 @@
                                 <th>DÒNG DỊCH VỤ</th>
                                 <th>TRẠNG THÁI</th>
                                 <th>TỔNG<br>NHÂN SỰ</th>
-                                <th>TỔNG<br>GIỜ THỰC TẾ</th>
+                                <th>TIẾN ĐỘ</th>
                                 <th>DOANH THU<br>DỰ KIẾN (VND)</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="code-col">PRJ-101</td>
-                                <td class="name-col">Audi Telematics v2</td>
-                                <td class="role-col">Audi AG</td>
-                                <td><span class="tag-project">Smart EV Telematics S...</span></td>
-                                <td><span class="badge badge-info">Active</span></td>
-                                <td><span class="value">2</span></td>
-                                <td class="value-green">200h</td>
-                                <td class="value-blue">360.000.000</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">PRJ-102</td>
-                                <td class="name-col">Bosch Smart Oven</td>
-                                <td class="role-col">Bosch Home</td>
-                                <td><span class="tag-project">IoT Connectivity & Sma...</span></td>
-                                <td><span class="badge badge-danger">Delay</span></td>
-                                <td><span class="value">2</span></td>
-                                <td class="value-green">230h</td>
-                                <td class="value-blue">276.000.000</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">PRJ-103</td>
-                                <td class="name-col">VW Embedded Core</td>
-                                <td class="role-col">Volkswagen</td>
-                                <td><span class="tag-project">Automotive Embedded ...</span></td>
-                                <td><span class="badge badge-info">Active</span></td>
-                                <td><span class="value">1</span></td>
-                                <td class="value-green">160h</td>
-                                <td class="value-blue">240.000.000</td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                     </div>
                 </div>
@@ -423,7 +287,7 @@
             </div>
             <div class="bosch-modal-body" style="padding: 12px 24px;">
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; font-weight: 700;">Tên dịch vụ <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; font-weight: 700;">Tên dịch vụ <span class="required-asterisk">*</span></label>
                     <input type="text" class="custom-input" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px;">
                 </div>
                 <div class="form-group mb-15">
@@ -431,7 +295,7 @@
                     <textarea class="custom-textarea" rows="4" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px; width: 100%; resize: none;"></textarea>
                 </div>
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; font-weight: 700;">Đơn giá (VND/giờ) <span style="color:#E20015;">*</span></label>
+                    <label style="font-size: 11px; font-weight: 700;">Đơn giá (VND/giờ) <span class="required-asterisk">*</span></label>
                     <input type="text" class="custom-input" style="border: 1px solid #ddd; background: var(--bg-card); padding: 10px; border-radius: 6px;">
                 </div>
                 <div class="form-group mb-15" style="display: flex; align-items: center; gap: 10px;">
@@ -446,56 +310,44 @@
         </div>
     </div>
 
+    <!-- MODAL MỨC THAM GIA -->
+    <div class="bosch-modal-overlay" id="participationModal">
+        <div class="bosch-modal-content hr-modal" style="width: 480px;">
+            <div class="bosch-modal-header">
+                <h3>Cập nhật mức tham gia</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closePartModal"></i>
+            </div>
+            <div class="bosch-modal-body" id="participationForm">
+                <div class="form-group mb-15">
+                    <label>Nhân sự</label>
+                    <input type="text" id="partStaffName" class="hr-form-input" readonly>
+                </div>
+                <div class="form-group mb-15">
+                    <label for="partPlanned">% Tham gia định trước <span class="required-asterisk">*</span></label>
+                    <input type="number" id="partPlanned" class="hr-form-input" min="0" max="100">
+                </div>
+                <div class="form-group mb-15">
+                    <label for="partOt">Giờ OT</label>
+                    <input type="number" id="partOt" class="hr-form-input" min="0">
+                </div>
+                <div class="form-group mb-15">
+                    <label for="partActual">% Thực tế <span class="required-asterisk">*</span></label>
+                    <input type="number" id="partActual" class="hr-form-input" min="0" max="150">
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelPartModal">Hủy</button>
+                <button type="button" class="btn-primary" id="savePartModal">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/router.js"></script>
     <script src="js/common.js"></script>
-    <script>
-        // Tab switching logic
-        const tabs = document.querySelectorAll('.bosch-tab');
-        const svView = document.getElementById('serviceLineView');
-        const partView = document.getElementById('participationView');
-        const revView = document.getElementById('revenueView');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // reset active
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                // hide all views
-                svView.style.display = 'none';
-                partView.style.display = 'none';
-                revView.style.display = 'none';
-
-                // show selected view
-                const viewId = tab.dataset.tab;
-                if (viewId === 'serviceLine') {
-                    svView.style.display = 'block';
-                } else if (viewId === 'participation') {
-                    partView.style.display = 'block';
-                } else if (viewId === 'revenue') {
-                    revView.style.display = 'block';
-                }
-            });
-        });
-
-        // Modal logic
-        const slModal = document.getElementById('serviceLineModal');
-        document.getElementById('openAddServiceLineBtn').addEventListener('click', () => {
-            slModal.classList.add('show');
-        });
-        document.getElementById('closeServiceLineModal').addEventListener('click', () => {
-            slModal.classList.remove('show');
-        });
-        document.getElementById('cancelServiceLineBtn').addEventListener('click', () => {
-            slModal.classList.remove('show');
-        });
-        document.getElementById('saveServiceLineBtn').addEventListener('click', () => {
-            slModal.classList.remove('show');
-            alert('Đã lưu dòng dịch vụ mới!');
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === slModal) slModal.classList.remove('show');
-        });
-    </script>
+    <script src="js/mock-store.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/page-common.js"></script>
+    <script src="js/global.js"></script>
+    <script src="js/budget-page.js"></script>
 </body>
 </html>

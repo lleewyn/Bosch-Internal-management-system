@@ -1,36 +1,51 @@
 /**
- * Ngân sách — 3 tab đầy đủ CRUD / cập nhật
+ * Ngân sách — 3 tab: Dòng dịch vụ, Mức độ tham gia, Doanh thu dự án
  */
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.MockStore || !window.PageCommon) return;
     PageCommon.injectFormStyles();
 
-    const svView = document.getElementById('serviceLineView');
+    const svView   = document.getElementById('serviceLineView');
     const partView = document.getElementById('participationView');
-    const revView = document.getElementById('revenueView');
-    const slModal = document.getElementById('serviceLineModal');
+    const revView  = document.getElementById('revenueView');
+    const slModal  = document.getElementById('serviceLineModal');
     const partModal = document.getElementById('participationModal');
 
-    let activeTab = 'serviceLine';
-    let selectedSlId = null;
+    const $ = (id) => document.getElementById(id);
+
+    let activeTab     = 'serviceLine';
+    let selectedSlId  = null;
     let selectedPartId = null;
+    let selectedRevId  = null;
     let editSl = false;
 
+    // ── Tab switching ────────────────────────────────────────────────────────
     PageCommon.bindTabs('.bosch-tab', {
-        serviceLine: svView,
+        serviceLine:   svView,
         participation: partView,
-        revenue: revView
+        revenue:       revView
     }, (tab) => {
         activeTab = tab;
         renderActive();
     });
 
+    // ── Badge helpers ────────────────────────────────────────────────────────
+    function showBadge(badgeId, text) {
+        const b = $(badgeId);
+        if (!b) return;
+        if (text) { b.textContent = text; b.style.display = 'block'; }
+        else b.style.display = 'none';
+    }
+
+    function clearSl()   { selectedSlId   = null; svView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('slSelectionBadge',   null); }
+    function clearPart() { selectedPartId = null; partView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('partSelectionBadge', null); }
+    function clearRev()  { selectedRevId  = null; revView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('revSelectionBadge',  null); }
+
+    // ── Render: Dòng dịch vụ ────────────────────────────────────────────────
     function renderServiceLines() {
         const tbody = svView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getServiceLines()
-            .map(
-                (s) => `
-            <tr data-id="${s.id}" style="cursor:pointer;">
+        tbody.innerHTML = MockStore.getServiceLines().map(s => `
+            <tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}">
                 <td class="code-col">${UI.escape(s.id)}</td>
                 <td class="name-col">${UI.escape(s.name)}</td>
                 <td class="role-col">${UI.escape(s.desc)}</td>
@@ -39,73 +54,133 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${s.projects}</td>
                 <td><span class="badge ${s.active ? 'badge-success' : 'badge-secondary'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
                 <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
-            </tr>`
-            )
-            .join('');
-        PageCommon.bindRowSelect(tbody, (id) => {
-            selectedSlId = id;
-            PageCommon.showSelectionBadge(svView, `Đang chọn: ${id}`);
+            </tr>`).join('');
+
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', (e) => {
+                if (e.target.closest('[data-edit]')) return;
+                const id = tr.dataset.id;
+                if (selectedSlId === id) { clearSl(); return; }
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                tr.classList.add('selected-row');
+                selectedSlId = id;
+                showBadge('slSelectionBadge', `Đang chọn: ${id}`);
+            });
         });
-        tbody.querySelectorAll('[data-edit]').forEach((icon) => {
+        tbody.querySelectorAll('[data-edit]').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 e.stopPropagation();
                 selectedSlId = icon.dataset.edit;
                 openSlModal(true);
             });
         });
-        PageCommon.filterTableRows(svView, svView.querySelector('.search-box input')?.value);
+        applySlFilter();
     }
 
+    // ── Render: Mức độ tham gia ──────────────────────────────────────────────
     function renderParticipation() {
         const tbody = partView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getParticipation()
-            .map(
-                (p) => `
-            <tr data-id="${p.staffId}" style="cursor:pointer;">
+        tbody.innerHTML = MockStore.getParticipation().map(p => {
+            const actualCls = p.actual > 100 ? 'val-red' : 'val-green';
+            return `<tr data-id="${p.staffId}" style="cursor:pointer;" class="${selectedPartId === p.staffId ? 'selected-row' : ''}">
                 <td class="code-col">${UI.escape(p.staffId)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.title)}</td>
-                <td>${UI.escape(p.project)}</td>
+                <td><span class="tag-project">${UI.escape(p.project)}</span></td>
                 <td class="value-blue">${p.planned}%</td>
-                <td class="value-green">${p.otHours}h</td>
-                <td>${p.actual}%</td>
-            </tr>`
-            )
-            .join('');
-        PageCommon.bindRowSelect(tbody, (id) => {
-            selectedPartId = id;
-            const p = MockStore.getParticipation().find((x) => x.staffId === id);
-            PageCommon.showSelectionBadge(partView, p ? `Đang chọn: ${p.name}` : null);
+                <td>${p.otHours > 0 ? `<span class="value-green">${p.otHours}h</span><span class="ot-highlight">OT</span>` : '—'}</td>
+                <td><span class="${actualCls}">${p.actual}%</span></td>
+            </tr>`;
+        }).join('');
+
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', () => {
+                const id = tr.dataset.id;
+                if (selectedPartId === id) { clearPart(); return; }
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                tr.classList.add('selected-row');
+                selectedPartId = id;
+                const p = MockStore.getParticipation().find(x => x.staffId === id);
+                showBadge('partSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
+            });
         });
-        PageCommon.filterTableRows(partView, partView.querySelector('.search-box input')?.value);
+        applyPartFilter();
+    }
+
+    // ── Render: Doanh thu dự án ──────────────────────────────────────────────
+    function revBadge(status) {
+        const ok = ['Đang triển khai', 'Hoàn thành'].includes(status);
+        const warn = ['Tạm dừng'].includes(status);
+        const cls = ok ? 'badge-success' : warn ? 'badge-warning' : 'badge-secondary';
+        return `<span class="badge ${cls}">${UI.escape(status)}</span>`;
     }
 
     function renderRevenue() {
         const tbody = revView.querySelector('tbody');
-        tbody.innerHTML = MockStore.getProjects()
-            .map(
-                (p) => `
-            <tr data-id="${p.id}" style="cursor:pointer;">
+        tbody.innerHTML = MockStore.getProjects().map(p => `
+            <tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}">
                 <td class="code-col">${UI.escape(p.id)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.company)}</td>
                 <td><span class="tag-project">${UI.escape(p.serviceLine)}</span></td>
-                <td><span class="badge badge-info">${UI.escape(p.status)}</span></td>
+                <td>${revBadge(p.status)}</td>
                 <td>1</td>
-                <td class="value-green">${Math.max(1, Math.round((p.revenue || 0) / 1500000))}h</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div style="width:50px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
+                            <div style="width:${p.progress}%;height:100%;background:${p.progress>=70?'#28a745':'#f58220'};border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:12px;font-weight:700;">${p.progress}%</span>
+                    </div>
+                </td>
                 <td class="value-blue">${UI.formatNumber(p.revenue || 0)}</td>
-            </tr>`
-            )
-            .join('');
-        PageCommon.bindRowSelect(tbody, (id) => {
-            PageCommon.showSelectionBadge(revView, `Đang chọn: ${id}`);
+            </tr>`).join('');
+
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', () => {
+                const id = tr.dataset.id;
+                if (selectedRevId === id) { clearRev(); return; }
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                tr.classList.add('selected-row');
+                selectedRevId = id;
+                const p = MockStore.getProjects().find(x => x.id === id);
+                showBadge('revSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
+            });
         });
-        PageCommon.filterTableRows(revView, revView.querySelector('.search-box input')?.value);
+        applyRevFilter();
     }
 
+    // ── Filter logic ─────────────────────────────────────────────────────────
+    function applySlFilter() {
+        const term = (svView.querySelector('.search-box input')?.value || '').toLowerCase();
+        svView.querySelectorAll('tbody tr').forEach(tr => {
+            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    }
+    function applyPartFilter() {
+        const term = (partView.querySelector('.search-box input')?.value || '').toLowerCase();
+        partView.querySelectorAll('tbody tr').forEach(tr => {
+            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    }
+    function applyRevFilter() {
+        const term = (revView.querySelector('.search-box input')?.value || '').toLowerCase();
+        revView.querySelectorAll('tbody tr').forEach(tr => {
+            tr.style.display = !term || tr.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    }
+
+    svView.querySelector('.search-box input')?.addEventListener('input', applySlFilter);
+    partView.querySelector('.search-box input')?.addEventListener('input', applyPartFilter);
+    revView.querySelector('.search-box input')?.addEventListener('input', applyRevFilter);
+
+    // ── Modal: Dòng dịch vụ ──────────────────────────────────────────────────
     function openSlModal(edit) {
         editSl = edit;
-        const s = edit ? MockStore.getServiceLines().find((x) => x.id === selectedSlId) : null;
+        const s = edit ? MockStore.getServiceLines().find(x => x.id === selectedSlId) : null;
+        slModal.querySelector('h3').innerHTML = edit
+            ? '<i class="fa-regular fa-pen-to-square" style="margin-right:8px;"></i> SỬA DÒNG DỊCH VỤ'
+            : '<i class="fa-solid fa-plus" style="margin-right:8px;"></i> TẠO MỚI DÒNG DỊCH VỤ';
         const inputs = slModal.querySelectorAll('input.custom-input');
         inputs[0].value = s?.name || '';
         slModal.querySelector('textarea').value = s?.desc || '';
@@ -114,73 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
         slModal.classList.add('show');
     }
 
-    function openPartModal() {
-        const p = MockStore.getParticipation().find((x) => x.staffId === selectedPartId);
-        if (!p) return;
-        document.getElementById('partStaffName').value = `${p.name} (${p.staffId})`;
-        document.getElementById('partPlanned').value = p.planned;
-        document.getElementById('partOt').value = p.otHours;
-        document.getElementById('partActual').value = p.actual;
-        partModal.classList.add('show');
-    }
-
-    document.getElementById('openAddServiceLineBtn')?.addEventListener('click', () => {
-        selectedSlId = null;
-        openSlModal(false);
+    $('openAddServiceLineBtn')?.addEventListener('click', () => { selectedSlId = null; openSlModal(false); });
+    $('editServiceLineBtn')?.addEventListener('click', () => {
+        if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ trước.', 'error');
+        openSlModal(true);
     });
-
-    svView.querySelectorAll('.btn-action').forEach((btn) => {
-        if (btn.textContent.includes('Sửa')) {
-            btn.addEventListener('click', () => {
-                if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ.', 'error');
-                openSlModal(true);
-            });
-        }
-        if (btn.textContent.includes('Xóa')) {
-            btn.addEventListener('click', () => {
-                if (selectedSlId && confirm('Xóa dòng dịch vụ?')) {
-                    MockStore.deleteServiceLines([selectedSlId]);
-                    selectedSlId = null;
-                    renderServiceLines();
-                    showToast('Thành công', 'Đã xóa.');
-                }
-            });
+    $('deleteServiceLineBtn')?.addEventListener('click', () => {
+        if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ trước.', 'error');
+        if (confirm('Xóa dòng dịch vụ đã chọn?')) {
+            MockStore.deleteServiceLines([selectedSlId]);
+            clearSl();
+            renderServiceLines();
+            showToast('Thành công', 'Đã xóa dòng dịch vụ.');
         }
     });
 
-    partView.querySelectorAll('.btn-action').forEach((btn) => {
-        if (btn.textContent.includes('Sửa')) {
-            btn.addEventListener('click', () => {
-                if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự.', 'error');
-                openPartModal();
-            });
-        }
-        if (btn.textContent.includes('Cập nhật')) {
-            btn.addEventListener('click', () => {
-                if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự.', 'error');
-                openPartModal();
-            });
-        }
-    });
-
-    revView.querySelectorAll('.btn-action').forEach((btn) => {
-        if (btn.textContent.includes('Cập nhật')) {
-            btn.addEventListener('click', () => {
-                MockStore.recalcBudgetFromProjects();
-                showToast('Thành công', 'Đã đồng bộ doanh thu từ dự án vận hành.');
-                renderRevenue();
-                renderParticipation();
-            });
-        }
-    });
-
-    document.getElementById('saveServiceLineBtn')?.addEventListener('click', () => {
+    $('saveServiceLineBtn')?.addEventListener('click', () => {
         if (!validateForm(slModal)) return;
         const inputs = slModal.querySelectorAll('input.custom-input');
         const payload = {
             name: inputs[0].value.trim(),
             desc: slModal.querySelector('textarea').value.trim(),
-            rate: parseInt(inputs[1]?.value.replace(/\D/g, '')) || 1000000,
+            rate: parseInt((inputs[1]?.value || '').replace(/\D/g, '')) || 1000000,
             active: slModal.querySelector('#statusCheck').checked
         };
         if (editSl && selectedSlId) {
@@ -194,37 +224,63 @@ document.addEventListener('DOMContentLoaded', () => {
         renderServiceLines();
     });
 
-    document.getElementById('savePartModal')?.addEventListener('click', () => {
+    $('closeServiceLineModal')?.addEventListener('click', () => slModal.classList.remove('show'));
+    $('cancelServiceLineBtn')?.addEventListener('click', () => slModal.classList.remove('show'));
+    slModal?.addEventListener('click', e => { if (e.target === slModal) slModal.classList.remove('show'); });
+
+    // ── Modal: Mức độ tham gia ───────────────────────────────────────────────
+    function openPartModal() {
+        const p = MockStore.getParticipation().find(x => x.staffId === selectedPartId);
+        if (!p) return;
+        $('partStaffName').value = `${p.name} (${p.staffId})`;
+        $('partPlanned').value = p.planned;
+        $('partOt').value = p.otHours;
+        $('partActual').value = p.actual;
+        partModal.classList.add('show');
+    }
+
+    $('editPartBtn')?.addEventListener('click', () => {
+        if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự trước.', 'error');
+        openPartModal();
+    });
+    $('updatePartBtn')?.addEventListener('click', () => {
+        if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự trước.', 'error');
+        openPartModal();
+    });
+
+    $('savePartModal')?.addEventListener('click', () => {
         if (!validateForm(document.getElementById('participationForm'))) return;
         MockStore.updateParticipation(selectedPartId, {
-            planned: parseInt(document.getElementById('partPlanned').value) || 0,
-            otHours: parseInt(document.getElementById('partOt').value) || 0,
-            actual: parseInt(document.getElementById('partActual').value) || 0
+            planned:  parseInt($('partPlanned').value) || 0,
+            otHours:  parseInt($('partOt').value) || 0,
+            actual:   parseInt($('partActual').value) || 0
         });
-        const s = MockStore.getStaff().find((x) => x.id === selectedPartId);
-        if (s) MockStore.updateStaff(selectedPartId, { workload: parseInt(document.getElementById('partActual').value) || 0 });
+        const s = MockStore.getStaff().find(x => x.id === selectedPartId);
+        if (s) MockStore.updateStaff(selectedPartId, { workload: parseInt($('partActual').value) || 0 });
         partModal.classList.remove('show');
         showToast('Thành công', 'Đã cập nhật mức tham gia.');
         renderParticipation();
     });
 
-    document.getElementById('closeServiceLineModal')?.addEventListener('click', () => slModal.classList.remove('show'));
-    document.getElementById('cancelServiceLineBtn')?.addEventListener('click', () => slModal.classList.remove('show'));
-    document.getElementById('closePartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
-    document.getElementById('cancelPartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
+    $('closePartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
+    $('cancelPartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
+    partModal?.addEventListener('click', e => { if (e.target === partModal) partModal.classList.remove('show'); });
 
-    [svView, partView, revView].forEach((v) => {
-        v?.querySelector('.search-box input')?.addEventListener('input', () => {
-            if (v === svView) renderServiceLines();
-            else if (v === partView) renderParticipation();
-            else renderRevenue();
-        });
-        const badge = v.querySelector('.op-box-actions > div');
-        if (badge) badge.classList.add('op-badge-selection');
+    // ── Doanh thu: Đồng bộ ──────────────────────────────────────────────────
+    $('syncRevenueBtn')?.addEventListener('click', () => {
+        MockStore.recalcBudgetFromProjects();
+        showToast('Thành công', 'Đã đồng bộ doanh thu từ dự án vận hành.');
+        renderRevenue();
+        renderParticipation();
+    });
+    $('editRevenueBtn')?.addEventListener('click', () => {
+        if (!selectedRevId) return showToast('Lỗi', 'Chọn dự án trước.', 'error');
+        showToast('Thông tin', 'Chỉnh sửa doanh thu qua trang Vận hành → Dự án.', 'error');
     });
 
+    // ── Render active ────────────────────────────────────────────────────────
     function renderActive() {
-        if (activeTab === 'serviceLine') renderServiceLines();
+        if (activeTab === 'serviceLine')   renderServiceLines();
         else if (activeTab === 'participation') renderParticipation();
         else renderRevenue();
     }

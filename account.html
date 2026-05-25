@@ -229,25 +229,25 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Họ và tên</label>
+                        <label>Họ và tên <span class="required-asterisk">*</span></label>
                         <div class="input-wrapper">
                             <input type="text" readonly id="inputFullName">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Chức danh</label>
+                        <label>Chức danh <span class="required-asterisk">*</span></label>
                         <div class="input-wrapper">
                             <input type="text" readonly id="inputPosition">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Số điện thoại</label>
+                        <label>Số điện thoại <span class="required-asterisk">*</span></label>
                         <div class="input-wrapper">
                             <input type="text" readonly id="inputPhone">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
+                        <label>Email <span class="required-asterisk">*</span></label>
                         <div class="input-wrapper" style="position: relative;">
                             <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted);"></i>
                             <input type="email" readonly style="padding-left: 40px;" id="inputEmail">
@@ -320,11 +320,11 @@
             </div>
             <div class="bosch-modal-body" style="padding: 32px;">
                 <div class="modal-form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Họ và tên</label>
+                    <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Họ và tên <span class="required-asterisk">*</span></label>
                     <input type="text" id="editFullName" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px;">
                 </div>
                 <div class="modal-form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Số điện thoại</label>
+                    <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Số điện thoại <span class="required-asterisk">*</span></label>
                     <input type="text" id="editPhone" style="width: 100%; height: 48px; padding: 0 16px; border: 1px solid var(--border-main); border-radius: 8px; font-size: 14px;">
                 </div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 16px;">Lưu ý: Email và Chức danh không thể thay đổi để đảm bảo bảo mật hệ thống.</p>
@@ -339,22 +339,11 @@
     <!-- Input ẩn để chọn file ảnh -->
     <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
 
+    <script src="js/router.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/mock-store.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/global.js"></script>
     <script src="js/account.js"></script>
-    <script>
-        // Modal logic
-        const modal = document.getElementById('modalOverlay');
-        const editBtn = document.getElementById('editProfileBtn');
-        const closeBtn = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
-        
-        if(editBtn) editBtn.onclick = () => modal.classList.add('show');
-        if(closeBtn) closeBtn.onclick = () => modal.classList.remove('show');
-        if(cancelBtn) cancelBtn.onclick = () => modal.classList.remove('show');
-        
-        window.onclick = (e) => {
-            if(e.target == modal) modal.classList.remove('show');
-        }
-    </script>
 </body>
 </html>

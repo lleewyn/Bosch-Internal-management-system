@@ -829,57 +829,91 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 /* HEATMAP */
-.heatmap-container {
-    display: flex;
-    gap: 16px;
+.heatmap-table-container {
+    width: 100%;
     margin-top: 24px;
+    overflow-x: auto;
 }
 
-.heatmap-y-labels {
+.heatmap-table {
+    border-collapse: separate;
+    border-spacing: 6px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.heatmap-table th {
+    font-size: 13px;
+    font-weight: var(--font-bold);
+    color: #7A665A;
+    padding-bottom: 12px;
+    text-align: center;
+}
+
+.heatmap-table th:first-child {
+    text-align: left;
+    width: 15%;
+}
+
+.heatmap-emp-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    padding-right: 12px;
+    white-space: nowrap;
+}
+
+.heatmap-cell-table {
+    height: 38px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.level-0 { background: #E9ECEF; color: transparent; }
+.level-1 { background: #EAF2FB; color: #333; }
+.level-2 { background: #B3D4FF; color: #333; }
+.level-3 { background: #60A5FA; color: #fff; }
+.level-4 { background: #2563EB; color: #fff; }
+.level-5 { background: #1E3A8A; color: #fff; }
+
+.heatmap-legends-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    font-size: 11px;
-    font-weight: var(--font-semibold);
-    color: var(--text-muted);
-    padding: 10px 0;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
 }
-
-.heatmap-grid {
-    display: grid;
-    grid-template-columns: repeat(20, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 6px;
-    flex: 1;
-}
-
-.heatmap-cell {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-}
-
-.level-0 { background: var(--border-main); }
-.level-1 { background: #A1C4FD; }
-.level-2 { background: #5D9CEC; }
-.level-3 { background: var(--bosch-blue); }
-.level-4 { background: #005691; }
 
 .heatmap-legend {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.heatmap-legend-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.legend-item-hm {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    margin-top: 16px;
     font-size: 12px;
-    font-weight: var(--font-semibold);
-    color: #713F12;
+    font-weight: 600;
+    color: #333;
 }
 
 .legend-box {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
+    width: 24px;
+    height: 12px;
+    border-radius: 2px;
 }
 
 /* HR ROLES */
@@ -924,10 +958,10 @@ input:checked + .slider:before { transform: translateX(20px); }
 .hr-bar-chart {
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
-    height: 200px;
+    justify-content: space-around;
+    height: 360px;
     margin-top: 32px;
-    padding: 0 10px;
+    padding: 0 20px;
 }
 
 .hr-bar-item {
@@ -941,9 +975,9 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 .hr-bar-fill {
-    width: 24px;
+    width: 40px;
     background: #89B3E2;
-    border-radius: 4px;
+    border-radius: 6px 6px 0 0;
     position: relative;
     transition: height 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -954,16 +988,16 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .bar-val {
     position: absolute;
-    top: -24px;
+    top: -26px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 11px;
-    font-weight: var(--font-semibold);
-    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: var(--font-bold);
+    color: var(--text-main);
 }
 
 .bar-label {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: var(--font-semibold);
     color: var(--text-muted);
 }
@@ -1990,3 +2024,244 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 .mb-24 { margin-bottom: 24px; }
+
+/* YEARLY REVENUE CHART */
+.yearly-chart-container {
+    width: 100%;
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.yearly-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.year-bar {
+    flex: 1;
+    background-color: #F4D5D6;
+    position: relative;
+    border-top: 2px solid #C10006;
+}
+
+.year-bar-top {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+/* REFINED DISTRIBUTION LIST */
+.dist-info {
+    font-size: 14px;
+    font-weight: var(--font-medium); /* Medium for names */
+    color: #1F2937;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dist-val {
+    font-weight: var(--font-bold); /* Bold for values as in design */
+    color: var(--text-main);
+}
+
+.progress-bar-modern {
+    height: 8px;
+    background: #F1F5F9;
+    border-radius: 10px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.progress-fill-modern {
+    height: 100%;
+    border-radius: 10px;
+}
+
+
+
+.dashboard-filters-row {
+    padding: 24px !important;
+}
+
+.period-toggle {
+    background: #F1F5F9;
+    border-radius: 10px;
+}
+
+.period-btn.active {
+    background: var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.date-picker-custom {
+    background: #F1F5F9;
+    border-radius: 10px;
+}
+
+/* CHART ACTIONS */
+.view-details-link {
+    font-size: 13px;
+    font-weight: var(--font-semibold);
+    color: var(--bosch-blue);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.view-details-link:hover {
+    color: #005691;
+    text-decoration: underline;
+}
+
+.view-details-link i {
+    font-size: 10px;
+}
+
+/* REFINED TOGGLE */
+.toggle-group-modern {
+    background: #F1F3F5;
+    padding: 3px;
+    border-radius: 20px; /* More rounded */
+    display: flex;
+    gap: 2px;
+}
+
+.toggle-btn-modern {
+    border: none;
+    background: transparent;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: var(--font-semibold);
+    border-radius: 18px; /* More rounded */
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+}
+
+/* REFINED PROGRESS BARS */
+.progress-bar-modern {
+    height: 8px;
+    background: #F1F5F9; /* Match design's light grey */
+    border-radius: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* REVENUE DASHBOARD LAYOUT ADJUSTMENTS */
+.main-chart {
+    flex: 1.8;
+}
+
+.side-panel {
+    flex: 1;
+}
+
+/* REVENUE DETAIL MODAL STYLES */
+.modal-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+
+
+
+
+
+
+.red-text { color: var(--bosch-red) !important; }
+.blue-text { color: var(--bosch-blue) !important; }
+
+.project-detail-table th {
+    background: #F1F5F9 !important;
+    color: var(--text-secondary) !important;
+}
+
+.status-pill.gray { background: var(--border-light); color: var(--text-muted); }
+.status-pill.blue { background: #EFF6FF; color: #2563EB; }
+.status-pill.orange { background: #FFF7ED; color: #F97316; }
+
+.modal-footer-info-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.info-box-sm {
+    flex: 1;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+}
+
+.pagination-left {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: var(--font-medium);
+}
+
+.mb-24 { margin-bottom: 24px; }
+
+/* YEARLY REVENUE CHART */
+.yearly-chart-container {
+    width: 100%;
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.yearly-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.year-bar {
+    flex: 1;
+    background-color: #F4D5D6;
+    position: relative;
+    border-top: 2px solid #C10006;
+}
+
+.year-bar-top {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #C10006;
+    border-radius: 50%;
+}
+
+.yearly-x-axis {
+    display: flex;
+    gap: 2px;
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: var(--font-medium);
+}
+
+.yearly-x-axis span {
+    flex: 1;
+    text-align: center;
+}

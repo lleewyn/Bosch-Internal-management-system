@@ -39,7 +39,7 @@
 .log-table th,
 .data-table th {
     text-align: left;
-    padding: 12px 20px;
+    padding: 16px 24px;
     font-size: 11px;
     font-weight: 800;
     color: var(--text-muted);
@@ -54,7 +54,7 @@
 .op-table td,
 .log-table td,
 .data-table td {
-    padding: 12px 20px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-secondary);
