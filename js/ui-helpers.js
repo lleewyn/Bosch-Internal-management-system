@@ -39,6 +39,8 @@ window.UI = {
     _statusClassMap: {
         // ── Xanh lá — tích cực / đang chạy ──────────────────────────────────
         'Đang hiệu lực':    'badge-success',
+        'Có hiệu lực':      'badge-success',
+        'Đã tạo':           'badge-info',
         'Đã duyệt':         'badge-success',
         'ĐÃ PHÂN BỔ':       'badge-success',
         'Đã gia hạn':       'badge-success',

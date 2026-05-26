@@ -58,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     PageCommon.injectFormStyles();
     const style = document.createElement('style');
     style.textContent = `
-        tr.selected td { border-top: 1px solid #0078d4; border-bottom: 1px solid #0078d4; }
+        tr.selected td { background: #f0f7ff; }
+        tr.selected td:first-child { border-left: 3px solid #0078d4; }
         #addStaffModal .bosch-modal-content { width: 560px; max-width: 95vw; }
         #addStaffModal .bosch-modal-body { max-height: 70vh; overflow-y: auto; }
     `;
@@ -367,13 +368,13 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = filtered.map(r => {
             const alertCls = r.status === 'Bị từ chối' ? ' row-alert' : '';
             return `<tr data-id="${r.id}" style="cursor:pointer;" class="${alertCls}">
-                <td class="code-col">${UI.escape(r.id)}</td>
+                <td class="code-col" style="text-align:center;">${UI.escape(r.id)}</td>
                 <td><strong>${UI.escape(r.project)}</strong><br><small style="color:#9ca3af;">${UI.escape(r.projectId)}</small></td>
-                <td>${UI.escape(r.team)}</td>
+                <td style="text-align:center;">${UI.escape(r.team)}</td>
                 <td>${UI.escape(r.position)}</td>
                 <td style="font-weight:700;color:var(--bosch-blue);text-align:center;">${r.qty}</td>
                 <td style="text-align:center;">${r.ot ? '<span class="badge badge-info">Có OT</span>' : '<span class="badge badge-muted">Không OT</span>'}</td>
-                <td style="font-size:12px;">${r.from}<br>${r.to}</td>
+                <td style="font-size:12px;text-align:center;">${r.from}<br>${r.to}</td>
                 <td style="text-align:center;">${dmStatusBadge(r.status)}${r.note ? `<br><small style="color:#9ca3af;font-size:10px;">${UI.escape(r.note)}</small>` : ''}</td>
             </tr>`;
         }).join('');
@@ -452,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
             req.note = '';
             dmDetailModal.classList.remove('show');
             showToast('Thành công', `Đã phê duyệt ${req.id}. Trạng thái: Đang tuyển dụng.`);
-            renderDmCards();
+            renderDmTable();
         });
 
         document.getElementById('dmDetailClarifyBtn')?.addEventListener('click', () => {
@@ -510,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         req.note = reason;
         dmRejectModal.classList.remove('show');
         showToast('Đã từ chối', `Yêu cầu ${req.id} bị từ chối.`);
-        renderDmCards();
+        renderDmTable();
     });
 
     // ── Modal Làm rõ — validation 10 ký tự ──────────────────────────────────
@@ -542,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
         req.note = note;
         dmClarifyModal.classList.remove('show');
         showToast('Đã gửi', `Yêu cầu ${req.id} trả về Leader để làm rõ.`);
-        renderDmCards();
+        renderDmTable();
     });
 
     function renderDirectory() {
@@ -588,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const alert = s.workload >= 90 ? ' row-alert' : '';
                     return `
             <tr data-id="${s.id}" class="${selectedId === s.id ? 'selected' : ''}${alert}" style="cursor:pointer;">
-                <td class="code-col">${UI.escape(s.id)}</td>
+                <td class="code-col" style="text-align:center;">${UI.escape(s.id)}</td>
                 <td class="name-col">${UI.escape(s.name)}</td>
                 <td class="role-col">${UI.escape(s.title)}</td>
                 <td class="project-col">${UI.escape(s.project)}</td>
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rowKey = r.courseId || r.id;
                     return `
             <tr data-id="${rowKey}" data-staff-id="${r.id}" style="cursor:pointer;" class="${selectedId === rowKey ? 'selected-row' : ''}">
-                <td class="code-col">${UI.escape(r.id)}</td>
+                <td class="code-col" style="text-align:center;">${UI.escape(r.id)}</td>
                 <td class="name-col">${UI.escape(r.name)}</td>
                 <td class="role-col">${UI.escape(r.title)}</td>
                 <td>${UI.escape(r.course)}</td>

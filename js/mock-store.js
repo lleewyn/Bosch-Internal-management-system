@@ -2,7 +2,7 @@
  * Kho dữ liệu giả lập — lưu localStorage, đồng bộ giữa các trang.
  */
 (function () {
-    const STORAGE_KEY = 'bosch_mock_db_v3';
+    const STORAGE_KEY = 'bosch_mock_db_v4';
 
     const SEED = {
         settings: {
@@ -62,13 +62,13 @@
             { id: 'KH-001', company: 'Bosch Global Partner', contact: 'Mr. Hans Mueller', email: 'hans.mueller@bosch.com', phone: '+4912345678', country: 'Đức', status: 'ĐANG ĐÀM PHÁN' }
         ],
         contracts: [
-            { id: 'HD-2025-01', customerId: 'KH-003', company: 'Samsung Electronics HCMC', contact: 'Mr. Park Ji-Sung', email: 'jisung.park@samsung.com', phone: '02839151111', serviceLine: 'Automotive Embedded', value: 4500000000, start: '2025-01-15', end: '2025-12-31', project: 'Precision Sensor V2', ot: true, signed: true, status: 'Đang hiệu lực' },
-            { id: 'HD-2025-02', customerId: 'KH-005', company: 'FPT Software Alliance', contact: 'Mr. Nguyen Quoc Hoa', email: 'quochoa.nguyen@fpt.com', phone: '02437689000', serviceLine: 'Digital & IT', value: 2800000000, start: '2025-03-01', end: '2026-02-28', project: 'Cloud Infra', ot: false, signed: true, status: 'Đang hiệu lực' },
-            { id: 'HD-2024-08', customerId: 'KH-008', company: 'Petrovietnam Gas Node', contact: 'Mr. Le Hoang Thanh', email: 'hoangthanh.le@pvgas.com.vn', phone: '02543834123', serviceLine: 'Consulting', value: 1200000000, start: '2024-06-01', end: '2025-05-31', project: 'Gas Monitoring', ot: false, signed: true, status: 'Sắp hết hạn' },
-            { id: 'HD-2025-03', customerId: 'KH-002', company: 'Viettel Network Corporation', contact: 'Ms. Nguyen Thi Mai', email: 'mai.nguyen@viettel.com.vn', phone: '02462989898', serviceLine: 'Digital & IT', value: 3200000000, start: '2025-04-01', end: '2026-03-31', project: 'ERP Migration Wave 2', ot: true, signed: true, status: 'Đang hiệu lực' },
-            { id: 'HD-2024-06', customerId: 'KH-006', company: 'TH Milk Food Joint Stock', contact: 'Mrs. Cao Minh Huong', email: 'minhhuong.cao@thmilk.vn', phone: '02383861234', serviceLine: 'IoT Solutions', value: 2200000000, start: '2024-11-01', end: '2025-10-31', project: 'Dairy Farm IoT', ot: false, signed: true, status: 'Đang hiệu lực' },
-            { id: 'HD-2025-04', customerId: 'KH-001', company: 'Bosch Global Partner', contact: 'Mr. Hans Mueller', email: 'hans.mueller@bosch.com', phone: '+4912345678', serviceLine: 'Automotive Embedded', value: 5000000000, start: '2025-01-01', end: '2026-06-30', project: 'Automotive ECU Testing', ot: true, signed: true, status: 'Đang hiệu lực' },
-            { id: 'HD-2025-05', customerId: 'KH-007', company: 'Masan Consumer Core', contact: 'Mr. Tran Truong Tuan', email: 'truongtuan.tran@masan.vn', phone: '02838275678', serviceLine: 'IoT Solutions', value: 1900000000, start: '2025-02-01', end: '2025-11-30', project: 'Smart Factory IoT', ot: false, signed: true, status: 'Đang hiệu lực' }
+            { id: 'HD-2025-01', customerId: 'KH-003', company: 'Samsung Electronics HCMC', contact: 'Mr. Park Ji-Sung', email: 'jisung.park@samsung.com', phone: '02839151111', serviceLine: 'Automotive Embedded', value: 4500000000, start: '2025-01-15', end: '2027-06-30', project: 'Precision Sensor V2', ot: true, signed: true, status: 'Có hiệu lực' },
+            { id: 'HD-2025-02', customerId: 'KH-005', company: 'FPT Software Alliance', contact: 'Mr. Nguyen Quoc Hoa', email: 'quochoa.nguyen@fpt.com', phone: '02437689000', serviceLine: 'Digital & IT', value: 2800000000, start: '2026-06-01', end: '2027-05-31', project: 'Cloud Infra', ot: false, signed: true, status: 'Đã tạo' },
+            { id: 'HD-2024-08', customerId: 'KH-008', company: 'Petrovietnam Gas Node', contact: 'Mr. Le Hoang Thanh', email: 'hoangthanh.le@pvgas.com.vn', phone: '02543834123', serviceLine: 'Consulting', value: 1200000000, start: '2024-06-01', end: '2025-05-31', project: 'Gas Monitoring', ot: false, signed: true, status: 'Hết hạn' },
+            { id: 'HD-2025-03', customerId: 'KH-002', company: 'Viettel Network Corporation', contact: 'Ms. Nguyen Thi Mai', email: 'mai.nguyen@viettel.com.vn', phone: '02462989898', serviceLine: 'Digital & IT', value: 3200000000, start: '2025-04-01', end: '2026-07-15', project: 'ERP Migration Wave 2', ot: true, signed: true, status: 'Có hiệu lực' },
+            { id: 'HD-2024-06', customerId: 'KH-006', company: 'TH Milk Food Joint Stock', contact: 'Mrs. Cao Minh Huong', email: 'minhhuong.cao@thmilk.vn', phone: '02383861234', serviceLine: 'IoT Solutions', value: 2200000000, start: '2024-11-01', end: '2026-07-10', project: 'Dairy Farm IoT', ot: false, signed: true, status: 'Đã gia hạn' },
+            { id: 'HD-2025-04', customerId: 'KH-001', company: 'Bosch Global Partner', contact: 'Mr. Hans Mueller', email: 'hans.mueller@bosch.com', phone: '+4912345678', serviceLine: 'Automotive Embedded', value: 5000000000, start: '2025-01-01', end: '2026-06-30', project: 'Automotive ECU Testing', ot: true, signed: true, status: 'Có hiệu lực' },
+            { id: 'HD-2025-05', customerId: 'KH-007', company: 'Masan Consumer Core', contact: 'Mr. Tran Truong Tuan', email: 'truongtuan.tran@masan.vn', phone: '02838275678', serviceLine: 'IoT Solutions', value: 1900000000, start: '2025-02-01', end: '2025-11-30', project: 'Smart Factory IoT', ot: false, signed: true, status: 'Hết hạn' }
         ],
         projects: [
             { id: 'PRJ-101', name: 'Precision Sensor Module - V2', contractId: 'HD-2025-01', customerId: 'KH-003', company: 'Samsung Electronics HCMC', contact: 'Mr. Park Ji-Sung', leader: 'Nguyễn Văn An', serviceLine: 'Automotive Embedded', budget: 4500000000, start: '2025-01-15', end: '2025-12-31', desc: 'Embedded firmware & validation', progress: 68, status: 'Đang triển khai', revenue: 2100000000 },

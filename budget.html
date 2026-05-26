@@ -139,7 +139,7 @@
                 <div class="op-box-actions">
                     <div class="op-badge-selection" id="slSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
                     <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                        <button class="btn-action red-btn" id="openAddServiceLineBtn" style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                        <button class="btn-action" id="openAddServiceLineBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                             <i class="fa-solid fa-plus"></i> Tạo mới
                         </button>
                         <button class="btn-action" id="editServiceLineBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
@@ -162,13 +162,13 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>MÃ DỊCH VỤ</th>
-                                <th>TÊN DỊCH VỤ</th>
-                                <th>MÔ TẢ</th>
-                                <th style="text-align:center;">ĐƠN GIÁ (VND/H)</th>
-                                <th style="text-align:center;">SỐ HỢP ĐỒNG</th>
-                                <th style="text-align:center;">SỐ DỰ ÁN</th>
-                                <th style="text-align:center;">TRẠNG THÁI</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">MÃ DỊCH VỤ</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">TÊN DỊCH VỤ</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">MÔ TẢ</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">ĐƠN GIÁ (VND/H)</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">SỐ HỢP ĐỒNG</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">SỐ DỰ ÁN</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">TRẠNG THÁI</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -205,7 +205,6 @@
                     <div class="op-badge-selection" id="partSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
                     <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
                         <button class="btn-action" id="editPartBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" id="updatePartBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
                     </div>
                 </div>
 
@@ -223,13 +222,13 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th style="text-align:center;">MÃ NS</th>
-                                <th>TÊN NHÂN SỰ</th>
-                                <th>CHỨC DANH</th>
-                                <th>DỰ ÁN THAM GIA</th>
-                                <th style="text-align:center;">% THAM GIA<br>(ĐỊNH TRƯỚC)</th>
-                                <th style="text-align:center;">GIỜ OT</th>
-                                <th style="text-align:center;">% THAM GIA<br>(THỰC TẾ)</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">MÃ NS</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">TÊN NHÂN SỰ</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">CHỨC DANH</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">DỰ ÁN THAM GIA</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">% THAM GIA (ĐỊNH TRƯỚC)</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">GIỜ OT</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">% THAM GIA (THỰC TẾ)</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -260,6 +259,7 @@
                             <option value="revenue-desc">Doanh thu giảm dần</option>
                             <option value="revenue-asc">Doanh thu tăng dần</option>
                             <option value="progress-desc">Tiến độ giảm dần</option>
+                            <option value="progress-asc">Tiến độ tăng dần</option>
                         </select>
                     </div>
                 </div>
@@ -267,7 +267,6 @@
                 <div class="op-box-actions">
                     <div class="op-badge-selection" id="revSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
                     <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                        <button class="btn-action" id="editRevenueBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
                         <button class="btn-action" id="syncRevenueBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-rotate"></i> Đồng bộ</button>
                     </div>
                 </div>
@@ -287,14 +286,14 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>MÃ PROJECT</th>
-                                <th>TÊN PROJECT</th>
-                                <th>CÔNG TY</th>
-                                <th>DÒNG DỊCH VỤ</th>
-                                <th>TRẠNG THÁI</th>
-                                <th>TỔNG<br>NHÂN SỰ</th>
-                                <th>TIẾN ĐỘ</th>
-                                <th>DOANH THU<br>DỰ KIẾN (VND)</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">MÃ PROJECT</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">TÊN PROJECT</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">CÔNG TY</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">DÒNG DỊCH VỤ</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">TRẠNG THÁI</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">TỔNG NHÂN SỰ</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">TIẾN ĐỘ</th>
+                                <th style="text-align:center; white-space:nowrap; vertical-align:middle;">DOANH THU DỰ KIẾN (VND)</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -342,7 +341,7 @@
     <div class="bosch-modal-overlay" id="participationModal">
         <div class="bosch-modal-content hr-modal" style="width: 480px;">
             <div class="bosch-modal-header">
-                <h3>Cập nhật mức tham gia</h3>
+                <h3>Sửa mức tham gia</h3>
                 <i class="fa-solid fa-xmark bosch-modal-close" id="closePartModal"></i>
             </div>
             <div class="bosch-modal-body" id="participationForm">
@@ -353,14 +352,6 @@
                 <div class="form-group mb-15">
                     <label for="partPlanned">% Tham gia định trước <span class="required-asterisk">*</span></label>
                     <input type="number" id="partPlanned" class="hr-form-input" min="0" max="100">
-                </div>
-                <div class="form-group mb-15">
-                    <label for="partOt">Giờ OT</label>
-                    <input type="number" id="partOt" class="hr-form-input" min="0">
-                </div>
-                <div class="form-group mb-15">
-                    <label for="partActual">% Thực tế <span class="required-asterisk">*</span></label>
-                    <input type="number" id="partActual" class="hr-form-input" min="0" max="150">
                 </div>
             </div>
             <div class="bosch-modal-footer">

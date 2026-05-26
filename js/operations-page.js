@@ -28,13 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeTab = 'customers';
     const selected = { customers: null, contracts: null, projects: null };
     const editing = { customers: false, contracts: false, projects: false };
-    const customerStatuses = ['TIỀM NĂNG', 'ĐANG ĐÀM PHÁN', 'ĐÃ CÓ DỰ ÁN', 'ĐÃ DEAL HỢP ĐỒNG'];
+    const customerStatuses = ['ĐANG ĐÀM PHÁN', 'ĐÃ DEAL HỢP ĐỒNG', 'ĐÃ CÓ DỰ ÁN'];
 
     // Trạng thái phân công tạm thời khi đang mở modal dự án
     let tempStaffAssignments = []; // [{staffId, name, title, team, percent, isLeader}]
 
 
-    // ── Tự động cập nhật trạng thái dự án theo thời gian ────────────────────
+    // ── Tự động tính trạng thái hợp đồng theo ngày ──────────────────────────
+    function computeContractStatus(c) {
+        // Giữ nguyên nếu đã gia hạn (do người dùng xác nhận)
+        if (c.status === 'Đã gia hạn') return 'Đã gia hạn';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const start = c.start ? new Date(c.start) : null;
+        const end   = c.end   ? new Date(c.end)   : null;
+        if (!start || !end) return 'Đã tạo';
+        if (today < start) return 'Đã tạo';
+        if (today > end)   return 'Hết hạn';
+        const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 60) return 'Sắp hết hạn';
+        return 'Có hiệu lực';
+    }
     function computeProjectStatus(p) {
         // Nếu đã hoàn thành hoặc tạm dừng/hủy thì giữ nguyên
         if (['Hoàn thành', 'Tạm dừng', 'Đã hủy'].includes(p.status)) return p.status;
@@ -121,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             countryP.replaceWith(sel);
         }
         const statusWrap = document.createElement('div');
+        statusWrap.id = 'opCustStatusWrap';
         statusWrap.className = 'form-group mb-15';
         statusWrap.innerHTML = `<label>Trạng thái <span class="required-asterisk">*</span></label>
             <select id="opCustStatus" class="hr-form-select">${customerStatuses.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`;
@@ -135,8 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const inputs = body.querySelectorAll('input.bg-white-input');
         if (inputs[0]) { inputs[0].type = 'date'; inputs[0].id = 'opContractStart'; }
         if (inputs[1]) { inputs[1].type = 'date'; inputs[1].id = 'opContractEnd'; }
-        if (inputs[2]) inputs[2].id = 'opContractService';
-        if (inputs[3]) inputs[3].id = 'opContractValue';
+        if (inputs[2]) inputs[2].id = 'opContractValue';
+    }
+
+    function refreshContractServiceLines() {
+        const sel = $('opContractService');
+        if (!sel) return;
+        const lines = MockStore.getServiceLines ? MockStore.getServiceLines() : [];
+        const current = sel.value;
+        sel.innerHTML = '<option value="">-- Chọn Service Line --</option>' +
+            lines.map(sl => `<option value="${UI.escape(sl.name)}">${UI.escape(sl.name)}</option>`).join('');
+        if (current) sel.value = current;
     }
 
     wireCustomerModal();
@@ -184,15 +208,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Render Customers ─────────────────────────────────────────────────────
     function renderCustomers() {
         const tbody = tables.customers.querySelector('tbody');
-        tbody.innerHTML = MockStore.getCustomers().map((c, i) => `
+        const STATUS_ORDER = { 'ĐANG ĐÀM PHÁN': 0, 'ĐÃ DEAL HỢP ĐỒNG': 1, 'ĐÃ CÓ DỰ ÁN': 2 };
+        const sorted = MockStore.getCustomers().slice().sort((a, b) => {
+            const oa = STATUS_ORDER[a.status] ?? 99;
+            const ob = STATUS_ORDER[b.status] ?? 99;
+            return oa - ob;
+        });
+        tbody.innerHTML = sorted.map((c, i) => `
             <tr data-id="${c.id}" style="background:${i % 2 ? '#f8f9fa' : 'white'};cursor:pointer;" class="${selected.customers === c.id ? 'selected-row' : ''}">
-                <td style="color:#0056b3;font-weight:800;padding:16px;">${UI.escape(c.id)}</td>
+                <td style="color:#0056b3;font-weight:800;padding:16px;text-align:center;">${UI.escape(c.id)}</td>
                 <td style="font-weight:700;padding:16px;">${UI.escape(c.company)}</td>
                 <td style="padding:16px;">${UI.escape(c.contact)}</td>
                 <td style="padding:16px;">${UI.escape(c.email)}</td>
-                <td style="padding:16px;">${UI.escape(c.phone)}</td>
-                <td style="padding:16px;">${UI.escape(c.country)}</td>
-                <td style="padding:16px;">${UI.badge(c.status)}</td>
+                <td style="padding:16px;text-align:center;">${UI.escape(c.phone)}</td>
+                <td style="padding:16px;text-align:center;">${UI.escape(c.country)}</td>
+                <td style="padding:16px;text-align:center;">${UI.badge(c.status)}</td>
             </tr>`).join('');
         bindRowToggle(tbody, 'customers');
         applyFilter('customers');
@@ -201,9 +231,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Render Contracts ─────────────────────────────────────────────────────
     function renderContracts() {
         const tbody = tables.contracts.querySelector('tbody');
-        tbody.innerHTML = MockStore.getContracts().map(c => {
-            const alertStatuses = ['Sắp hết hạn', 'Hết hạn', 'Quá hạn'];
-            const alertCls = alertStatuses.includes(c.status) ? ' row-alert' : '';
+        const sortVal = $('sortContracts')?.value || '';
+        let contracts = MockStore.getContracts().slice();
+        if (sortVal === 'value-asc')  contracts.sort((a, b) => (a.value || 0) - (b.value || 0));
+        if (sortVal === 'value-desc') contracts.sort((a, b) => (b.value || 0) - (a.value || 0));
+        tbody.innerHTML = contracts.map(c => {
+            const alertStatuses = ['Sắp hết hạn', 'Hết hạn'];
+            const computedStatus = computeContractStatus(c);
+            const alertCls = alertStatuses.includes(computedStatus) ? ' row-alert' : '';
+
+            // Cột đính kèm
+            const attachKey = `contract_attach_${c.id}`;
+            const attachMeta = (() => { try { return JSON.parse(localStorage.getItem(attachKey)); } catch { return null; } })();
+            let attachCell;
+            if (attachMeta) {
+                attachCell = `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:11px;color:#374151;font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${UI.escape(attachMeta.name)}">${UI.escape(attachMeta.name)}</span>
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="contractAttachView('${c.id}')" title="Xem / Tải về" style="background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;"><i class="fa-solid fa-eye"></i></button>
+                        <button onclick="contractAttachUpload('${c.id}')" title="Thay thế file" style="background:#f3f4f6;border:1px solid #d1d5db;color:#6b7280;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                    </div>
+                </div>`;
+            } else {
+                attachCell = `<button onclick="contractAttachUpload('${c.id}')" title="Tải hợp đồng lên" style="background:#f3f4f6;border:1px solid #d1d5db;color:#6b7280;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Tải lên
+                </button>`;
+            }
+
             return `<tr data-id="${c.id}" style="cursor:pointer;" class="${selected.contracts === c.id ? 'selected-row' : ''}${alertCls}">
                 <td class="code-col">${UI.escape(c.id)}</td>
                 <td>${UI.escape(c.company)}</td>
@@ -217,7 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${UI.escape(c.project)}</td>
                 <td>${c.ot ? 'Có' : 'Không'}</td>
                 <td>${c.signed ? 'Đã ký' : 'Chưa'}</td>
-                <td>${UI.badge(c.status)}</td>
+                <td style="text-align:center;">${UI.badge(computedStatus)}</td>
+                <td style="text-align:center;padding:10px 8px;">${attachCell}</td>
             </tr>`;
         }).join('');
         bindRowToggle(tbody, 'contracts');
@@ -381,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     ['filterCustomerCountry','filterCustomerStatus'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('customers')));
     ['filterContractStatus','filterContractOt'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('contracts')));
+    $('sortContracts')?.addEventListener('change', () => renderContracts());
     ['filterProjectCompany','filterProjectService','filterProjectStatus'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('projects')));
 
     const open  = (m) => UI.openModal(m);
@@ -401,6 +457,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editing.customers = false;
         fillCustomer({});
         modals.customer.querySelector('h3').innerHTML = '<i class="fa-solid fa-plus" style="color:#0078d4;margin-right:8px;"></i> THÊM KHÁCH HÀNG MỚI';
+        // Ẩn trạng thái — hệ thống tự gán khi tạo mới
+        const sw = $('opCustStatusWrap');
+        if (sw) sw.style.display = 'none';
         open(modals.customer);
     });
     $('openEditCustomerModalBtn')?.addEventListener('click', () => {
@@ -408,10 +467,17 @@ document.addEventListener('DOMContentLoaded', () => {
         editing.customers = true;
         fillCustomer(getItem('customers', selected.customers));
         modals.customer.querySelector('h3').innerHTML = '<i class="fa-regular fa-pen-to-square" style="color:#E20015;margin-right:8px;"></i> SỬA KHÁCH HÀNG';
+        // Hiện trạng thái khi sửa
+        const sw = $('opCustStatusWrap');
+        if (sw) sw.style.display = 'block';
         open(modals.customer);
     });
     $('deleteCustomerBtn')?.addEventListener('click', () => {
         if (!selected.customers) return showToast('Lỗi', 'Vui lòng chọn khách hàng.', 'error');
+        const cust = getItem('customers', selected.customers);
+        if (!cust || cust.status !== 'ĐANG ĐÀM PHÁN') {
+            return showToast('Không thể xóa', 'Chỉ được xóa khách hàng có trạng thái "Đang đàm phán".', 'error');
+        }
         if (confirm('Xóa khách hàng này?')) {
             MockStore.deleteCustomers([selected.customers]);
             clearSelection('customers');
@@ -427,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             email:   $('opCustEmail').value.trim(),
             phone:   $('opCustPhone').value.trim(),
             country: $('opCustCountry').value,
-            status:  $('opCustStatus').value
+            status:  editing.customers ? $('opCustStatus').value : 'ĐANG ĐÀM PHÁN'
         };
         if (editing.customers) {
             MockStore.updateCustomer(selected.customers, payload);
@@ -445,19 +511,21 @@ document.addEventListener('DOMContentLoaded', () => {
     $('openAddContractModalBtn')?.addEventListener('click', () => {
         editing.contracts = false;
         refreshContractCustomers();
+        refreshContractServiceLines();
         open(modals.contract);
     });
     $('editContractBtn')?.addEventListener('click', () => {
         if (!selected.contracts) return showToast('Lỗi', 'Vui lòng chọn hợp đồng.', 'error');
         editing.contracts = true;
         refreshContractCustomers();
+        refreshContractServiceLines();
         const c = getItem('contracts', selected.contracts);
         $('opContractCustomer').value = c.customerId || '';
         $('opContractStart').value    = c.start      || '';
         $('opContractEnd').value      = c.end        || '';
         $('opContractService').value  = c.serviceLine|| '';
         $('opContractValue').value    = c.value      || '';
-        if ($('opContractStatus')) $('opContractStatus').value = c.status || 'Đang hiệu lực';
+        if ($('opContractStatus')) $('opContractStatus').value = c.status || 'Có hiệu lực';
         open(modals.contract);
     });
     $('renewContractBtn')?.addEventListener('click', () => {
@@ -466,6 +534,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('deleteContractBtn')?.addEventListener('click', () => {
         if (!selected.contracts) return showToast('Lỗi', 'Vui lòng chọn hợp đồng.', 'error');
+        const contract = getItem('contracts', selected.contracts);
+        if (!contract) return;
+        if (computeContractStatus(contract) !== 'Hết hạn') {
+            return showToast('Không thể xóa', 'Chỉ được xóa hợp đồng có trạng thái "Hết hạn".', 'error');
+        }
         if (confirm('Xóa hợp đồng này?')) {
             MockStore.deleteContracts([selected.contracts]);
             clearSelection('contracts');
@@ -489,9 +562,11 @@ document.addEventListener('DOMContentLoaded', () => {
             end:         $('opContractEnd').value,
             project:     'Dự án liên kết',
             ot:          modals.contract.querySelector('input[type=checkbox]')?.checked || false,
-            signed:      true,
-            status:      $('opContractStatus')?.value || 'Đang hiệu lực'
+            signed:      true
         };
+        // Tính trạng thái tự động, giữ "Đã gia hạn" nếu đang sửa và đã gia hạn
+        const existing = editing.contracts ? getItem('contracts', selected.contracts) : null;
+        payload.status = (existing?.status === 'Đã gia hạn') ? 'Đã gia hạn' : computeContractStatus(payload);
         if (editing.contracts) {
             MockStore.updateContract(selected.contracts, payload);
             showToast('Thành công', 'Đã cập nhật hợp đồng.');
@@ -516,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function refreshProjectContracts() {
         const sel = $('opProjContract');
         if (!sel) return;
-        const validStatuses = ['Đang hiệu lực', 'Sắp hết hạn'];
+        const validStatuses = ['Có hiệu lực', 'Sắp hết hạn'];
         const active = MockStore.getContracts().filter(c => validStatuses.includes(c.status));
         sel.innerHTML = '<option value="">-- Chọn hợp đồng đang hiệu lực --</option>' +
             active.map(c => `<option value="${c.id}">${UI.escape(c.id)} — ${UI.escape(c.company)}</option>`).join('');
@@ -958,5 +1033,77 @@ document.addEventListener('DOMContentLoaded', () => {
     bindContractAutoFill();
     refreshContractCustomers();
     renderActive();
+
+    // Re-render khi có file đính kèm mới
+    document.addEventListener('contractAttachUpdated', () => renderContracts());
 });
+
+// ── Contract Attachment: Upload & View (global scope) ────────────────────────
+let _contractAttachTargetId = null;
+
+window.contractAttachUpload = function(contractId) {
+    _contractAttachTargetId = contractId;
+    const input = document.getElementById('contractFileInput');
+    if (input) { input.value = ''; input.click(); }
+};
+
+window.contractAttachView = function(contractId) {
+    const attachKey = `contract_attach_${contractId}`;
+    let meta;
+    try { meta = JSON.parse(localStorage.getItem(attachKey)); } catch { meta = null; }
+    if (!meta || !meta.data) return showToast('Thông báo', 'Không tìm thấy file đính kèm.', 'error');
+
+    // Tạo blob URL và mở tab mới
+    const byteStr = atob(meta.data.split(',')[1]);
+    const ab = new ArrayBuffer(byteStr.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteStr.length; i++) ia[i] = byteStr.charCodeAt(i);
+    const blob = new Blob([ab], { type: meta.type });
+    const url = URL.createObjectURL(blob);
+
+    // PDF/ảnh → mở tab; các loại khác → tải về
+    if (meta.type === 'application/pdf' || meta.type.startsWith('image/')) {
+        window.open(url, '_blank');
+    } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = meta.name;
+        a.click();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('contractFileInput');
+    if (!fileInput) return;
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || !_contractAttachTargetId) return;
+
+        // Giới hạn 10MB
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('Lỗi', 'File quá lớn. Vui lòng chọn file dưới 10MB.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const meta = { name: file.name, type: file.type, size: file.size, data: ev.target.result };
+            try {
+                localStorage.setItem(`contract_attach_${_contractAttachTargetId}`, JSON.stringify(meta));
+                showToast('Thành công', `Đã đính kèm "${file.name}" vào hợp đồng.`);
+                // Re-render bảng hợp đồng
+                const contractsTable = document.getElementById('contractsTable');
+                if (contractsTable) {
+                    // Trigger re-render thông qua event
+                    document.dispatchEvent(new CustomEvent('contractAttachUpdated'));
+                }
+            } catch (err) {
+                showToast('Lỗi', 'Không thể lưu file. Dung lượng localStorage có thể đã đầy.', 'error');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
 

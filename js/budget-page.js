@@ -90,12 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = items.map(s => {
             const alert = !s.active ? ' row-alert' : '';
             return `<tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}${alert}">
-                <td class="code-col">${UI.escape(s.id)}</td>
+                <td class="code-col" style="text-align:center;">${UI.escape(s.id)}</td>
                 <td class="name-col">${UI.escape(s.name)}</td>
                 <td class="role-col">${UI.escape(s.desc)}</td>
-                <td class="value-blue">${UI.formatNumber(s.rate)}</td>
-                <td>${s.contracts}</td><td>${s.projects}</td>
-                <td><span class="badge ${s.active ? 'badge-success' : 'badge-muted'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
+                <td class="value-blue" style="text-align:center;">${UI.formatNumber(s.rate)}</td>
+                <td style="text-align:center;">${s.contracts}</td>
+                <td style="text-align:center;">${s.projects}</td>
+                <td style="text-align:center;"><span class="badge ${s.active ? 'badge-success' : 'badge-muted'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
             </tr>`;
         }).join('');
 
@@ -135,14 +136,43 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = data.map(p => {
             const actualCls = p.actual > 100 ? 'val-red' : 'val-green';
             const alert = p.actual > 100 ? ' row-alert' : '';
-            return `<tr data-id="${p.staffId}" style="cursor:pointer;" class="${selectedPartId === p.staffId ? 'selected-row' : ''}${alert}">
-                <td class="code-col">${UI.escape(p.staffId)}</td>
+
+            // Thanh tiến độ + badge mức độ
+            const pct = Math.min(p.actual, 100);
+            let barColor, badgeLabel, badgeStyle, rowBg;
+            if (p.actual > 90) {
+                barColor   = '#dc2626';
+                badgeLabel = 'QUÁ TẢI';
+                badgeStyle = 'background:#fee2e2;color:#dc2626;';
+                rowBg      = 'background:#fff5f5 !important;';
+            } else if (p.actual > 70) {
+                barColor   = '#f59e0b';
+                badgeLabel = 'CAO';
+                badgeStyle = 'background:#fef3c7;color:#d97706;';
+                rowBg      = '';
+            } else {
+                barColor   = '#10b981';
+                badgeLabel = 'ỔN ĐỊNH';
+                badgeStyle = 'background:#d1fae5;color:#059669;';
+                rowBg      = '';
+            }
+            const progressBar = `
+                <div style="width:100%;background:#e5e7eb;border-radius:4px;height:6px;margin-bottom:6px;">
+                    <div style="width:${pct}%;background:${barColor};height:6px;border-radius:4px;transition:width .3s;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;${badgeStyle}">${badgeLabel}</span>
+                    <span style="font-size:12px;font-weight:700;color:#374151;">${p.actual}%</span>
+                </div>`;
+
+            return `<tr data-id="${p.staffId}" style="cursor:pointer;${rowBg}" class="${selectedPartId === p.staffId ? 'selected-row' : ''}${alert}">
+                <td class="code-col" style="text-align:center;">${UI.escape(p.staffId)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.title)}</td>
                 <td><span class="tag-project">${UI.escape(p.project)}</span></td>
-                <td class="value-blue">${p.planned}%</td>
-                <td>${p.otHours > 0 ? `<span class="value-green">${p.otHours}h</span><span class="ot-highlight">OT</span>` : '—'}</td>
-                <td><span class="${actualCls}">${p.actual}%</span></td>
+                <td class="value-blue" style="text-align:center;">${p.planned}%</td>
+                <td style="text-align:center;">${p.otHours > 0 ? `<span class="value-green">${p.otHours}h</span><span class="ot-highlight">OT</span>` : '—'}</td>
+                <td style="padding:10px 16px;min-width:160px;">${progressBar}</td>
             </tr>`;
         }).join('');
 
@@ -180,27 +210,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sort === 'revenue-desc') data.sort((a, b) => (b.revenue||0) - (a.revenue||0));
         if (sort === 'revenue-asc')  data.sort((a, b) => (a.revenue||0) - (b.revenue||0));
         if (sort === 'progress-desc') data.sort((a, b) => b.progress - a.progress);
+        if (sort === 'progress-asc')  data.sort((a, b) => a.progress - b.progress);
 
         const tbody = revView.querySelector('tbody');
         tbody.innerHTML = data.map(p => {
             const alertStatuses = ['Tạm dừng', 'Đã hủy'];
             const alert = alertStatuses.includes(p.status) ? ' row-alert' : '';
             return `<tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}${alert}">
-                <td class="code-col">${UI.escape(p.id)}</td>
+                <td class="code-col" style="text-align:center;">${UI.escape(p.id)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.company)}</td>
                 <td><span class="tag-project">${UI.escape(p.serviceLine)}</span></td>
-                <td>${revBadge(p.status)}</td>
-                <td>1</td>
-                <td>
-                    <div style="display:flex;align-items:center;gap:6px;">
+                <td style="text-align:center;">${revBadge(p.status)}</td>
+                <td style="text-align:center;">1</td>
+                <td style="text-align:center;">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
                         <div style="width:50px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
                             <div style="width:${p.progress}%;height:100%;background:${p.progress>=70?'#28a745':'#f58220'};border-radius:3px;"></div>
                         </div>
                         <span style="font-size:12px;font-weight:700;">${p.progress}%</span>
                     </div>
                 </td>
-                <td class="value-blue">${UI.formatNumber(p.revenue || 0)}</td>
+                <td class="value-blue" style="text-align:center;">${UI.formatNumber(p.revenue || 0)}</td>
             </tr>`;
         }).join('');
 
@@ -259,6 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('deleteServiceLineBtn')?.addEventListener('click', () => {
         if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ trước.', 'error');
+        const sl = MockStore.getServiceLines().find(x => x.id === selectedSlId);
+        if (!sl) return;
+        if (sl.active) {
+            return showToast('Không thể xóa', 'Chỉ được xóa dòng dịch vụ có trạng thái "Ngừng".', 'error');
+        }
         if (confirm('Xóa dòng dịch vụ đã chọn?')) {
             MockStore.deleteServiceLines([selectedSlId]);
             clearSl();
@@ -297,8 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!p) return;
         $('partStaffName').value = `${p.name} (${p.staffId})`;
         $('partPlanned').value = p.planned;
-        $('partOt').value = p.otHours;
-        $('partActual').value = p.actual;
         partModal.classList.add('show');
     }
 
@@ -306,20 +340,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự trước.', 'error');
         openPartModal();
     });
-    $('updatePartBtn')?.addEventListener('click', () => {
-        if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự trước.', 'error');
-        openPartModal();
-    });
 
     $('savePartModal')?.addEventListener('click', () => {
         if (!validateForm(document.getElementById('participationForm'))) return;
         MockStore.updateParticipation(selectedPartId, {
-            planned:  parseInt($('partPlanned').value) || 0,
-            otHours:  parseInt($('partOt').value) || 0,
-            actual:   parseInt($('partActual').value) || 0
+            planned: parseInt($('partPlanned').value) || 0
         });
-        const s = MockStore.getStaff().find(x => x.id === selectedPartId);
-        if (s) MockStore.updateStaff(selectedPartId, { workload: parseInt($('partActual').value) || 0 });
         partModal.classList.remove('show');
         showToast('Thành công', 'Đã cập nhật mức tham gia.');
         renderParticipation();
@@ -335,10 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Thành công', 'Đã đồng bộ doanh thu từ dự án vận hành.');
         renderRevenue();
         renderParticipation();
-    });
-    $('editRevenueBtn')?.addEventListener('click', () => {
-        if (!selectedRevId) return showToast('Lỗi', 'Chọn dự án trước.', 'error');
-        showToast('Thông tin', 'Chỉnh sửa doanh thu qua trang Vận hành → Dự án.', 'error');
     });
 
     // ── Render active ────────────────────────────────────────────────────────

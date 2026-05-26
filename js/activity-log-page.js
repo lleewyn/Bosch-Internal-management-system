@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="time-cell"><span class="date">${dt.toLocaleDateString('vi-VN')}</span>
                 <span class="time">${dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></td>
                 <td><strong>${UI.escape(l.user)}</strong></td>
-                <td><span class="badge ${catClass}">${UI.escape(l.category)}</span></td>
+                <td style="text-align:center;"><span class="badge ${catClass}">${UI.escape(l.category)}</span></td>
                 <td>${UI.escape(l.desc)}</td>
                 <td class="tech-cell">
                     <span><b>IP:</b> ${UI.escape(l.ip)}</span>

@@ -1520,7 +1520,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     background: var(--bg-card);
     border: 1px solid var(--border-light);
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto;
     margin-bottom: 24px;
 }
 
@@ -2071,6 +2071,24 @@ input:checked + .slider:before { transform: translateX(20px); }
     left: 50%;
     transform: translateX(-50%);
     width: 8px;
+    height: 8px;
+    background-color: #C10006;
+    border-radius: 50%;
+}
+
+.year-bar-label {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #C10006;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
 /* REFINED DISTRIBUTION LIST */
 .dist-info {
     font-size: 14px;
@@ -2268,6 +2286,19 @@ input:checked + .slider:before { transform: translateX(20px); }
     height: 8px;
     background-color: #C10006;
     border-radius: 50%;
+}
+
+.year-bar-label {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #C10006;
+    pointer-events: none;
+    white-space: nowrap;
 }
 
 .yearly-x-axis {

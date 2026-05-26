@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ACCOUNT PAGE SPECIFIC STYLES */
+        .device-table td:not(:first-child) {
+            text-align: center !important;
+        }
         .info-card {
             background: white;
             border-radius: 8px;
@@ -272,37 +275,37 @@
                 </div>
 
                 <div class="table-responsive" style="margin-top: 24px; border: 1px solid #eef2f7; border-radius: 8px; padding: 0;">
-                    <table class="bosch-table bosch-table-modern" style="margin: 0; width: 100%;">
+                    <table class="bosch-table bosch-table-modern device-table" style="margin: 0; width: 100%;">
                         <colgroup>
-                            <col style="width: 25%;">
-                            <col style="width: 20%;">
+                            <col style="width: 30%;">
+                            <col style="width: 18%;">
                             <col style="width: 15%;">
                             <col style="width: 20%;">
-                            <col style="width: 20%;">
+                            <col style="width: 17%;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>Thiết bị</th>
-                                <th>Địa chỉ IP</th>
-                                <th>Thời gian</th>
-                                <th>Vị trí</th>
-                                <th>Trạng thái</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">Thiết bị</th>
+                                <th style="white-space:nowrap; vertical-align:middle; text-align:center;">Địa chỉ IP</th>
+                                <th style="white-space:nowrap; vertical-align:middle; text-align:center;">Thời gian</th>
+                                <th style="white-space:nowrap; vertical-align:middle; text-align:center;">Vị trí</th>
+                                <th style="white-space:nowrap; vertical-align:middle; text-align:center;">Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td class="name-col"><i class="fa-solid fa-laptop" style="margin-right: 12px; color: var(--text-muted);"></i> MacBook Pro 16"</td>
-                                <td>192.168.1.15</td>
-                                <td>Hiện tại</td>
-                                <td>TP. Hồ Chí Minh</td>
-                                <td><span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
+                                <td style="text-align:center !important;">192.168.1.15</td>
+                                <td style="text-align:center !important;">Hiện tại</td>
+                                <td style="text-align:center !important;">TP. Hồ Chí Minh</td>
+                                <td style="text-align:center !important;"><span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐANG HOẠT ĐỘNG</span></td>
                             </tr>
                             <tr>
                                 <td class="name-col"><i class="fa-solid fa-mobile-screen" style="margin-right: 12px; color: var(--text-muted);"></i> iPhone 14 Pro</td>
-                                <td>192.168.1.22</td>
-                                <td>2 giờ trước</td>
-                                <td>TP. Hồ Chí Minh</td>
-                                <td><span class="badge badge-muted"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
+                                <td style="text-align:center !important;">192.168.1.22</td>
+                                <td style="text-align:center !important;">2 giờ trước</td>
+                                <td style="text-align:center !important;">TP. Hồ Chí Minh</td>
+                                <td style="text-align:center !important;"><span class="badge badge-muted"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> ĐÃ ĐĂNG XUẤT</span></td>
                             </tr>
                         </tbody>
                     </table>

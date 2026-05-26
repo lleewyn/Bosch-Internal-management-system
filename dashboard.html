@@ -180,34 +180,14 @@
 
                         <!-- NEW: Yearly Chart (Hidden by default) -->
                         <div class="yearly-chart-container" id="revenueChartYearly" style="display: none;">
-                            <div class="yearly-bars">
-                                <div class="year-bar" style="height: 40%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                                <div class="year-bar" style="height: 55%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                                <div class="year-bar" style="height: 65%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                                <div class="year-bar" style="height: 75%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                                <div class="year-bar" style="height: 85%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                                <div class="year-bar" style="height: 100%;">
-                                    <div class="year-bar-top"></div>
-                                </div>
-                            </div>
-                            <div class="yearly-x-axis">
-                                <span>2020</span>
-                                <span>2021</span>
-                                <span>2022</span>
-                                <span>2023</span>
-                                <span>2024</span>
-                                <span>2025</span>
-                            </div>
+                            <div class="yearly-bars" id="yearlyBarsContainer"></div>
+                            <div class="yearly-x-axis" id="yearlyXAxis"></div>
+                        </div>
+
+                        <!-- NEW: Quarterly Chart (Hidden by default) -->
+                        <div class="yearly-chart-container" id="revenueChartQuarterly" style="display: none;">
+                            <div class="yearly-bars" id="quarterlyBarsContainer"></div>
+                            <div class="yearly-x-axis" id="quarterlyXAxis"></div>
                         </div>
                     </div>
 
@@ -334,7 +314,6 @@
                         <div class="filter-pills">
                             <span class="pill active">Vị trí</span>
                             <span class="pill">Mảng dịch vụ</span>
-                            <span class="pill">Kỹ năng</span>
                             <span class="pill">Dự án</span>
                         </div>
                         <div class="hr-bar-chart">
@@ -481,12 +460,8 @@
                     <div class="chart-container flex-2">
                         <div class="chart-header">
                             <div>
-                                <h4>Biểu đồ tiến độ bàn giao</h4>
+                                <h4>Biểu đồ số lượng dự án</h4>
                                 <p>Hiệu suất vận hành theo chu kỳ</p>
-                            </div>
-                            <div class="toggle-group-sm">
-                                <button class="toggle-btn-sm">Theo tuần</button>
-                                <button class="toggle-btn-sm active">Theo tháng</button>
                             </div>
                         </div>
                         <div class="delivery-chart">
@@ -523,68 +498,6 @@
                     </div>
                 </div>
 
-                <!-- Featured Projects Table -->
-                <div class="table-container-projects mt-32">
-                    <div class="table-header">
-                        <h4>Danh sách dự án trọng điểm</h4>
-                        <button class="btn-view-all">Xem tất cả</button>
-                    </div>
-                    <table class="bosch-table">
-                        <colgroup>
-                            <col style="width: 15%;">
-                            <col style="width: 32%;">
-                            <col style="width: 28%;">
-                            <col style="width: 10%;">
-                            <col style="width: 15%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>Mã dự án</th>
-                                <th>Tên dự án</th>
-                                <th>Phụ trách</th>
-                                <th>Tiến độ</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="bold">BOS-2023-001</td>
-                                <td>Precision Sensor Module - V2</td>
-                                <td>
-                                    <div class="assignee">
-                                        <div class="avatar-circle">TN</div>
-                                        <span>Tùng Nguyễn</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress-cell">
-                                        <div class="progress-dot red"></div>
-                                        <span>80%</span>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-success">HOẠT ĐỘNG</span></td>
-                            </tr>
-                            <tr>
-                                <td class="bold">BOS-2023-002</td>
-                                <td>Automated QC Gateway</td>
-                                <td>
-                                    <div class="assignee">
-                                        <div class="avatar-circle pink">HL</div>
-                                        <span>Hương Ly</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress-cell">
-                                        <div class="progress-dot red"></div>
-                                        <span>33%</span>
-                                    </div>
-                                </td>
-                                <td><span class="badge badge-danger">TRỄ HẠN</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class="fab-add"><i class="fa-solid fa-plus"></i></button>
-                </div>
             </div>
         </main>
     </div>
@@ -601,10 +514,10 @@
                     <div class="modal-form-group flex-1">
                         <label>Chu kỳ <span class="required-asterisk">*</span></label>
                         <div class="modal-input-wrapper">
-                            <select class="modal-select">
-                                <option>Tháng</option>
-                                <option>Quý</option>
-                                <option>Năm</option>
+                            <select class="modal-select" id="reportCycle">
+                                <option value="Tháng">Tháng</option>
+                                <option value="Quý">Quý</option>
+                                <option value="Năm">Năm</option>
                             </select>
                             <i class="fa-solid fa-chevron-down select-icon"></i>
                         </div>
@@ -615,14 +528,14 @@
                     <div class="modal-form-group flex-1">
                         <label>Ngày gửi (hàng tháng) <span class="required-asterisk">*</span></label>
                         <div class="modal-input-wrapper">
-                            <input type="text" placeholder="Vd: 05">
+                            <input type="number" id="reportDay" min="1" max="31" placeholder="Vd: 05">
                             <i class="fa-regular fa-calendar-days"></i>
                         </div>
                     </div>
                     <div class="modal-form-group flex-1">
                         <label>Giờ gửi <span class="required-asterisk">*</span></label>
                         <div class="modal-input-wrapper">
-                            <input type="text" placeholder="--:-- --">
+                            <input type="time" id="reportTime" placeholder="--:--">
                             <i class="fa-regular fa-clock"></i>
                         </div>
                     </div>
@@ -630,30 +543,30 @@
 
                 <div class="modal-form-group">
                     <label>Danh sách người nhận (Email) <span class="required-asterisk">*</span></label>
-                    <div class="email-tag-container">
-                        <div class="email-tag">manager@bosch.com <i class="fa-solid fa-xmark"></i></div>
-                        <div class="email-tag">quality.lead@bosch.com <i class="fa-solid fa-xmark"></i></div>
-                        <input type="text" placeholder="Thêm email người nhận..." class="tag-input">
+                    <div class="email-tag-container" id="emailTagContainer">
+                        <span class="email-tag">manager@bosch.com <i class="fa-solid fa-xmark"></i></span>
+                        <span class="email-tag">quality.lead@bosch.com <i class="fa-solid fa-xmark"></i></span>
+                        <input type="text" id="emailTagInput" placeholder="Nhập email rồi nhấn Enter..." class="tag-input">
                     </div>
                 </div>
 
                 <div class="modal-form-group">
                     <label>Nội dung báo cáo (Tiêu đề & Ghi chú)</label>
-                    <textarea class="modal-textarea" placeholder="Nhập lời nhắn hoặc ghi chú kèm theo báo cáo..."></textarea>
+                    <textarea class="modal-textarea" id="reportNote" placeholder="Nhập lời nhắn hoặc ghi chú kèm theo báo cáo..."></textarea>
                 </div>
 
                 <div class="form-footer-options">
                     <div class="file-format-group">
                         <label>Định dạng file <span class="required-asterisk">*</span></label>
                         <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="format" checked> <span class="radio-custom"></span> PDF</label>
-                            <label class="radio-label"><input type="radio" name="format"> <span class="radio-custom"></span> Excel (.xlsx)</label>
+                            <label class="radio-label"><input type="radio" name="reportFormat" value="PDF" checked> <span class="radio-custom"></span> PDF</label>
+                            <label class="radio-label"><input type="radio" name="reportFormat" value="Excel"> <span class="radio-custom"></span> Excel (.xlsx)</label>
                         </div>
                     </div>
                     <div class="activation-toggle">
                         <span>Tự động kích hoạt</span>
                         <label class="switch">
-                            <input type="checkbox" checked>
+                            <input type="checkbox" id="reportAutoToggle" checked>
                             <span class="slider round"></span>
                         </label>
                     </div>
@@ -695,12 +608,11 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>ID DỰ ÁN</th>
-                                <th>TÊN DỰ ÁN</th>
-                                <th>QUẢN LÝ</th>
-                                <th>TIẾN ĐỘ</th>
-                                <th>TRẠNG THÁI</th>
-                                <th>ƯU TIÊN</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">ID DỰ ÁN</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">TÊN DỰ ÁN</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">LEADER</th>
+                                <th style="white-space:nowrap; vertical-align:middle;">TIẾN ĐỘ</th>
+                                <th style="white-space:nowrap; vertical-align:middle; text-align:center;">TRẠNG THÁI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -812,76 +724,12 @@
                             <tr>
                                 <th>MÃ NV</th>
                                 <th>TÊN NHÂN VIÊN</th>
-                                <th>KỸ NĂNG</th>
-                                <th>CẤP BẬC</th>
-                                <th>THỜI GIAN RẢNH</th>
+                                <th>CHỨC DANH</th>
+                                <th>TEAM</th>
+                                <th>KHỐI LƯỢNG CÔNG VIỆC</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="code-col">BOS-9421</td>
-                                <td class="name-col">Lê Minh Tuấn</td>
-                                <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="badge badge-info">Python</span>
-                                        <span class="badge badge-info">AWS</span>
-                                        <span class="badge badge-info">Django</span>
-                                    </div>
-                                </td>
-                                <td>Senior Engineer</td>
-                                <td>15/10/2023</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">BOS-8832</td>
-                                <td class="name-col">Nguyễn Thu Hà</td>
-                                <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="badge badge-info">React</span>
-                                        <span class="badge badge-info">TypeScript</span>
-                                        <span class="badge badge-info">UI/UX</span>
-                                    </div>
-                                </td>
-                                <td>Lead Designer</td>
-                                <td>02/11/2023</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">BOS-7719</td>
-                                <td class="name-col">Trần Quốc Bảo</td>
-                                <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="badge badge-info">Java</span>
-                                        <span class="badge badge-info">Oracle</span>
-                                        <span class="badge badge-info">Spring</span>
-                                    </div>
-                                </td>
-                                <td>System Architect</td>
-                                <td>20/09/2023</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">BOS-6544</td>
-                                <td class="name-col">Phạm Diệu Linh</td>
-                                <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="badge badge-info">QA/QC</span>
-                                        <span class="badge badge-info">Selenium</span>
-                                    </div>
-                                </td>
-                                <td>Junior QA</td>
-                                <td>12/11/2023</td>
-                            </tr>
-                            <tr>
-                                <td class="code-col">BOS-1290</td>
-                                <td class="name-col">Vũ Hoàng Nam</td>
-                                <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="badge badge-info">Kotlin</span>
-                                        <span class="badge badge-info">Swift</span>
-                                        <span class="badge badge-info">Flutter</span>
-                                    </div>
-                                </td>
-                                <td>Mobile Dev</td>
-                                <td>05/11/2023</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -895,7 +743,7 @@
                 <button class="btn-back-modal" id="backRevenueModal">
                     <i class="fa-solid fa-arrow-left"></i> Quay lại
                 </button>
-                <h3 class="modal-title-center">Chi tiết doanh thu theo dự án - năm 2025</h3>
+                <h3 class="modal-title-center" id="revenueDetailTitle">Chi tiết doanh thu theo dự án - năm 2025</h3>
                 <div class="modal-header-right">
                     <button class="btn-save-red">
                         <i class="fa-solid fa-floppy-disk"></i> Lưu kết quả
@@ -906,8 +754,8 @@
 
             <div class="modal-body-p0">
                 <div class="selection-table-container">
-                    <table class="bosch-table bosch-table-modern">
-                        <thead>
+                    <table class="bosch-table bosch-table-modern" id="revenueDetailTable">
+                        <thead id="revenueDetailThead">
                             <tr>
                                 <th>TÊN DỰ ÁN</th>
                                 <th>T1</th><th>T2</th><th>T3</th><th>T4</th>
@@ -916,42 +764,7 @@
                                 <th>TRẠNG THÁI</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="name-col">Industrial AI Core</td>
-                                <td>120M</td><td>145M</td><td>130M</td><td>160M</td>
-                                <td>185M</td><td>190M</td><td>210M</td>
-                                <td style="font-weight:700;color:#dc2626;">1.14B</td>
-                                <td><span class="badge badge-success">Đang tiến hành</span></td>
-                            </tr>
-                            <tr>
-                                <td class="name-col">Bosch Smart Sensors V2</td>
-                                <td>85M</td><td>90M</td><td>88M</td><td>95M</td>
-                                <td>110M</td><td>105M</td><td>120M</td>
-                                <td style="font-weight:700;color:#dc2626;">693M</td>
-                                <td><span class="badge badge-success">Đang tiến hành</span></td>
-                            </tr>
-                            <tr>
-                                <td class="name-col">Hydrogen Powertrain Lab</td>
-                                <td>250M</td><td>250M</td><td>300M</td><td>280M</td>
-                                <td>310M</td><td>340M</td><td>320M</td>
-                                <td style="font-weight:700;color:#dc2626;">2.05B</td>
-                                <td><span class="badge badge-muted">Hoàn thành</span></td>
-                            </tr>
-                            <tr>
-                                <td class="name-col">Eco-Braking System</td>
-                                <td>45M</td><td>45M</td><td>50M</td><td>48M</td>
-                                <td>55M</td><td>60M</td><td>65M</td>
-                                <td style="font-weight:700;color:#dc2626;">368M</td>
-                                <td><span class="badge badge-warning">Tạm hoãn</span></td>
-                            </tr>
-                            <tr>
-                                <td class="name-col">Autonomous Logistics Drone</td>
-                                <td>70M</td><td>72M</td><td>75M</td><td>80M</td>
-                                <td>85M</td><td>92M</td><td>100M</td>
-                                <td style="font-weight:700;color:#dc2626;">574M</td>
-                                <td><span class="badge badge-success">Đang tiến hành</span></td>
-                            </tr>
+                        <tbody id="revenueDetailTbody">
                         </tbody>
                     </table>
                 </div>
