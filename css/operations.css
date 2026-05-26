@@ -117,14 +117,20 @@
 .val-blue { color: var(--bosch-blue); }
 
 .status-badge {
-    display: inline-block;
-    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
     border-radius: 8px;
-    font-size: 9px;
-    font-weight: var(--font-bold);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    border: none;
 }
-.blue-bg { background: #eef5fc; color: #0056D2; }
-.green-bg { background: #eafbf4; color: #10B981; }
+.blue-bg { background: #e5f1ff; color: #0056b3; }
+.green-bg { background: #e6f4ea; color: #137333; }
 
 .status-outline {
     display: inline-block;

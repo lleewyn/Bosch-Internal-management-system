@@ -168,48 +168,62 @@
 .status-badge,
 .badge,
 .category-badge,
-.tag {
+.tag,
+.status-pill {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 5px 16px;
+    padding: 6px 16px;
     border-radius: 8px;
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    border: none;
+    line-height: 1.2;
 }
 
 /* Badge Color Variations */
 .badge-success,
-.status-on-plan {
+.status-on-plan,
+.status-pill.green,
+.status-pill.success {
     background: #e6f4ea;
-    color: #1a7f3c;
+    color: #137333;
 }
 
 .badge-danger,
-.status-denied {
-    background: #f8d7da;
-    color: #721c24;
+.status-denied,
+.status-pill.red,
+.status-pill.danger {
+    background: #fde2e4;
+    color: #9b1c2c;
 }
 
 .badge-warning,
-.status-warning {
-    background: #fff3cd;
-    color: #856404;
+.status-warning,
+.status-pill.orange,
+.status-pill.warning {
+    background: #ffecc7;
+    color: #8f5800;
 }
 
 .badge-info,
-.status-info {
-    background: #e0f0ff;
+.status-info,
+.status-pill.blue,
+.status-pill.info {
+    background: #e5f1ff;
     color: #0056b3;
 }
 
 .badge-muted,
-.badge-default {
+.badge-default,
+.status-pill.gray,
+.status-pill.muted {
     background: #f1f3f5;
-    color: #6b7280;
+    color: #5f6368;
 }
 
 /* Special status categories */
