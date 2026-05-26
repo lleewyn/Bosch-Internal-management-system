@@ -42,7 +42,6 @@ window.UI = {
         'Đã duyệt':         'badge-success',
         'ĐÃ PHÂN BỔ':       'badge-success',
         'Đã gia hạn':       'badge-success',
-        'Đang triển khai':  'badge-success',
         'Hoàn thành':       'badge-success',
         'Hoạt động':        'badge-success',
         'ĐÃ CÓ DỰ ÁN':     'badge-success',
@@ -50,15 +49,14 @@ window.UI = {
         'Đang mở':          'badge-success',
         'ỔN ĐỊNH':          'badge-success',
         // ── Xanh dương — thông tin / đã deal ─────────────────────────────────
+        'Đang triển khai':  'badge-info',
         'ĐÃ DEAL HỢP ĐỒNG': 'badge-info',
         'ĐANG TIẾN HÀNH':   'badge-info',
         'Đang học':         'badge-info',
         'Cần làm rõ':       'badge-info',
         // ── Vàng — cảnh báo nhẹ / chờ xử lý ─────────────────────────────────
-        'Sắp hết hạn':      'badge-warning',
         'Chờ duyệt':        'badge-warning',
         'ĐANG CHỜ':         'badge-warning',
-        'Tạm dừng':         'badge-warning',
         'TIỀM NĂNG':        'badge-warning',
         'Chưa bắt đầu':     'badge-warning',
         'Sắp khai giảng':   'badge-warning',
@@ -66,6 +64,8 @@ window.UI = {
         'RẢNH RỖI':         'badge-warning',
         'CAO':              'badge-warning',
         // ── Đỏ — nguy hiểm / cần chú ý ───────────────────────────────────────
+        'Sắp hết hạn':      'badge-danger',
+        'Tạm dừng':         'badge-danger',
         'ĐANG ĐÀM PHÁN':    'badge-danger',
         'Đã hủy':           'badge-danger',
         'Hết hạn':          'badge-danger',
