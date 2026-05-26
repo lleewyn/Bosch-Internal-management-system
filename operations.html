@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -72,7 +72,6 @@
                 <button class="bosch-tab active" data-tab="customers">Khách hàng</button>
                 <button class="bosch-tab" data-tab="contracts">Hợp đồng</button>
                 <button class="bosch-tab" data-tab="projects">Dự án</button>
-                <button class="bosch-tab" data-tab="resources">Nguồn lực</button>
             </div>
         </div>
 
@@ -282,105 +281,7 @@
 
             </div>
 
-            <!-- RESOURCES VIEW -->
-            <div class="op-container op-view-modern" id="resourcesView" style="display: none;">
-                
-                <!-- Box 1: Search & Filters -->
-                <div class="op-box-search">
-                    <div class="search-box" style="width: 400px; height: 36px;">
-                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="font-size: 13px;">
-                    </div>
-                    <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select" id="filterResourceOt"><option value="">OT/Không OT</option><option value="ot">Có OT</option><option value="no-ot">Không OT</option></select>
-                        <select class="hr-select" id="filterResourceService"><option value="">Tất cả Service Line</option></select>
-                        <select class="hr-select" id="filterResourceStatus"><option value="">Tất cả trạng thái</option><option value="Đã duyệt">Đã duyệt</option><option value="Chờ duyệt">Chờ duyệt</option><option value="ĐÃ PHÂN BỔ">ĐÃ PHÂN BỔ</option></select>
-                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
-                    </div>
-                </div>
 
-                <!-- Box 2: Selection & Actions -->
-                <div class="op-box-actions">
-                    <div class="op-badge-selection" id="resourceSelectionBadge" style="display:none; background-color: #f0f7ff; color: #0078d4; padding: 8px 16px; border-radius: 4px; border: 1px solid #b3d7ff; font-weight: 700; font-size: 13px;"></div>
-                    <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                        <button class="btn-action" id="openAddResourceBtn" style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-plus"></i> Tạo yêu cầu</button>
-                        <button class="btn-action" id="editResourceBtn" style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                        <button class="btn-action" id="deleteResourceBtn" style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Xóa</button>
-                    </div>
-                </div>
-
-                <!-- Box 3: Table and Sub-tabs -->
-                <div class="op-box-table">
-                    <!-- Sub tabs for Resources -->
-                    <div style="display: flex; gap: 32px; border-bottom: 1px solid #e0e0e0; padding: 16px 24px 0 24px;">
-                        <div id="resSubTab-gm" class="res-sub-tab res-sub-tab-active" style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--bosch-blue); border-bottom: 2px solid var(--bosch-blue); cursor: pointer; position: relative; top: 1px;">
-                            <i class="fa-regular fa-file-lines" style="margin-right: 6px;"></i> Danh sách yêu cầu nguồn lực của GM
-                        </div>
-                        <div id="resSubTab-dm" class="res-sub-tab" style="padding-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--text-secondary); cursor: pointer; position: relative; top: 1px;">
-                            <i class="fa-solid fa-users-gear" style="margin-right: 6px;"></i> Đội ngũ kỹ sư hiện tại (DM)
-                        </div>
-                    </div>
-
-                    <!-- GM: Danh sách yêu cầu nguồn lực -->
-                    <div id="resPanel-gm" class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
-                        <table class="bosch-table bosch-table-modern" id="resourcesTable" style="min-width: 1200px;">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 15%;">
-                            <col style="width: 12%;">
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 8%;">
-                            <col style="width: 15%;">
-                            <col style="width: 10%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>MÃ YÊU CẦU</th>
-                                <th>MÃ DỰ ÁN & TÊN DỰ ÁN</th>
-                                <th>THỜI GIAN THAM GIA</th>
-                                <th>YÊU CẦU OT</th>
-                                <th>VỊ TRÍ CÔNG VIỆC TUYỂN DỤNG</th>
-                                <th>SỐ LƯỢNG</th>
-                                <th>TỆP YÊU CẦU CHI TIẾT</th>
-                                <th>TRẠNG THÁI</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    </div>
-
-                    <!-- DM: Đội ngũ kỹ sư hiện tại -->
-                    <div id="resPanel-dm" class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0; display: none;">
-                        <table class="bosch-table bosch-table-modern" id="engineersTable" style="min-width: 1100px;">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 15%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 10%;">
-                            <col style="width: 9%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>MÃ NV</th>
-                                <th>HỌ VÀ TÊN</th>
-                                <th>CHỨC DANH</th>
-                                <th>TEAM</th>
-                                <th>GROUP</th>
-                                <th>DỰ ÁN HIỆN TẠI</th>
-                                <th>KHỐI LƯỢNG</th>
-                                <th>QUẢN LÝ</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    </div>
-                </div>
-
-            </div>
 
         </main>
 
@@ -593,75 +494,7 @@
         </div>
     </div>
 
-    <!-- MODAL TẠO YÊU CẦU NHÂN LỰC MỚI -->
-    <div class="modal-overlay" id="resourceModal">
-        <div class="modal-content hr-modal" style="width: 450px;">
-            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
-                <h3 style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO YÊU CẦU NHÂN LỰC MỚI</h3>
-                <i class="fa-solid fa-xmark close-modal" id="closeResourceModal"></i>
-            </div>
-            <div class="modal-body" style="padding: 20px;">
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Mã dự án liên kết <span class="required-asterisk">*</span></label>
-                    <select class="custom-select bg-white-input">
-                        <option>-- Chọn dự án kỹ thuật --</option>
-                    </select>
-                </div>
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án tự động hiển thị</label>
-                    <input type="text" placeholder="Mã dự án chưa được chọn..." class="bg-white-input" style="border: none; padding-left: 0;" disabled>
-                </div>
-                <div class="form-row mb-15">
-                    <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu tham gia <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
-                        </div>
-                    </div>
-                    <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày kết thúc tham gia <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Yêu cầu làm thêm giờ (OT)</label>
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #3b5998; font-weight: 700; font-size: 13px;">Không yêu cầu</span>
-                        <span style="color: var(--text-muted); font-size: 11px;">(Tự động gán theo HĐ)</span>
-                    </div>
-                </div>
-                
-                <div style="border: 1px dashed #ccc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                    <div class="form-group">
-                        <label style="font-size: 11px; text-transform: uppercase;">Vị trí công việc & Số lượng tuyển dụng <span class="required-asterisk">*</span></label>
-                        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-                            <span style="color: var(--text-muted); font-size: 13px;">Vị trí (Ví dụ: Embedded Developer)...</span>
-                            <span style="font-weight: 700;">1</span>
-                        </div>
-                        <button style="background: var(--bg-card); border: 1px solid var(--text-secondary); color: var(--text-main); padding: 8px 16px; border-radius: 4px; font-weight: 600; font-size: 12px; margin-top: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-plus"></i> Thêm vị trí công việc
-                        </button>
-                    </div>
-                </div>
 
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Đính kèm tệp yêu cầu chi tiết (JD/Ghi chú)</label>
-                    <div style="margin-top: 8px; color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-regular fa-file-lines"></i>
-                        <span>Ví dụ: tech_specs_v3.pdf...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
-                <button class="btn-cancel" id="cancelResourceBtn" style="background: transparent; color: var(--text-main); font-weight: 700;">Hủy</button>
-                <button class="btn-update" style="background: #C4161C; color: white; padding: 10px 30px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">Lưu</button>
-            </div>
-        </div>
-    </div>
 
     <script src="js/router.js"></script>
     <script src="js/common.js"></script>

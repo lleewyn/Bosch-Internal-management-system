@@ -8,34 +8,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const views = {
         customers: document.getElementById('customersView'),
         contracts: document.getElementById('contractsView'),
-        projects: document.getElementById('projectsView'),
-        resources: document.getElementById('resourcesView')
+        projects: document.getElementById('projectsView')
     };
     const tables = {
         customers: document.getElementById('customersTable'),
         contracts: document.getElementById('contractsTable'),
-        projects: document.getElementById('projectsTable'),
-        resources: document.getElementById('resourcesTable')
+        projects: document.getElementById('projectsTable')
     };
     const modals = {
         customer: document.getElementById('customerModal'),
         contract: document.getElementById('contractModal'),
         renew: document.getElementById('renewModal'),
-        project: document.getElementById('projectModal'),
-        resource: document.getElementById('resourceModal')
+        project: document.getElementById('projectModal')
     };
 
     const $ = (id) => document.getElementById(id);
 
     let activeTab = 'customers';
-    const selected = { customers: null, contracts: null, projects: null, resources: null };
-    const editing = { customers: false, contracts: false, projects: false, resources: false };
+    const selected = { customers: null, contracts: null, projects: null };
+    const editing = { customers: false, contracts: false, projects: false };
 
     const customerStatuses = ['TIỀM NĂNG', 'ĐANG ĐÀM PHÁN', 'ĐÃ CÓ DỰ ÁN', 'ĐÃ DEAL HỢP ĐỒNG'];
 
     // ── Badge selection helpers ──────────────────────────────────────────────
     function updateBadge(view) {
-        const badgeId = { customers: 'customerSelectionBadge', contracts: 'contractSelectionBadge', projects: 'projectSelectionBadge', resources: 'resourceSelectionBadge' }[view];
+        const badgeId = { customers: 'customerSelectionBadge', contracts: 'contractSelectionBadge', projects: 'projectSelectionBadge' }[view];
         const badge = $(badgeId);
         if (!badge) return;
         const item = selected[view] ? getItem(view, selected[view]) : null;
@@ -114,25 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // opProjectStatus đã có id trong HTML, không cần wire thêm
     }
 
-    function wireResourceModal() {
-        const body = modals.resource.querySelector('.modal-body');
-        const inputs = body.querySelectorAll('input');
-        const ids = ['opResProject', 'opResFrom', 'opResTo', 'opResPosition', 'opResQty'];
-        let di = 0;
-        inputs.forEach(inp => {
-            if (inp.type === 'checkbox') { inp.id = 'opResOt'; return; }
-            if (ids[di]) {
-                inp.id = ids[di];
-                if (ids[di] === 'opResFrom' || ids[di] === 'opResTo') inp.type = 'date';
-            }
-            di++;
-        });
-    }
-
     wireCustomerModal();
     wireContractModal();
     wireProjectModal();
-    wireResourceModal();
 
     function refreshContractCustomers() {
         const sel = $('opContractCustomer');
@@ -156,8 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fn = {
             customers: () => MockStore.getCustomers().find(c => c.id === id),
             contracts: () => MockStore.getContracts().find(c => c.id === id),
-            projects: () => MockStore.getProjects().find(p => p.id === id),
-            resources: () => MockStore.getResources().find(r => r.id === id)
+            projects: () => MockStore.getProjects().find(p => p.id === id)
         };
         return fn[view]?.();
     }
@@ -256,84 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilter('projects');
     }
 
-    function renderResources() {
-        const tbody = tables.resources.querySelector('tbody');
-        tbody.innerHTML = MockStore.getResources().map(r => {
-            const alertStatuses = ['Chờ duyệt', 'ĐANG CHỜ'];
-            const alert = alertStatuses.includes(r.status) ? ' row-alert' : '';
-            return `<tr data-id="${r.id}" style="cursor:pointer;" class="${selected.resources === r.id ? 'selected-row' : ''}${alert}">
-                <td class="code-col">${UI.escape(r.id)}</td>
-                <td><strong>${UI.escape(r.projectName)}</strong><br><small>${UI.escape(r.projectId)}</small></td>
-                <td>${r.from}<br>${r.to}</td>
-                <td>${r.ot ? 'Có OT' : 'Không'}</td>
-                <td>${UI.escape(r.position)}</td>
-                <td><strong>${r.qty}</strong></td>
-                <td>${UI.escape(r.file)}</td>
-                <td>${badge('resources', r)}</td>
-            </tr>`;
-        }).join('');
-        bindRowToggle(tbody, 'resources');
-        applyFilter('resources');
-    }
-
-    function workloadBadge(w) {
-        return UI.workloadBadge(w);
-    }    function renderEngineers() {
-        const engTable = document.getElementById('engineersTable');
-        if (!engTable) return;
-        const tbody = engTable.querySelector('tbody');
-        const staff = MockStore.getStaff();
-        tbody.innerHTML = staff.map((s, i) => {
-            const wb = workloadBadge(s.workload);
-            const alert = s.workload >= 90 ? ' row-alert' : '';
-            return `<tr class="${alert}" style="background:${i % 2 ? '#f8f9fa' : 'white'};cursor:pointer;">
-                <td class="code-col" style="color:#0056b3;font-weight:800;">${UI.escape(s.id)}</td>
-                <td style="font-weight:700;">${UI.escape(s.name)}</td>
-                <td>${UI.escape(s.title)}</td>
-                <td>${UI.escape(s.team || '—')}</td>
-                <td>${UI.escape(s.group ? 'Group ' + s.group : '—')}</td>
-                <td>${UI.escape(s.project || '—')}</td>
-                <td>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="width:60px;height:6px;background:#eee;border-radius:3px;overflow:hidden;">
-                            <div style="width:${s.workload}%;height:100%;background:${s.workload>=90?'#dc3545':s.workload>=70?'#28a745':'#f58220'};border-radius:3px;"></div>
-                        </div>
-                        <span class="badge ${wb.cls}" style="font-size:10px;">${wb.text}</span>
-                        <span style="font-size:12px;color:#666;">${s.workload}%</span>
-                    </div>
-                </td>
-                <td style="font-size:12px;color:#555;">${UI.escape(s.manager || '—')}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    // ── Resource sub-tab switching ────────────────────────────────────────────
-    const resSubTabGm = document.getElementById('resSubTab-gm');
-    const resSubTabDm = document.getElementById('resSubTab-dm');
-    const resPanelGm = document.getElementById('resPanel-gm');
-    const resPanelDm = document.getElementById('resPanel-dm');
-
-    function activateResSubTab(tab) {
-        const isGm = tab === 'gm';
-        // Tab styles
-        resSubTabGm.style.color = isGm ? 'var(--bosch-blue)' : 'var(--text-secondary)';
-        resSubTabGm.style.borderBottom = isGm ? '2px solid var(--bosch-blue)' : '2px solid transparent';
-        resSubTabDm.style.color = !isGm ? 'var(--bosch-blue)' : 'var(--text-secondary)';
-        resSubTabDm.style.borderBottom = !isGm ? '2px solid var(--bosch-blue)' : '2px solid transparent';
-        // Panel visibility
-        resPanelGm.style.display = isGm ? '' : 'none';
-        resPanelDm.style.display = !isGm ? '' : 'none';
-        if (!isGm) renderEngineers();
-    }
-
-    resSubTabGm?.addEventListener('click', () => activateResSubTab('gm'));
-    resSubTabDm?.addEventListener('click', () => activateResSubTab('dm'));
-
     function renderActive() {
         if (activeTab === 'customers') renderCustomers();
         else if (activeTab === 'contracts') renderContracts();
         else if (activeTab === 'projects') renderProjects();
-        else renderResources();
     }
 
     // ── Filter logic ─────────────────────────────────────────────────────────
@@ -381,18 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const matchStatus = !status || rowStatus.includes(status);
                 tr.style.display = matchSearch && matchCompany && matchService && matchStatus ? '' : 'none';
             });
-        } else if (view === 'resources') {
-            const ot = $('filterResourceOt')?.value || '';
-            const status = ($('filterResourceStatus')?.value || '').toLowerCase();
-            tables.resources.querySelectorAll('tbody tr').forEach(tr => {
-                const cells = tr.querySelectorAll('td');
-                const rowOt = (cells[3]?.textContent || '').toLowerCase();
-                const rowStatus = (cells[7]?.textContent || '').toLowerCase();
-                const matchSearch = !term || tr.textContent.toLowerCase().includes(term);
-                const matchOt = !ot || (ot === 'ot' ? rowOt.includes('có') : rowOt.includes('không'));
-                const matchStatus = !status || rowStatus.includes(status);
-                tr.style.display = matchSearch && matchOt && matchStatus ? '' : 'none';
-            });
         }
     }
 
@@ -404,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['filterCustomerCountry','filterCustomerStatus'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('customers')));
     ['filterContractStatus','filterContractOt'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('contracts')));
     ['filterProjectCompany','filterProjectService','filterProjectStatus'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('projects')));
-    ['filterResourceOt','filterResourceService','filterResourceStatus'].forEach(id => $(id)?.addEventListener('change', () => applyFilter('resources')));
+
 
     const open = (m) => UI.openModal(m);
     const close = (m) => UI.closeModal(m);
@@ -584,55 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProjects();
     });
 
-    // ── Resource CRUD ────────────────────────────────────────────────────────
-    $('openAddResourceBtn')?.addEventListener('click', () => {
-        editing.resources = false;
-        open(modals.resource);
-    });
-    $('editResourceBtn')?.addEventListener('click', () => {
-        if (!selected.resources) return showToast('Lỗi', 'Chọn yêu cầu.', 'error');
-        editing.resources = true;
-        const r = getItem('resources', selected.resources);
-        $('opResProject').value = r.projectName || '';
-        $('opResFrom').value = r.from || '';
-        $('opResTo').value = r.to || '';
-        $('opResPosition').value = r.position || '';
-        $('opResQty').value = r.qty || 1;
-        $('opResOt').checked = !!r.ot;
-        open(modals.resource);
-    });
-    $('deleteResourceBtn')?.addEventListener('click', () => {
-        if (!selected.resources) return showToast('Lỗi', 'Chọn yêu cầu.', 'error');
-        if (confirm('Xóa yêu cầu?')) {
-            MockStore.deleteResources([selected.resources]);
-            clearSelection('resources');
-            renderResources();
-            showToast('Thành công', 'Đã xóa.');
-        }
-    });
 
-    modals.resource.querySelector('.btn-update')?.addEventListener('click', () => {
-        const payload = {
-            projectId: 'PRJ-REF',
-            projectName: $('opResProject')?.value || '',
-            from: $('opResFrom')?.value || '2025-01-01',
-            to: $('opResTo')?.value || '2025-12-31',
-            ot: $('opResOt')?.checked,
-            position: $('opResPosition')?.value || '',
-            qty: parseInt($('opResQty')?.value) || 1,
-            file: 'jd.pdf',
-            status: 'Chờ duyệt'
-        };
-        if (editing.resources) {
-            MockStore.updateResource(selected.resources, payload);
-            showToast('Thành công', 'Đã cập nhật.');
-        } else {
-            MockStore.addResource(payload);
-            showToast('Thành công', 'Đã tạo yêu cầu.');
-        }
-        close(modals.resource);
-        renderResources();
-    });
 
     // ── Modal close buttons ──────────────────────────────────────────────────
     document.querySelectorAll('#closeCustomerModal, #cancelCustomerBtn').forEach(b =>
@@ -641,8 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         b?.addEventListener('click', () => close(modals.contract)));
     document.querySelectorAll('#closeProjectModal, #cancelProjectBtn').forEach(b =>
         b?.addEventListener('click', () => close(modals.project)));
-    document.querySelectorAll('#closeResourceModal, #cancelResourceBtn').forEach(b =>
-        b?.addEventListener('click', () => close(modals.resource)));
+
     document.querySelectorAll('#cancelRenewBtn').forEach(b =>
         b?.addEventListener('click', () => close(modals.renew)));
 

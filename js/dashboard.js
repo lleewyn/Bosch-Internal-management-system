@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${UI.escape(p.name)}</td>
                 <td><div class="assignee"><div class="avatar-circle">${UI.escape(p.leader.charAt(0))}</div><span>${UI.escape(p.leader)}</span></div></td>
                 <td><div class="progress-cell"><div class="progress-dot ${late ? 'red' : ''}"></div><span>${p.progress}%</span></div></td>
-                <td><span class="status-badge ${late ? 'warning' : 'active'}">${UI.escape(p.status)}</span></td>
+                <td>${UI.badge(p.status)}</td>
                 <td><i class="fa-solid fa-pen action-icon" data-edit="${p.id}"></i></td>
             </tr>`;
             })
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><div class="manager-cell"><span>${UI.escape(p.leader)}</span></div></td>
                 <td><div class="progress-col"><span class="progress-val blue">${p.progress}%</span>
                     <div class="mini-progress-bar"><div class="mini-progress-fill blue" style="width:${p.progress}%;"></div></div></div></td>
-                <td><span class="status-pill green">${UI.escape(p.status)}</span></td>
+                <td>${UI.badge(p.status)}</td>
                 <td><span class="priority-text ${p.progress < 50 ? 'red' : 'gray'}">${p.progress < 50 ? 'Cao' : 'Trung bình'}</span></td>
             </tr>`
             )
