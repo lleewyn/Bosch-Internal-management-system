@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -76,6 +76,7 @@
             <div class="bosch-tabs-container">
                 <button class="bosch-tab active" data-tab="directory">Danh sách nhân sự</button>
                 <button class="bosch-tab" data-tab="roadmap">Lộ trình phát triển</button>
+                <button class="bosch-tab" data-tab="dm-approval">Phê duyệt nguồn lực</button>
             </div>
         </div>
 
@@ -90,7 +91,7 @@
                         <div class="search-box" style="width: 400px; height: 36px;">
                             <i class="fa-solid fa-search" style="color: #6c757d;"></i>
                             <input type="text" placeholder="Tìm kiếm theo tên, mã NV..."
-                                style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                                style="font-size: 13px;">
                         </div>
 
 
@@ -127,39 +128,113 @@
                 <!-- TOP CONTROLS FOR ROADMAP (Hidden by default) -->
                 <div id="roadmapControls"
                     style="display: none; flex-direction: column; gap: 16px; margin-bottom: 16px; flex-shrink: 0;">
-                    <div class="op-box-search" style="margin-bottom: 0;">
-                        <div class="search-box" style="width: 400px; height: 36px;">
-                            <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                            <input type="text" placeholder="Tìm kiếm theo tên, mã NV..."
-                                style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
-                        </div>
-                        <div class="hr-filters" style="display: flex; gap: 16px;">
-                            <select class="hr-select" id="roadFilterLevel">
-                                <option value="">Tất cả cấp bậc</option>
-                                <option value="L2">L2</option>
-                                <option value="L3">L3</option>
-                                <option value="L4">L4</option>
-                                <option value="L5">L5</option>
-                            </select>
-                            <select class="hr-select" id="roadFilterStatus">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="Chưa bắt đầu">Chưa bắt đầu</option>
-                                <option value="Đang học">Đang học</option>
-                                <option value="Hoàn thành">Hoàn thành</option>
-                            </select>
+
+                    <!-- Sub-tab pill -->
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div class="roadmap-subtab-group">
+                            <button class="roadmap-subtab active" id="subtabProgress">Theo dõi tiến độ</button>
+                            <button class="roadmap-subtab" id="subtabCourses">Danh sách khoá học</button>
                         </div>
                     </div>
 
-                    <div class="op-box-actions" style="margin-bottom: 0;">
-                        <div id="roadmapSelectionBadge" class="op-badge-selection" style="display:none;">Đang chọn: —</div>
-                        <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                            <button type="button" class="btn-action red-btn" id="addRoadmapBtn"
-                                style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
-                                <i class="fa-solid fa-plus"></i> Thêm khoá học</button>
-                            <button type="button" class="btn-action" id="editRoadmapBtn"
-                                style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                            <button type="button" class="btn-action" id="updateRoadmapStatusBtn"
-                                style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật trạng thái</button>
+                    <!-- Controls cho "Theo dõi tiến độ" -->
+                    <div id="progressControls">
+                        <div class="op-box-search" style="margin-bottom: 0;">
+                            <div class="search-box" style="width: 400px; height: 36px;">
+                                <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                                <input type="text" id="roadProgressSearch" placeholder="Tìm kiếm theo tên, mã NV..."
+                                    style="font-size: 13px;">
+                            </div>
+                            <div class="hr-filters" style="display: flex; gap: 16px;">
+                                <select class="hr-select" id="roadFilterLevel">
+                                    <option value="">Tất cả cấp bậc</option>
+                                    <option value="L2">L2</option>
+                                    <option value="L3">L3</option>
+                                    <option value="L4">L4</option>
+                                    <option value="L5">L5</option>
+                                </select>
+                                <select class="hr-select" id="roadFilterStatus">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Chưa bắt đầu">Chưa bắt đầu</option>
+                                    <option value="Đang học">Đang học</option>
+                                    <option value="Hoàn thành">Hoàn thành</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="op-box-actions" style="margin-bottom: 0; margin-top: 12px;">
+                            <div id="roadmapSelectionBadge" class="op-badge-selection" style="display:none;">Đang chọn: —</div>
+                            <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
+                                <button type="button" class="btn-action red-btn" id="addRoadmapBtn"
+                                    style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                    <i class="fa-solid fa-plus"></i> Thêm khoá học</button>
+                                <button type="button" class="btn-action" id="editRoadmapBtn"
+                                    style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                                <button type="button" class="btn-action" id="updateRoadmapStatusBtn"
+                                    style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật trạng thái</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls cho "Danh sách khoá học" -->
+                    <div id="coursesControls" style="display: none;">
+                        <div class="op-box-search" style="margin-bottom: 0;">
+                            <div class="search-box" style="width: 400px; height: 36px;">
+                                <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                                <input type="text" id="courseSearch" placeholder="Tìm theo tên khoá học, nhà cung cấp..."
+                                    style="font-size: 13px;">
+                            </div>
+                            <div class="hr-filters" style="display: flex; gap: 16px;">
+                                <select class="hr-select" id="filterCourseCategory">
+                                    <option value="">Tất cả danh mục</option>
+                                    <option value="Kỹ thuật">Kỹ thuật</option>
+                                    <option value="Quản lý">Quản lý</option>
+                                    <option value="Kỹ năng mềm">Kỹ năng mềm</option>
+                                </select>
+                                <select class="hr-select" id="filterCourseStatus">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Đang mở">Đang mở</option>
+                                    <option value="Sắp khai giảng">Sắp khai giảng</option>
+                                    <option value="Đã kết thúc">Đã kết thúc</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="op-box-actions" style="margin-bottom: 0; margin-top: 12px;">
+                            <div id="courseSelectionBadge" class="op-badge-selection" style="display:none;">Đang chọn: —</div>
+                            <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
+                                <button type="button" class="btn-action red-btn" id="addCourseBtn"
+                                    style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                    <i class="fa-solid fa-plus"></i> Thêm khoá học</button>
+                                <button type="button" class="btn-action" id="editCourseBtn"
+                                    style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOP CONTROLS FOR DM APPROVAL (Hidden by default) -->
+                <div id="dmControls" style="display: none; flex-direction: column; gap: 16px; margin-bottom: 16px; flex-shrink: 0;">
+                    <div class="op-box-search" style="margin-bottom: 0;">
+                        <div class="search-box" style="width: 400px; height: 36px;">
+                            <i class="fa-solid fa-search" style="color: #6c757d;"></i>
+                            <input type="text" id="dmSearch" placeholder="Tìm theo mã yêu cầu, tên dự án, vị trí..."
+                                style="font-size: 13px;">
+                        </div>
+                        <div class="hr-filters" style="display: flex; gap: 16px;">
+                            <select class="hr-select" id="filterDmTeam">
+                                <option value="">Tất cả Team</option>
+                                <option value="Team X-Engine">Team X-Engine</option>
+                                <option value="Team UI">Team UI</option>
+                                <option value="Team Cloud">Team Cloud</option>
+                                <option value="Team BA">Team BA</option>
+                                <option value="Team PM">Team PM</option>
+                            </select>
+                            <select class="hr-select" id="filterDmStatus">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="Chờ phê duyệt">Chờ phê duyệt</option>
+                                <option value="Đang tuyển dụng">Đang tuyển dụng</option>
+                                <option value="Bị từ chối">Bị từ chối</option>
+                                <option value="Cần làm rõ">Cần làm rõ</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -400,6 +475,41 @@
                                     </td>
                                 </tr>
                             </tbody>
+                        </table>
+
+                        <!-- BẢNG DANH SÁCH KHOÁ HỌC -->
+                        <table class="bosch-table bosch-table-modern" id="coursesTable"
+                            style="display: none; min-width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th>MÃ KHOÁ</th>
+                                    <th>TÊN KHOÁ HỌC</th>
+                                    <th>DANH MỤC</th>
+                                    <th>NHÀ CUNG CẤP</th>
+                                    <th>THỜI LƯỢNG</th>
+                                    <th>SỐ HV ĐĂNG KÝ</th>
+                                    <th style="text-align:center;">TRẠNG THÁI</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                        <!-- BẢNG PHÊ DUYỆT NGUỒN LỰC (DM) -->
+                        <table class="bosch-table bosch-table-modern" id="dmTable"
+                            style="display: none; min-width: 1100px;">
+                            <thead>
+                                <tr>
+                                    <th>MÃ YÊU CẦU</th>
+                                    <th>DỰ ÁN</th>
+                                    <th>TEAM</th>
+                                    <th>VỊ TRÍ TUYỂN DỤNG</th>
+                                    <th>SỐ LƯỢNG</th>
+                                    <th>YÊU CẦU OT</th>
+                                    <th>THỜI GIAN</th>
+                                    <th style="text-align:center;">TRẠNG THÁI</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -698,6 +808,176 @@
             <div class="bosch-modal-footer">
                 <button type="button" class="btn-secondary" id="cancelAddRoadmapBtn">Hủy</button>
                 <button type="button" class="btn-primary" id="saveAddRoadmapBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHI TIẾT YÊU CẦU NGUỒN LỰC -->
+    <div class="bosch-modal-overlay" id="dmDetailModal">
+        <div class="bosch-modal-content hr-modal" style="width: 580px; max-width: 95vw;">
+            <div class="bosch-modal-header">
+                <h3 id="dmDetailReqId">Chi tiết yêu cầu</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeDmDetailModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <!-- Badge trạng thái -->
+                <div id="dmDetailStatusRow" style="margin-bottom: 20px;"></div>
+
+                <!-- Thông tin chính -->
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Dự án</label>
+                        <input type="text" id="dmDetailProject" class="hr-form-input" readonly>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Sub-team</label>
+                        <input type="text" id="dmDetailTeam" class="hr-form-input" readonly>
+                    </div>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Vị trí tuyển dụng</label>
+                        <input type="text" id="dmDetailPosition" class="hr-form-input" readonly>
+                    </div>
+                    <div class="form-group" style="width: 140px;">
+                        <label>Số lượng</label>
+                        <input type="text" id="dmDetailQty" class="hr-form-input" readonly>
+                    </div>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Thời gian</label>
+                        <input type="text" id="dmDetailDate" class="hr-form-input" readonly>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Yêu cầu OT</label>
+                        <div id="dmDetailOt" class="hr-form-input"
+                            style="display:flex;align-items:center;background:#f9fafb;cursor:default;"></div>
+                    </div>
+                </div>
+
+                <!-- Ghi chú (nếu có) -->
+                <div id="dmDetailNoteRow" style="display:none;" class="form-group mb-15">
+                    <label>Ghi chú / Lý do</label>
+                    <textarea id="dmDetailNote" class="hr-form-input" rows="3"
+                        style="resize:none;width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#f9fafb;"
+                        readonly></textarea>
+                </div>
+            </div>
+            <div class="bosch-modal-footer" id="dmDetailActions">
+                <!-- Nút hành động được render động -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TỪ CHỐI YÊU CẦU NGUỒN LỰC -->
+    <div class="bosch-modal-overlay" id="dmRejectModal">
+        <div class="bosch-modal-content hr-modal" style="width: 460px;">
+            <div class="bosch-modal-header">
+                <h3><i class="fa-solid fa-xmark" style="margin-right:8px;color:#c0152a;"></i>Từ chối yêu cầu</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeDmRejectModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <div style="margin-bottom:12px;font-size:13px;color:#6b7280;">
+                    Yêu cầu: <strong id="dmRejectReqId" style="color:#111827;"></strong>
+                </div>
+                <div class="form-group mb-15">
+                    <label>Lý do từ chối <span class="required-asterisk">*</span></label>
+                    <textarea id="dmRejectReason" class="hr-form-input" rows="4"
+                        style="resize:none;width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;"
+                        placeholder="Nhập lý do từ chối (tối thiểu 10 ký tự)..."></textarea>
+                    <div id="dmRejectCharCount" style="font-size:11px;color:#9ca3af;margin-top:4px;text-align:right;">0 / 10 ký tự tối thiểu</div>
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelDmRejectBtn">Hủy</button>
+                <button type="button" id="saveDmRejectBtn" disabled
+                    class="btn-action red-btn"
+                    style="cursor:not-allowed;opacity:.5;transition:opacity .2s;">
+                    Xác nhận từ chối
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL YÊU CẦU LÀM RÕ -->
+    <div class="bosch-modal-overlay" id="dmClarifyModal">
+        <div class="bosch-modal-content hr-modal" style="width: 460px;">
+            <div class="bosch-modal-header">
+                <h3><i class="fa-solid fa-circle-question" style="margin-right:8px;color:#0078d4;"></i>Yêu cầu làm rõ</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeDmClarifyModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <div style="margin-bottom:12px;font-size:13px;color:#6b7280;">
+                    Yêu cầu: <strong id="dmClarifyReqId" style="color:#111827;"></strong>
+                </div>
+                <div class="form-group mb-15">
+                    <label>Nội dung cần làm rõ <span class="required-asterisk">*</span></label>
+                    <textarea id="dmClarifyNote" class="hr-form-input" rows="4"
+                        style="resize:none;width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;"
+                        placeholder="Mô tả nội dung cần Leader bổ sung hoặc chỉnh sửa (tối thiểu 10 ký tự)..."></textarea>
+                    <div id="dmClarifyCharCount" style="font-size:11px;color:#9ca3af;margin-top:4px;text-align:right;">0 / 10 ký tự tối thiểu</div>
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelDmClarifyBtn">Hủy</button>
+                <button type="button" id="saveDmClarifyBtn" disabled
+                    class="btn-action blue-btn"
+                    style="cursor:not-allowed;opacity:.5;transition:opacity .2s;">
+                    Gửi yêu cầu làm rõ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA KHOÁ HỌC -->
+    <div class="bosch-modal-overlay" id="editCourseModal">
+        <div class="bosch-modal-content hr-modal" style="width: 480px;">
+            <div class="bosch-modal-header">
+                <h3>Sửa thông tin khoá học</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeEditCourseModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <div class="form-group mb-15">
+                    <label>Tên khoá học <span class="required-asterisk">*</span></label>
+                    <input type="text" id="editCourseName" class="hr-form-input" placeholder="Nhập tên khoá học...">
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Danh mục <span class="required-asterisk">*</span></label>
+                        <select id="editCourseCategory" class="hr-form-select">
+                            <option value="Kỹ thuật">Kỹ thuật</option>
+                            <option value="Quản lý">Quản lý</option>
+                            <option value="Kỹ năng mềm">Kỹ năng mềm</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Trạng thái <span class="required-asterisk">*</span></label>
+                        <select id="editCourseStatus" class="hr-form-select">
+                            <option value="Đang mở">Đang mở</option>
+                            <option value="Sắp khai giảng">Sắp khai giảng</option>
+                            <option value="Đã kết thúc">Đã kết thúc</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Nhà cung cấp <span class="required-asterisk">*</span></label>
+                        <input type="text" id="editCourseProvider" class="hr-form-input" placeholder="VD: Bosch Academy">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Thời lượng</label>
+                        <input type="text" id="editCourseDuration" class="hr-form-input" placeholder="VD: 40 giờ">
+                    </div>
+                </div>
+                <div class="form-group mb-15">
+                    <label>Số học viên đăng ký</label>
+                    <input type="number" id="editCourseEnrolled" class="hr-form-input" min="0">
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelEditCourseBtn">Hủy</button>
+                <button type="button" class="btn-primary" id="saveEditCourseBtn">Lưu</button>
             </div>
         </div>
     </div>

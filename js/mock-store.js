@@ -2,7 +2,7 @@
  * Kho dữ liệu giả lập — lưu localStorage, đồng bộ giữa các trang.
  */
 (function () {
-    const STORAGE_KEY = 'bosch_mock_db_v1';
+    const STORAGE_KEY = 'bosch_mock_db_v2';
 
     const SEED = {
         settings: {
@@ -154,9 +154,13 @@
                 }
                 if (!parsed.assignments) parsed.assignments = merged.assignments;
                 // Nếu dữ liệu lưu ít hơn seed thì dùng seed (để seed mới có hiệu lực)
+                if ((parsed.customers?.length || 0) < merged.customers.length) parsed.customers = merged.customers;
                 if ((parsed.projects?.length || 0) < merged.projects.length) parsed.projects = merged.projects;
                 if ((parsed.contracts?.length || 0) < merged.contracts.length) parsed.contracts = merged.contracts;
                 if ((parsed.resources?.length || 0) < merged.resources.length) parsed.resources = merged.resources;
+                if ((parsed.serviceLines?.length || 0) < merged.serviceLines.length) parsed.serviceLines = merged.serviceLines;
+                if ((parsed.staff?.length || 0) < merged.staff.length) parsed.staff = merged.staff;
+                if ((parsed.participation?.length || 0) < merged.participation.length) parsed.participation = merged.participation;
                 return parsed;
             }
         } catch (e) {
@@ -420,7 +424,18 @@
             save();
         },
 
-        getServiceLines: () => db.serviceLines,
+        getServiceLines() {
+            if (!db.serviceLines || db.serviceLines.length === 0) {
+                db.serviceLines = JSON.parse(JSON.stringify(SEED.serviceLines));
+                save();
+            }
+            db.serviceLines.forEach(sl => {
+                const prefix = sl.name.split(' ')[0];
+                sl.contracts = db.contracts.filter(c => c.serviceLine && c.serviceLine.includes(prefix)).length;
+                sl.projects = db.projects.filter(p => p.serviceLine && p.serviceLine.includes(prefix)).length;
+            });
+            return db.serviceLines;
+        },
         addServiceLine(sl) {
             sl.id = sl.id || nextId('SL', 'serviceLine');
             db.serviceLines.push(sl);

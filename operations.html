@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -83,9 +83,9 @@
                 
                 <!-- Box 1: Search & Filters -->
                 <div style="background: white; border: 1px solid #eef2f7; border-radius: 8px; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div class="search-box" style="width: 400px; background-color: #f4f5f7; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; border: none;">
-                        <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm tên công ty đối tác, người liên hệ,..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; height: 36px; font-size: 13px;">
+                    <div class="search-box" style="width: 400px; background-color: #f4f5f7; border-radius: 6px; display: flex; align-items: center; padding: 0 14px; gap: 8px; height: 38px; border: none;">
+                        <i class="fa-solid fa-search" style="color: #9ca3af; font-size: 13px; flex-shrink: 0;"></i>
+                        <input type="text" placeholder="Tìm tên công ty đối tác, người liên hệ,..." style="width: 100%; border: none; background: transparent; outline: none; font-size: 13px; padding: 0;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select" id="filterCustomerCountry" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;">
@@ -153,10 +153,10 @@
                 <div class="op-box-search">
                     <div class="search-box" style="width: 400px; height: 36px;">
                         <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm nhanh hợp đồng theo mã, tên đối tác..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                        <input type="text" placeholder="Tìm nhanh hợp đồng theo mã, tên đối tác..." style="font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select" id="filterContractStatus"><option value="">Tất cả trạng thái</option><option value="Đang hiệu lực">Đang hiệu lực</option><option value="Sắp hết hạn">Sắp hết hạn</option><option value="Đã gia hạn">Đã gia hạn</option></select>
+                        <select class="hr-select" id="filterContractStatus"><option value="">Tất cả trạng thái</option><option value="Đang hiệu lực">Đang hiệu lực</option><option value="Sắp hết hạn">Sắp hết hạn</option><option value="Đã gia hạn">Đã gia hạn</option><option value="Hết hạn">Hết hạn</option><option value="Quá hạn">Quá hạn</option></select>
                         <select class="hr-select" id="filterContractOt"><option value="">OT / Không OT</option><option value="ot">Có OT</option><option value="no-ot">Không OT</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
@@ -223,12 +223,12 @@
                 <div class="op-box-search">
                     <div class="search-box" style="width: 400px; height: 36px;">
                         <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                        <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select" id="filterProjectCompany"><option value="">Tất cả công ty</option></select>
                         <select class="hr-select" id="filterProjectService"><option value="">Tất cả Service Line</option></select>
-                        <select class="hr-select" id="filterProjectStatus"><option value="">Tất cả trạng thái</option><option value="Đang triển khai">Đang triển khai</option><option value="Hoàn thành">Hoàn thành</option><option value="Đã hủy">Đã hủy</option></select>
+                        <select class="hr-select" id="filterProjectStatus"><option value="">Tất cả trạng thái</option><option value="Đang triển khai">Đang triển khai</option><option value="Hoàn thành">Hoàn thành</option><option value="Tạm dừng">Tạm dừng</option><option value="Đã hủy">Đã hủy</option><option value="Quá hạn">Quá hạn</option></select>
                         <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
                     </div>
                 </div>
@@ -289,7 +289,7 @@
                 <div class="op-box-search">
                     <div class="search-box" style="width: 400px; height: 36px;">
                         <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="width: 100%; border: none; background: transparent; outline: none; padding-left: 12px; font-size: 13px;">
+                        <input type="text" placeholder="Tìm nhanh kỹ sư theo tên, chức danh, dự án..." style="font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select" id="filterResourceOt"><option value="">OT/Không OT</option><option value="ot">Có OT</option><option value="no-ot">Không OT</option></select>
@@ -473,6 +473,16 @@
                         <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--bosch-blue); cursor: pointer;"></i>
                     </div>
                 </div>
+                <div class="form-group mb-15">
+                    <label>Trạng thái <span class="required-asterisk">*</span></label>
+                    <select id="opContractStatus" class="custom-select bg-white-input" style="width: 100%; border: 1px solid #ddd; padding: 10px 12px; border-radius: 6px; color: var(--text-main); font-size: 13px;">
+                        <option value="Đang hiệu lực">Đang hiệu lực</option>
+                        <option value="Sắp hết hạn">Sắp hết hạn</option>
+                        <option value="Đã gia hạn">Đã gia hạn</option>
+                        <option value="Hết hạn">Hết hạn</option>
+                        <option value="Quá hạn">Quá hạn</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
                 <button class="btn-cancel" id="cancelContractBtn" style="background: transparent; padding: 10px 20px;">Hủy</button>
@@ -565,6 +575,16 @@
                         <input type="text" placeholder="Ví dụ: spec_mesh_v2.pdf" class="bg-white-input" style="border: none; padding-left: 0;">
                     </div>
                 </div>
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase;">Trạng thái <span class="required-asterisk">*</span></label>
+                    <select id="opProjectStatus" class="custom-select bg-white-input" style="width: 100%; border: 1px solid #ddd; padding: 10px 12px; border-radius: 6px; color: var(--text-main); font-size: 13px;">
+                        <option value="Đang triển khai">Đang triển khai</option>
+                        <option value="Hoàn thành">Hoàn thành</option>
+                        <option value="Tạm dừng">Tạm dừng</option>
+                        <option value="Đã hủy">Đã hủy</option>
+                        <option value="Quá hạn">Quá hạn</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
                 <button class="btn-cancel" id="cancelProjectBtn" style="background: transparent; color: var(--text-main); font-weight: 700;">Hủy</button>
@@ -652,3 +672,4 @@
     <script src="js/operations-page.js"></script>
 </body>
 </html>
+

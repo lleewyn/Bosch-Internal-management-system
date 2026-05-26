@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Bosch HR Management</title>
     <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/dashboard.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
 <body>
     <!-- SIDEBAR -->
@@ -120,41 +121,25 @@
                 <div class="stats-grid">
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend up">
-                                <i class="fa-solid fa-arrow-trend-up"></i> +8.4%
-                            </div>
+                            <span class="bosch-stat-title">TỔNG DOANH THU</span>
+                            <span class="stat-badge stat-badge--up"><i class="fa-solid fa-arrow-trend-up"></i> +8.4%</span>
                         </div>
-                        <p class="bosch-stat-title">TỔNG DOANH THU</p>
-                        <h2 class="bosch-stat-value">5.2B <span class="currency">VND</span></h2>
+                        <div class="bosch-stat-value">5.2B <span class="stat-unit">VND</span></div>
                     </div>
 
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend up">
-                                <i class="fa-solid fa-arrow-trend-up"></i> +10%
-                            </div>
+                            <span class="bosch-stat-title">DỰ ÁN HOẠT ĐỘNG</span>
                         </div>
-                        <p class="bosch-stat-title">TĂNG TRƯỞNG</p>
-                        <h2 class="bosch-stat-value">+12.5%</h2>
+                        <div class="bosch-stat-value" id="statActiveProjects">42</div>
                     </div>
 
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <!-- No trend shown for projects in image, but placeholder space -->
-                            <div class="bosch-stat-trend" style="visibility: hidden;">&nbsp;</div>
+                            <span class="bosch-stat-title">HIỆU SUẤT</span>
+                            <span class="stat-badge stat-badge--info">Ổn định</span>
                         </div>
-                        <p class="bosch-stat-title">DỰ ÁN HOẠT ĐỘNG</p>
-                        <h2 class="bosch-stat-value">42</h2>
-                    </div>
-
-                    <div class="bosch-stat-card">
-                        <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend neutral" style="color: var(--bosch-blue); background: transparent; padding: 0;">
-                                Ổn định
-                            </div>
-                        </div>
-                        <p class="bosch-stat-title">HIỆU SUẤT</p>
-                        <h2 class="bosch-stat-value">92%</h2>
+                        <div class="bosch-stat-value" id="statPerformance">92%</div>
                     </div>
                 </div>
 
@@ -164,7 +149,6 @@
                         <div class="chart-header">
                             <div>
                                 <h4>Doanh thu theo thời gian</h4>
-                                <p>Phân tích dòng tiền định kỳ năm 2025</p>
                             </div>
                             <div class="chart-actions">
                                 <a href="#" class="view-details-link" id="viewRevenueDetail">Xem chi tiết <i class="fa-solid fa-chevron-right"></i></a>
@@ -285,43 +269,29 @@
                 <div class="stats-grid hr-stats">
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-title">
-                                <p>Tổng số nhân viên</p>
-                                <h3 class="hr-main-num">1,248</h3>
-                            </div>
+                            <span class="bosch-stat-title">TỔNG NHÂN VIÊN</span>
+                            <span class="stat-badge stat-badge--up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4%</span>
                         </div>
-                        <div class="stat-footer">
-                            <span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4% so với tháng trước</span>
+                        <div class="bosch-stat-value">1,248</div>
+                    </div>
+
+                    <div class="bosch-stat-card">
+                        <div class="bosch-stat-header">
+                            <span class="bosch-stat-title">HOÀN THÀNH TRAINING</span>
+                            <span class="stat-badge stat-badge--info">Mục tiêu: 90%</span>
+                        </div>
+                        <div class="bosch-stat-value">88%</div>
+                        <div style="width:100%;margin-top:10px;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                            <div style="width:88%;height:100%;background:#007BC0;border-radius:3px;"></div>
                         </div>
                     </div>
 
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-title">
-                                <p>Tỷ lệ hoàn thành training</p>
-                                <h3 class="hr-main-num">88%</h3>
-                            </div>
+                            <span class="bosch-stat-title">CHƯA CÓ DỰ ÁN</span>
+                            <span class="stat-badge stat-badge--down"><i class="fa-solid fa-triangle-exclamation"></i> Cần tối ưu</span>
                         </div>
-                        <div class="progress-container-inline">
-                            <div class="progress-bar-lg">
-                                <div class="progress-fill-blue" style="width: 88%;"></div>
-                            </div>
-                        </div>
-                        <div class="stat-footer">
-                            <span class="trend-neutral">Mục tiêu quý: 90%</span>
-                        </div>
-                    </div>
-
-                    <div class="bosch-stat-card">
-                        <div class="bosch-stat-header">
-                            <div class="bosch-stat-title">
-                                <p>Tỷ lệ nhân viên chưa có dự án</p>
-                                <h3 class="hr-main-num danger-text">5%</h3>
-                            </div>
-                        </div>
-                        <div class="stat-footer">
-                            <span class="trend-down"><i class="fa-solid fa-triangle-exclamation"></i> Cần tối ưu 62 nhân sự</span>
-                        </div>
+                        <div class="bosch-stat-value" style="color:#EF4444;">5%</div>
                     </div>
                 </div>
 
@@ -445,52 +415,26 @@
                 <div class="stats-grid">
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend up">
-                                <i class="fa-solid fa-arrow-trend-up"></i> +5%
-                            </div>
-                            <div class="stat-icon red">
-                                <i class="fa-solid fa-briefcase"></i>
-                            </div>
+                            <span class="bosch-stat-title">TỔNG SỐ DỰ ÁN</span>
+                            <span class="stat-badge stat-badge--up"><i class="fa-solid fa-arrow-trend-up"></i> +5%</span>
                         </div>
-                        <p class="bosch-stat-title">TỔNG SỐ DỰ ÁN</p>
-                        <h2 class="bosch-stat-value">42</h2>
+                        <div class="bosch-stat-value">42</div>
                     </div>
 
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend up">
-                                <i class="fa-solid fa-arrow-trend-up"></i> +2.4%
-                            </div>
-                            <div class="stat-icon blue">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
+                            <span class="bosch-stat-title">TỶ LỆ HOÀN THÀNH</span>
+                            <span class="stat-badge stat-badge--up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4%</span>
                         </div>
-                        <p class="bosch-stat-title">TỶ LỆ HOÀN THÀNH</p>
-                        <h2 class="bosch-stat-value">76%</h2>
+                        <div class="bosch-stat-value">76%</div>
                     </div>
 
                     <div class="bosch-stat-card">
                         <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend down">
-                                <i class="fa-solid fa-arrow-trend-down"></i> -12%
-                            </div>
-                            <div class="stat-icon red">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
-                            </div>
+                            <span class="bosch-stat-title">DỰ ÁN TRỄ HẠN</span>
+                            <span class="stat-badge stat-badge--down"><i class="fa-solid fa-arrow-trend-down"></i> -12%</span>
                         </div>
-                        <p class="bosch-stat-title">DỰ ÁN TRỄ HẠN</p>
-                        <h2 class="bosch-stat-value">08</h2>
-                    </div>
-
-                    <div class="bosch-stat-card">
-                        <div class="bosch-stat-header">
-                            <div class="bosch-stat-trend neutral">Ổn định</div>
-                            <div class="stat-icon blue">
-                                <i class="fa-solid fa-chart-pie"></i>
-                            </div>
-                        </div>
-                        <p class="bosch-stat-title">NGUỒN LỰC PHÂN BỔ</p>
-                        <h2 class="bosch-stat-value">92%</h2>
+                        <div class="bosch-stat-value">08</div>
                     </div>
                 </div>
 
@@ -574,14 +518,6 @@
                             </div>
                         </div>
                         <div class="chart-bottom-info" style="margin-bottom: 8px;">
-                            <div class="info-stat">
-                                <span class="label">SẢN LƯỢNG CAO NHẤT</span>
-                                <span class="val">42 Đơn vị</span>
-                            </div>
-                            <div class="info-stat border-l">
-                                <span class="label">HIỆU SUẤT</span>
-                                <span class="val blue-text">98.4%</span>
-                            </div>
                             <a href="#" class="details-link">Chi tiết vận hành <i class="fa-solid fa-chevron-right"></i></a>
                         </div>
                     </div>
@@ -596,11 +532,10 @@
                     <table class="bosch-table">
                         <colgroup>
                             <col style="width: 15%;">
-                            <col style="width: 30%;">
-                            <col style="width: 25%;">
+                            <col style="width: 32%;">
+                            <col style="width: 28%;">
                             <col style="width: 10%;">
                             <col style="width: 15%;">
-                            <col style="width: 5%;">
                         </colgroup>
                         <thead>
                             <tr>
@@ -609,7 +544,6 @@
                                 <th>Phụ trách</th>
                                 <th>Tiến độ</th>
                                 <th>Trạng thái</th>
-                                <th>Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -629,7 +563,6 @@
                                     </div>
                                 </td>
                                 <td><span class="status-badge active">HOẠT ĐỘNG</span></td>
-                                <td><i class="fa-solid fa-pen action-icon"></i></td>
                             </tr>
                             <tr>
                                 <td class="bold">BOS-2023-002</td>
@@ -647,7 +580,6 @@
                                     </div>
                                 </td>
                                 <td><span class="status-badge warning">TRỄ HẠN</span></td>
-                                <td><i class="fa-solid fa-pen action-icon"></i></td>
                             </tr>
                         </tbody>
                     </table>
@@ -752,7 +684,7 @@
 
             <div class="modal-body-p0">
                 <div class="selection-table-container">
-                    <table class="bosch-table">
+                    <table class="bosch-table bosch-table-modern">
                         <colgroup>
                             <col style="width: 15%;">
                             <col style="width: 25%;">
@@ -763,97 +695,97 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>ID dự án</th>
-                                <th>Tên dự án</th>
-                                <th>Quản lý</th>
-                                <th>Tiến độ</th>
-                                <th>Trạng thái</th>
-                                <th>Ưu tiên</th>
+                                <th>ID DỰ ÁN</th>
+                                <th>TÊN DỰ ÁN</th>
+                                <th>QUẢN LÝ</th>
+                                <th>TIẾN ĐỘ</th>
+                                <th>TRẠNG THÁI</th>
+                                <th>ƯU TIÊN</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="id-cell">BOS-2023-001</td>
-                                <td class="bold">Engine-X Optimization</td>
+                                <td class="code-col">BOS-2023-001</td>
+                                <td class="name-col">Engine-X Optimization</td>
                                 <td>
-                                    <div class="manager-cell">
-                                        <img src="https://i.pravatar.cc/150?u=10" alt="Mgr">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <img src="https://i.pravatar.cc/150?u=10" alt="Mgr" style="width:28px;height:28px;border-radius:50%;">
                                         <span>John Doe</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="progress-col">
-                                        <span class="progress-val blue">85%</span>
-                                        <div class="mini-progress-bar"><div class="mini-progress-fill blue" style="width: 85%;"></div></div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
+                                            <div style="width:85%;height:100%;background:#007BC0;border-radius:3px;"></div>
+                                        </div>
+                                        <span style="font-size:12px;font-weight:700;color:#007BC0;">85%</span>
                                     </div>
                                 </td>
-                                <td><span class="status-pill green">Đang tiến hành</span></td>
-                                <td><span class="priority-text red">Cao</span></td>
+                                <td><span class="badge badge-success">Đang tiến hành</span></td>
+                                <td><span class="badge badge-danger">Cao</span></td>
                             </tr>
                             <tr>
-                                <td class="id-cell">BOS-2023-014</td>
-                                <td class="bold">Precision-V Sensor Array</td>
+                                <td class="code-col">BOS-2023-014</td>
+                                <td class="name-col">Precision-V Sensor Array</td>
                                 <td>
-                                    <div class="manager-cell">
-                                        <img src="https://i.pravatar.cc/150?u=11" alt="Mgr">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <img src="https://i.pravatar.cc/150?u=11" alt="Mgr" style="width:28px;height:28px;border-radius:50%;">
                                         <span>Jane Smith</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="progress-col">
-                                        <span class="progress-val orange">45%</span>
-                                        <div class="mini-progress-bar"><div class="mini-progress-fill orange" style="width: 45%;"></div></div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
+                                            <div style="width:45%;height:100%;background:#f59e0b;border-radius:3px;"></div>
+                                        </div>
+                                        <span style="font-size:12px;font-weight:700;color:#f59e0b;">45%</span>
                                     </div>
                                 </td>
-                                <td><span class="status-pill orange">Tạm dừng</span></td>
-                                <td><span class="priority-text gray">Trung bình</span></td>
+                                <td><span class="badge badge-warning">Tạm dừng</span></td>
+                                <td><span class="badge badge-muted">Trung bình</span></td>
                             </tr>
                             <tr>
-                                <td class="id-cell">BOS-2023-028</td>
-                                <td class="bold">Cyber-Grid Connectivity</td>
+                                <td class="code-col">BOS-2023-028</td>
+                                <td class="name-col">Cyber-Grid Connectivity</td>
                                 <td>
-                                    <div class="manager-cell">
-                                        <img src="https://i.pravatar.cc/150?u=12" alt="Mgr">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <img src="https://i.pravatar.cc/150?u=12" alt="Mgr" style="width:28px;height:28px;border-radius:50%;">
                                         <span>Alex Nguyen</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="progress-col">
-                                        <span class="progress-val darkred">20%</span>
-                                        <div class="mini-progress-bar"><div class="mini-progress-fill darkred" style="width: 20%;"></div></div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
+                                            <div style="width:20%;height:100%;background:#dc2626;border-radius:3px;"></div>
+                                        </div>
+                                        <span style="font-size:12px;font-weight:700;color:#dc2626;">20%</span>
                                     </div>
                                 </td>
-                                <td><span class="status-pill red">Trì hoãn</span></td>
-                                <td><span class="priority-text red">Cao</span></td>
+                                <td><span class="badge badge-danger">Trì hoãn</span></td>
+                                <td><span class="badge badge-danger">Cao</span></td>
                             </tr>
                             <tr>
-                                <td class="id-cell">BOS-2023-042</td>
-                                <td class="bold">Eco-Drive Module 7</td>
+                                <td class="code-col">BOS-2023-042</td>
+                                <td class="name-col">Eco-Drive Module 7</td>
                                 <td>
-                                    <div class="manager-cell">
-                                        <img src="https://i.pravatar.cc/150?u=13" alt="Mgr">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <img src="https://i.pravatar.cc/150?u=13" alt="Mgr" style="width:28px;height:28px;border-radius:50%;">
                                         <span>Sarah Weber</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="progress-col">
-                                        <span class="progress-val blue">95%</span>
-                                        <div class="mini-progress-bar"><div class="mini-progress-fill blue" style="width: 95%;"></div></div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
+                                            <div style="width:95%;height:100%;background:#007BC0;border-radius:3px;"></div>
+                                        </div>
+                                        <span style="font-size:12px;font-weight:700;color:#007BC0;">95%</span>
                                     </div>
                                 </td>
-                                <td><span class="status-pill green">Đang tiến hành</span></td>
-                                <td><span class="priority-text blue">Thấp</span></td>
+                                <td><span class="badge badge-success">Đang tiến hành</span></td>
+                                <td><span class="badge badge-info">Thấp</span></td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <div class="modal-footer-pagination">
-                <div class="pagination-controls">
-                    <i class="fa-solid fa-chevron-left"></i>
-                    <span>Trang 1 / 3</span>
-                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             </div>
         </div>
@@ -875,82 +807,76 @@
 
             <div class="modal-body-p0">
                 <div class="selection-table-container">
-                    <table class="selection-table">
+                    <table class="bosch-table bosch-table-modern">
                         <thead>
                             <tr>
-                                <th>Avatar</th>
-                                <th>Tên nhân viên</th>
-                                <th>Mã nhân viên</th>
-                                <th>Kỹ năng</th>
-                                <th>Cấp bậc</th>
-                                <th>Thời gian rảnh</th>
+                                <th>MÃ NV</th>
+                                <th>TÊN NHÂN VIÊN</th>
+                                <th>KỸ NĂNG</th>
+                                <th>CẤP BẬC</th>
+                                <th>THỜI GIAN RẢNH</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><div class="avatar-circle-sm"><i class="fa-regular fa-user"></i></div></td>
-                                <td class="bold">Lê Minh Tuấn</td>
-                                <td>BOS - 9421</td>
+                                <td class="code-col">BOS-9421</td>
+                                <td class="name-col">Lê Minh Tuấn</td>
                                 <td>
-                                    <div class="skill-tags">
-                                        <span class="skill-tag">Python</span>
-                                        <span class="skill-tag">AWS</span>
-                                        <span class="skill-tag">Django</span>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-info">Python</span>
+                                        <span class="badge badge-info">AWS</span>
+                                        <span class="badge badge-info">Django</span>
                                     </div>
                                 </td>
                                 <td>Senior Engineer</td>
                                 <td>15/10/2023</td>
                             </tr>
                             <tr>
-                                <td><div class="avatar-circle-sm"><i class="fa-regular fa-user"></i></div></td>
-                                <td class="bold">Nguyễn Thu Hà</td>
-                                <td>BOS - 8832</td>
+                                <td class="code-col">BOS-8832</td>
+                                <td class="name-col">Nguyễn Thu Hà</td>
                                 <td>
-                                    <div class="skill-tags">
-                                        <span class="skill-tag">React</span>
-                                        <span class="skill-tag">TypeScript</span>
-                                        <span class="skill-tag">UI/UX</span>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-info">React</span>
+                                        <span class="badge badge-info">TypeScript</span>
+                                        <span class="badge badge-info">UI/UX</span>
                                     </div>
                                 </td>
                                 <td>Lead Designer</td>
                                 <td>02/11/2023</td>
                             </tr>
                             <tr>
-                                <td><div class="avatar-circle-sm"><i class="fa-regular fa-user"></i></div></td>
-                                <td class="bold">Trần Quốc Bảo</td>
-                                <td>BOS - 7719</td>
+                                <td class="code-col">BOS-7719</td>
+                                <td class="name-col">Trần Quốc Bảo</td>
                                 <td>
-                                    <div class="skill-tags">
-                                        <span class="skill-tag">Java</span>
-                                        <span class="skill-tag">Oracle</span>
-                                        <span class="skill-tag">Spring</span>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-info">Java</span>
+                                        <span class="badge badge-info">Oracle</span>
+                                        <span class="badge badge-info">Spring</span>
                                     </div>
                                 </td>
                                 <td>System Architect</td>
                                 <td>20/09/2023</td>
                             </tr>
                             <tr>
-                                <td><div class="avatar-circle-sm"><i class="fa-regular fa-user"></i></div></td>
-                                <td class="bold">Phạm Diệu Linh</td>
-                                <td>BOS - 6544</td>
+                                <td class="code-col">BOS-6544</td>
+                                <td class="name-col">Phạm Diệu Linh</td>
                                 <td>
-                                    <div class="skill-tags">
-                                        <span class="skill-tag">QA/QC</span>
-                                        <span class="skill-tag">Selenium</span>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-info">QA/QC</span>
+                                        <span class="badge badge-info">Selenium</span>
                                     </div>
                                 </td>
                                 <td>Junior QA</td>
                                 <td>12/11/2023</td>
                             </tr>
                             <tr>
-                                <td><div class="avatar-circle-sm"><i class="fa-regular fa-user"></i></div></td>
-                                <td class="bold">Vũ Hoàng Nam</td>
-                                <td>BOS - 1290</td>
+                                <td class="code-col">BOS-1290</td>
+                                <td class="name-col">Vũ Hoàng Nam</td>
                                 <td>
-                                    <div class="skill-tags">
-                                        <span class="skill-tag">Kotlin</span>
-                                        <span class="skill-tag">Swift</span>
-                                        <span class="skill-tag">Flutter</span>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="badge badge-info">Kotlin</span>
+                                        <span class="badge badge-info">Swift</span>
+                                        <span class="badge badge-info">Flutter</span>
                                     </div>
                                 </td>
                                 <td>Mobile Dev</td>
@@ -958,32 +884,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="selection-footer-stats">
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">THỜI GIAN CHỜ TRUNG BÌNH</p>
-                        <h4 class="stat-val blue">14 Ngày</h4>
-                        <div class="stat-indicator blue" style="width: 70%;"></div>
-                    </div>
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">KHẢ NĂNG SẴN SÀNG</p>
-                        <h4 class="stat-val red">Cao (85%)</h4>
-                        <div class="stat-indicator red" style="width: 85%;"></div>
-                    </div>
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">NHU CẦU SẮP TỚI</p>
-                        <h4 class="stat-val black">9 Vị trí</h4>
-                        <div class="stat-indicator black" style="width: 40%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer-pagination">
-                <div class="pagination-controls">
-                    <i class="fa-solid fa-chevron-left"></i>
-                    <span>Trang 1 / 3</span>
-                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             </div>
         </div>
@@ -1004,127 +904,56 @@
                 </div>
             </div>
 
-            <div class="modal-body">
-                <!-- Summary Cards inside Modal -->
-                <div class="modal-stats-row mb-24">
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">Tổng Doanh thu (YTD)</p>
-                        <h4 class="stat-val red">5.2B VND</h4>
-                    </div>
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">Dự án Hoạt động</p>
-                        <h4 class="stat-val">12</h4>
-                    </div>
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">Tăng trưởng so với 2023</p>
-                        <h4 class="stat-val blue">+18.4%</h4>
-                    </div>
-                    <div class="bosch-stat-card">
-                        <p class="stat-label">Trạng thái kế hoạch</p>
-                        <h4 class="stat-val">Đúng tiến độ</h4>
-                    </div>
-                </div>
-
+            <div class="modal-body-p0">
                 <div class="selection-table-container">
-                    <table class="selection-table project-detail-table">
+                    <table class="bosch-table bosch-table-modern">
                         <thead>
                             <tr>
-                                <th>Tên Dự án</th>
-                                <th>T1</th>
-                                <th>T2</th>
-                                <th>T3</th>
-                                <th>T4</th>
-                                <th>T5</th>
-                                <th>T6</th>
-                                <th>T7</th>
-                                <th class="red-text">Tổng cộng</th>
-                                <th>Trạng thái</th>
+                                <th>TÊN DỰ ÁN</th>
+                                <th>T1</th><th>T2</th><th>T3</th><th>T4</th>
+                                <th>T5</th><th>T6</th><th>T7</th>
+                                <th>TỔNG CỘNG</th>
+                                <th>TRẠNG THÁI</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="bold">Industrial AI Core</td>
-                                <td>120M</td>
-                                <td>145M</td>
-                                <td>130M</td>
-                                <td>160M</td>
-                                <td>185M</td>
-                                <td>190M</td>
-                                <td>210M</td>
-                                <td class="bold red-text">1.14M</td>
-                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                                <td class="name-col">Industrial AI Core</td>
+                                <td>120M</td><td>145M</td><td>130M</td><td>160M</td>
+                                <td>185M</td><td>190M</td><td>210M</td>
+                                <td style="font-weight:700;color:#dc2626;">1.14B</td>
+                                <td><span class="badge badge-success">Đang tiến hành</span></td>
                             </tr>
                             <tr>
-                                <td class="bold">Bosch Smart Sensors V2</td>
-                                <td>85M</td>
-                                <td>90M</td>
-                                <td>88M</td>
-                                <td>95M</td>
-                                <td>110M</td>
-                                <td>105M</td>
-                                <td>120M</td>
-                                <td class="bold red-text">693M</td>
-                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                                <td class="name-col">Bosch Smart Sensors V2</td>
+                                <td>85M</td><td>90M</td><td>88M</td><td>95M</td>
+                                <td>110M</td><td>105M</td><td>120M</td>
+                                <td style="font-weight:700;color:#dc2626;">693M</td>
+                                <td><span class="badge badge-success">Đang tiến hành</span></td>
                             </tr>
                             <tr>
-                                <td class="bold">Hydrogen Powertrain Lab</td>
-                                <td>250M</td>
-                                <td>250M</td>
-                                <td>300M</td>
-                                <td>280M</td>
-                                <td>310M</td>
-                                <td>340M</td>
-                                <td>320M</td>
-                                <td class="bold red-text">2.05M</td>
-                                <td><span class="status-pill gray">HOÀN THÀNH</span></td>
+                                <td class="name-col">Hydrogen Powertrain Lab</td>
+                                <td>250M</td><td>250M</td><td>300M</td><td>280M</td>
+                                <td>310M</td><td>340M</td><td>320M</td>
+                                <td style="font-weight:700;color:#dc2626;">2.05B</td>
+                                <td><span class="badge badge-muted">Hoàn thành</span></td>
                             </tr>
                             <tr>
-                                <td class="bold">Eco-Braking System</td>
-                                <td>45M</td>
-                                <td>45M</td>
-                                <td>50M</td>
-                                <td>48M</td>
-                                <td>55M</td>
-                                <td>60M</td>
-                                <td>65M</td>
-                                <td class="bold red-text">368M</td>
-                                <td><span class="status-pill orange">TẠM HOÃN</span></td>
+                                <td class="name-col">Eco-Braking System</td>
+                                <td>45M</td><td>45M</td><td>50M</td><td>48M</td>
+                                <td>55M</td><td>60M</td><td>65M</td>
+                                <td style="font-weight:700;color:#dc2626;">368M</td>
+                                <td><span class="badge badge-warning">Tạm hoãn</span></td>
                             </tr>
                             <tr>
-                                <td class="bold">Autonomous Logistics Drone</td>
-                                <td>70M</td>
-                                <td>72M</td>
-                                <td>75M</td>
-                                <td>80M</td>
-                                <td>85M</td>
-                                <td>92M</td>
-                                <td>100M</td>
-                                <td class="bold red-text">574M</td>
-                                <td><span class="status-pill blue">ĐANG TIẾN HÀNH</span></td>
+                                <td class="name-col">Autonomous Logistics Drone</td>
+                                <td>70M</td><td>72M</td><td>75M</td><td>80M</td>
+                                <td>85M</td><td>92M</td><td>100M</td>
+                                <td style="font-weight:700;color:#dc2626;">574M</td>
+                                <td><span class="badge badge-success">Đang tiến hành</span></td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="modal-footer-info-row">
-                    <div class="info-box-sm">
-                        <span>Phân bổ Doanh thu (Quý 2)</span>
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </div>
-                    <div class="info-box-sm">
-                        <span>Ghi chú vận hành</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer-pagination">
-                <div class="pagination-left">
-                    Hiển thị 1 - 5 trong tổng số 12 dự án
-                </div>
-                <div class="pagination-controls">
-                    <i class="fa-solid fa-chevron-left"></i>
-                    <span>Trang 1 / 3</span>
-                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             </div>
         </div>

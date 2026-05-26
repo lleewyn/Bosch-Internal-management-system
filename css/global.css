@@ -310,20 +310,27 @@ body {
 
 /* 2. STATUS BADGES (.badge) */
 .badge {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-lg);
-    font-size: var(--text-xs);
-    font-weight: var(--font-bold);
+    padding: 5px 16px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     white-space: nowrap;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
-.badge-success { background: var(--success-bg); color: var(--success-text); }
-.badge-danger { background: var(--danger-bg); color: var(--danger-text); }
-.badge-warning { background: var(--warning-bg); color: var(--warning-text); }
-.badge-muted { background: var(--border-light); color: var(--text-secondary); }
-.badge-info { background: var(--info-bg); color: var(--info-text); }
+/* Xanh lá — tích cực (Đang hiệu lực, Hoàn thành, ĐÃ CÓ DỰ ÁN...) */
+.badge-success { background: #e6f4ea; color: #1a7f3c; }
+/* Đỏ — nguy hiểm / đang đàm phán */
+.badge-danger  { background: #f8d7da; color: #721c24; }
+/* Vàng — cảnh báo / tiềm năng */
+.badge-warning { background: #fff3cd; color: #856404; }
+/* Xanh dương — thông tin / đã deal */
+.badge-info    { background: #e0f0ff; color: #0056b3; }
+/* Xám — trung tính */
+.badge-muted   { background: #f1f3f5; color: #6b7280; }
 
 .badge-leader { background: #fff0f0; color: var(--bosch-red); }
 .badge-member { background: #f1f5f9; color: #475569; }
@@ -489,48 +496,92 @@ body {
 
 /* 6. STAT CARDS (.bosch-stat-card) */
 .bosch-stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.2s;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 20px 24px !important;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    transition: all 0.2s ease !important;
 }
 .bosch-stat-card:hover {
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px) !important;
+    border-color: #BC0004 !important;
+    box-shadow: 0 8px 20px rgba(188,0,4,0.08) !important;
 }
+
+/* Dòng 1: label + badge */
 .bosch-stat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-2);
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    position: static !important;
+    top: auto !important; right: auto !important;
+    margin: 0 !important;
 }
 .bosch-stat-title {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-weight: var(--font-semibold);
-    margin: 0;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
 }
+
+/* Dòng 2: số chính */
 .bosch-stat-value {
-    font-size: var(--text-3xl);
-    font-weight: var(--font-bold);
-    color: var(--text-main);
-    margin: 0;
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 6px !important;
+}
+.stat-unit {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #94a3b8 !important;
+}
+
+/* Badge góc phải dòng 1 */
+.stat-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+.stat-badge--up {
+    background: #dcfce7 !important;
+    color: #16a34a !important;
+}
+.stat-badge--down {
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+}
+.stat-badge--info {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
 }
 .bosch-stat-trend {
     font-size: var(--text-xs);
     font-weight: var(--font-bold);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 4px;
 }
-.bosch-stat-trend.up { color: var(--success-text); background: var(--success-bg); padding: 4px 8px; border-radius: 12px; }
-.bosch-stat-trend.down { color: var(--danger-text); background: var(--danger-bg); padding: 4px 8px; border-radius: 12px; }
-.bosch-stat-trend.neutral { color: var(--info-text); background: var(--info-bg); padding: 4px 8px; border-radius: 12px; }
+.bosch-stat-trend.up { color: var(--success-text); background: transparent !important; padding: 0 !important; }
+.bosch-stat-trend.down { color: var(--danger-text); background: transparent !important; padding: 0 !important; }
+.bosch-stat-trend.neutral { color: var(--text-muted); background: transparent !important; padding: 0 !important; }
 
 /* 7. PAGINATION (.bosch-pagination) */
 .bosch-pagination-bar {

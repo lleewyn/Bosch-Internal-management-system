@@ -99,6 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
             revenueView.style.display = tab === 'revenue' ? 'block' : 'none';
             hrView.style.display = tab === 'hr' ? 'block' : 'none';
             projectsView.style.display = tab === 'projects' ? 'block' : 'none';
+            
+            const dateFilters = document.querySelector('.date-filters');
+            if (dateFilters) {
+                dateFilters.style.display = tab === 'revenue' ? 'flex' : 'none';
+            }
+
             if (tab === 'hr') renderHeatmap();
             if (tab === 'projects') renderProjectsTab();
         });
@@ -193,9 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const trend = cards[0].querySelector('.bosch-stat-trend');
             if (trend) trend.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +${m.revenueTrendPct}%`;
         }
-        if (cards[1]) cards[1].querySelector('.bosch-stat-value').textContent = `+${m.growth}%`;
-        if (cards[2]) cards[2].querySelector('.bosch-stat-value').textContent = String(m.activeProjects);
-        if (cards[3]) cards[3].querySelector('.bosch-stat-value').textContent = `${m.performance}%`;
+        if (cards[1]) cards[1].querySelector('.bosch-stat-value').textContent = String(m.activeProjects);
+        if (cards[2]) cards[2].querySelector('.bosch-stat-value').textContent = `${m.performance}%`;
 
         const hrCards = document.querySelectorAll('#hrView .stats-grid .bosch-stat-card');
         const staff = MockStore.getStaff();
@@ -351,7 +356,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelector('#projectsView .details-link')?.addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = 'operations.html';
+            projectModalPage = 1;
+            renderProjectModal();
+            openMdl(modals.projectList);
         });
         document.querySelector('#projectsView .fab-add')?.addEventListener('click', () => {
             window.location.href = 'operations.html';

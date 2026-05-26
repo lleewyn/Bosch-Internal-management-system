@@ -32,12 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const editing = { customers: false, contracts: false, projects: false, resources: false };
 
     const customerStatuses = ['TIỀM NĂNG', 'ĐANG ĐÀM PHÁN', 'ĐÃ CÓ DỰ ÁN', 'ĐÃ DEAL HỢP ĐỒNG'];
-    const customerStatusMap = {
-        'ĐÃ DEAL HỢP ĐỒNG': { bg: '#e0f0ff', color: '#0056b3', label: 'ĐÃ DEAL HỢP ĐỒNG' },
-        'ĐÃ CÓ DỰ ÁN': { bg: '#e6f4ea', color: '#28a745', label: 'ĐÃ CÓ DỰ ÁN' },
-        'TIỀM NĂNG': { bg: '#fff3cd', color: '#856404', label: 'TIỀM NĂNG' },
-        'ĐANG ĐÀM PHÁN': { bg: '#f8d7da', color: '#721c24', label: 'ĐANG ĐÀM PHÁN' }
-    };
 
     // ── Badge selection helpers ──────────────────────────────────────────────
     function updateBadge(view) {
@@ -89,23 +83,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function wireContractModal() {
         const m = modals.contract;
         const body = m.querySelector('.modal-body');
-        const sel = body.querySelector('select');
-        if (sel) sel.id = 'opContractCustomer';
+        // Gán id cho select khách hàng (select đầu tiên, chưa có id)
+        const selCust = body.querySelector('select:not([id])');
+        if (selCust) selCust.id = 'opContractCustomer';
         const inputs = body.querySelectorAll('input.bg-white-input');
         if (inputs[0]) { inputs[0].type = 'date'; inputs[0].id = 'opContractStart'; }
         if (inputs[1]) { inputs[1].type = 'date'; inputs[1].id = 'opContractEnd'; }
         if (inputs[2]) inputs[2].id = 'opContractService';
         if (inputs[3]) inputs[3].id = 'opContractValue';
+        // opContractStatus đã có id trong HTML, không cần wire thêm
     }
 
     function wireProjectModal() {
         const body = modals.project.querySelector('.modal-body');
-        const inputs = body.querySelectorAll('input.bg-white-input, select, textarea');
-        const ids = ['opProjName', 'opProjContract', 'opProjCustomer', 'opProjStart', 'opProjEnd', 'opProjService', 'opProjBudget', 'opProjLeader'];
-        inputs.forEach((inp, i) => {
-            if (ids[i]) inp.id = ids[i];
-            if (ids[i] === 'opProjStart' || ids[i] === 'opProjEnd') inp.type = 'date';
+        // Chỉ wire các input text, không wire select có id sẵn
+        const inputs = body.querySelectorAll('input.bg-white-input');
+        const ids = ['opProjName', 'opProjStart', 'opProjEnd', 'opProjService', 'opProjBudget', 'opProjLeader'];
+        let di = 0;
+        inputs.forEach(inp => {
+            if (ids[di]) {
+                inp.id = ids[di];
+                if (ids[di] === 'opProjStart' || ids[di] === 'opProjEnd') inp.type = 'date';
+            }
+            di++;
         });
+        // Wire select hợp đồng và khách hàng (chưa có id)
+        const selects = body.querySelectorAll('select:not([id])');
+        if (selects[0]) selects[0].id = 'opProjContract';
+        if (selects[1]) selects[1].id = 'opProjCustomer';
+        // opProjectStatus đã có id trong HTML, không cần wire thêm
     }
 
     function wireResourceModal() {
@@ -143,12 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Render helpers ───────────────────────────────────────────────────────
     function badge(view, row) {
-        if (view === 'customers') return UI.statusBadge(row.status, customerStatusMap);
-        const ok = ['Đang hiệu lực', 'Đã duyệt', 'ĐÃ PHÂN BỔ', 'Đã gia hạn', 'Đang triển khai', 'Hoàn thành'].includes(row.status);
-        const warn = ['Sắp hết hạn', 'Chờ duyệt', 'ĐANG CHỜ', 'Tạm dừng'].includes(row.status);
-        const danger = ['Đã hủy', 'Hết hạn', 'Quá hạn'].includes(row.status);
-        const cls = ok ? 'badge-success' : warn ? 'badge-warning' : danger ? 'badge-danger' : 'badge-secondary';
-        return `<span class="badge ${cls}">${UI.escape(row.status)}</span>`;
+        return UI.badge(row.status);
     }
 
     function getItem(view, id) {
@@ -198,8 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderContracts() {
         const tbody = tables.contracts.querySelector('tbody');
-        tbody.innerHTML = MockStore.getContracts().map(c => `
-            <tr data-id="${c.id}" style="cursor:pointer;" class="${selected.contracts === c.id ? 'selected-row' : ''}">
+        tbody.innerHTML = MockStore.getContracts().map(c => {
+            const alertStatuses = ['Sắp hết hạn', 'Hết hạn', 'Quá hạn'];
+            const alert = alertStatuses.includes(c.status) ? ' row-alert' : '';
+            return `<tr data-id="${c.id}" style="cursor:pointer;" class="${selected.contracts === c.id ? 'selected-row' : ''}${alert}">
                 <td class="code-col">${UI.escape(c.id)}</td>
                 <td>${UI.escape(c.company)}</td>
                 <td>${UI.escape(c.contact)}</td>
@@ -213,15 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${c.ot ? 'Có' : 'Không'}</td>
                 <td>${c.signed ? 'Đã ký' : 'Chưa'}</td>
                 <td>${badge('contracts', c)}</td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
         bindRowToggle(tbody, 'contracts');
         applyFilter('contracts');
     }
 
     function renderProjects() {
         const tbody = tables.projects.querySelector('tbody');
-        tbody.innerHTML = MockStore.getProjects().map(p => `
-            <tr data-id="${p.id}" style="cursor:pointer;" class="${selected.projects === p.id ? 'selected-row' : ''}">
+        tbody.innerHTML = MockStore.getProjects().map(p => {
+            const alertStatuses = ['Tạm dừng', 'Đã hủy', 'Quá hạn'];
+            const alert = alertStatuses.includes(p.status) ? ' row-alert' : '';
+            return `<tr data-id="${p.id}" style="cursor:pointer;" class="${selected.projects === p.id ? 'selected-row' : ''}${alert}">
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.company)}</td>
                 <td>${UI.escape(p.company)}</td>
@@ -233,7 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${UI.escape(p.desc || '')}</td>
                 <td>${p.progress}%</td>
                 <td>${badge('projects', p)}</td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
         bindRowToggle(tbody, 'projects');
         // Populate company & service filters
         const companies = [...new Set(MockStore.getProjects().map(p => p.company).filter(Boolean))];
@@ -251,8 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderResources() {
         const tbody = tables.resources.querySelector('tbody');
-        tbody.innerHTML = MockStore.getResources().map(r => `
-            <tr data-id="${r.id}" style="cursor:pointer;" class="${selected.resources === r.id ? 'selected-row' : ''}">
+        tbody.innerHTML = MockStore.getResources().map(r => {
+            const alertStatuses = ['Chờ duyệt', 'ĐANG CHỜ'];
+            const alert = alertStatuses.includes(r.status) ? ' row-alert' : '';
+            return `<tr data-id="${r.id}" style="cursor:pointer;" class="${selected.resources === r.id ? 'selected-row' : ''}${alert}">
                 <td class="code-col">${UI.escape(r.id)}</td>
                 <td><strong>${UI.escape(r.projectName)}</strong><br><small>${UI.escape(r.projectId)}</small></td>
                 <td>${r.from}<br>${r.to}</td>
@@ -261,25 +270,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><strong>${r.qty}</strong></td>
                 <td>${UI.escape(r.file)}</td>
                 <td>${badge('resources', r)}</td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
         bindRowToggle(tbody, 'resources');
         applyFilter('resources');
     }
 
     function workloadBadge(w) {
-        if (w >= 90) return { cls: 'badge-danger', text: 'QUÁ MỨC' };
-        if (w >= 70) return { cls: 'badge-success', text: 'ỔN ĐỊNH' };
-        return { cls: 'badge-warning', text: 'RẢNH RỖI' };
-    }
-
-    function renderEngineers() {
+        return UI.workloadBadge(w);
+    }    function renderEngineers() {
         const engTable = document.getElementById('engineersTable');
         if (!engTable) return;
         const tbody = engTable.querySelector('tbody');
         const staff = MockStore.getStaff();
         tbody.innerHTML = staff.map((s, i) => {
             const wb = workloadBadge(s.workload);
-            return `<tr style="background:${i % 2 ? '#f8f9fa' : 'white'};cursor:pointer;">
+            const alert = s.workload >= 90 ? ' row-alert' : '';
+            return `<tr class="${alert}" style="background:${i % 2 ? '#f8f9fa' : 'white'};cursor:pointer;">
                 <td class="code-col" style="color:#0056b3;font-weight:800;">${UI.escape(s.id)}</td>
                 <td style="font-weight:700;">${UI.escape(s.name)}</td>
                 <td>${UI.escape(s.title)}</td>
@@ -472,6 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('opContractEnd').value = c.end || '';
         $('opContractService').value = c.serviceLine || '';
         $('opContractValue').value = c.value || '';
+        if ($('opContractStatus')) $('opContractStatus').value = c.status || 'Đang hiệu lực';
         open(modals.contract);
     });
     $('renewContractBtn')?.addEventListener('click', () => {
@@ -505,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
             project: 'Dự án liên kết',
             ot: modals.contract.querySelector('input[type=checkbox]')?.checked || false,
             signed: true,
-            status: 'Đang hiệu lực'
+            status: $('opContractStatus')?.value || 'Đang hiệu lực'
         };
         if (editing.contracts) {
             MockStore.updateContract(selected.contracts, payload);
@@ -541,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('opProjBudget').value = p.budget || '';
         $('opProjLeader').value = p.leader || '';
         $('opProjService').value = p.serviceLine || '';
+        if ($('opProjectStatus')) $('opProjectStatus').value = p.status || 'Đang triển khai';
         open(modals.project);
     });
     $('deleteProjectBtn')?.addEventListener('click', () => {
@@ -562,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
             budget: parseInt($('opProjBudget')?.value?.replace(/\D/g, '')) || 0,
             start: $('opProjStart')?.value || '2025-01-01',
             end: $('opProjEnd')?.value || '2025-12-31',
-            desc: '', progress: 10, status: 'Đang triển khai', revenue: 0
+            desc: '', progress: 10, status: $('opProjectStatus')?.value || 'Đang triển khai', revenue: 0
         };
         if (editing.projects) {
             MockStore.updateProject(selected.projects, payload);

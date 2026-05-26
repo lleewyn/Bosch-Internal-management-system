@@ -69,7 +69,7 @@
     color: var(--text-secondary);
     background: #f4f5f7;
     padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: 6px;
 }
 
 .op-table {
@@ -119,7 +119,7 @@
 .status-badge {
     display: inline-block;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 9px;
     font-weight: var(--font-bold);
 }
@@ -129,7 +129,7 @@
 .status-outline {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 12px;
+    border-radius: 6px;
     font-size: 9px;
     font-weight: var(--font-bold);
     border: 1px solid;
@@ -214,20 +214,45 @@
 
 .op-box-search .search-box {
     background-color: #f4f5f7;
-    border-radius: 4px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 14px;
+    gap: 8px;
     border: none;
+    height: 38px;
+}
+
+.op-box-search .search-box i {
+    color: #9ca3af;
+    font-size: 13px;
+    flex-shrink: 0;
+    /* Reset absolute positioning từ hr.css */
+    position: static;
+    transform: none;
+    top: auto;
+    left: auto;
+}
+
+.op-box-search .search-box input {
+    padding: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    width: 100%;
+    height: 100%;
 }
 
 .op-box-search .hr-select {
     background-color: #f4f5f7;
     border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: 8px 32px 8px 14px;
+    border-radius: 6px;
     font-weight: 600;
+    font-size: 13px;
     color: #333;
+    height: 38px;
 }
 
 .op-box-actions {

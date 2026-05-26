@@ -9,12 +9,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dirTable = document.getElementById('directoryTable');
     const roadTable = document.getElementById('roadmapTable');
+    const coursesTable = document.getElementById('coursesTable');
     const dirControls = document.getElementById('directoryControls');
     const roadControls = document.getElementById('roadmapControls');
     const addModal = document.getElementById('addStaffModal');
     const assignModal = document.getElementById('assignProjectModal');
     const drawer = document.getElementById('hrDrawer');
     const drawerOverlay = document.getElementById('hrDrawerOverlay');
+
+    // Sub-tab elements
+    const subtabProgress = document.getElementById('subtabProgress');
+    const subtabCourses  = document.getElementById('subtabCourses');
+    const progressControls = document.getElementById('progressControls');
+    const coursesControls  = document.getElementById('coursesControls');
+
+    let activeRoadmapSubtab = 'progress'; // 'progress' | 'courses'
+    let selectedCourseId = null;
+
+    // DM Approval
+    const dmTable    = document.getElementById('dmTable');
+    const dmControls = document.getElementById('dmControls');
+    let selectedDmId = null;
+
+    // Mock data yêu cầu nguồn lực chờ phê duyệt
+    const DM_REQUESTS = [
+        { id: 'REQ-001', project: 'Precision Sensor Module - V2', projectId: 'PRJ-101', team: 'Team X-Engine', position: 'Senior Embedded Dev', qty: 2, ot: true,  from: '2025-04-01', to: '2025-08-31', status: 'Chờ phê duyệt', note: '' },
+        { id: 'REQ-002', project: 'Cloud Infra Platform',          projectId: 'PRJ-102', team: 'Team Cloud',    position: 'DevOps Engineer',      qty: 1, ot: false, from: '2025-05-01', to: '2025-09-30', status: 'Chờ phê duyệt', note: '' },
+        { id: 'REQ-003', project: 'Smart Factory IoT',             projectId: 'PRJ-103', team: 'Team BA',       position: 'IoT Engineer',          qty: 2, ot: false, from: '2025-03-01', to: '2025-10-31', status: 'Đang tuyển dụng', note: '' },
+        { id: 'REQ-004', project: 'ERP Migration Wave 2',          projectId: 'PRJ-105', team: 'Team BA',       position: 'SAP Consultant',        qty: 3, ot: true,  from: '2025-04-15', to: '2026-01-31', status: 'Chờ phê duyệt', note: '' },
+        { id: 'REQ-005', project: 'Automotive ECU Testing',        projectId: 'PRJ-107', team: 'Team X-Engine', position: 'HIL Test Engineer',     qty: 2, ot: true,  from: '2025-02-01', to: '2026-05-31', status: 'Bị từ chối',    note: 'Ngân sách chưa được phê duyệt' },
+        { id: 'REQ-006', project: 'Dairy Farm IoT Sensors',        projectId: 'PRJ-106', team: 'Team Cloud',    position: 'Embedded Firmware Dev', qty: 1, ot: false, from: '2025-01-01', to: '2025-09-30', status: 'Cần làm rõ',    note: 'Cần bổ sung mô tả kỹ năng cụ thể' },
+    ];
 
     const $ = (id) => document.getElementById(id);
 
@@ -160,13 +185,22 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.bosch-tab').forEach((t) => t.classList.remove('active'));
             e.target.classList.add('active');
             activeHrTab = e.target.dataset.tab;
-            dirControls.style.display = activeHrTab === 'directory' ? 'flex' : 'none';
-            roadControls.style.display = activeHrTab === 'roadmap' ? 'flex' : 'none';
-            dirTable.style.display = activeHrTab === 'directory' ? 'table' : 'none';
-            roadTable.style.display = activeHrTab === 'roadmap' ? 'table' : 'none';
+            dirControls.style.display  = activeHrTab === 'directory'   ? 'flex' : 'none';
+            roadControls.style.display = activeHrTab === 'roadmap'     ? 'flex' : 'none';
+            dmControls.style.display   = activeHrTab === 'dm-approval' ? 'flex' : 'none';
+            dirTable.style.display     = activeHrTab === 'directory'   ? 'table' : 'none';
+            // Khi vào roadmap: hiển thị theo sub-tab hiện tại
+            if (activeHrTab === 'roadmap') {
+                switchRoadmapSubtab(activeRoadmapSubtab);
+            } else {
+                roadTable.style.display    = 'none';
+                coursesTable.style.display = 'none';
+            }
+            dmTable.style.display = activeHrTab === 'dm-approval' ? 'table' : 'none';
             selectedId = null;
             applyFilters();
             if (activeHrTab === 'roadmap') applyRoadmapFilters();
+            if (activeHrTab === 'dm-approval') renderDmTable();
         });
     });
 
@@ -179,20 +213,355 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     }
 
+    // ── Sub-tab switching (Lộ trình) ─────────────────────────────────────────
+    const COURSES_DATA = [
+        { id: 'CRS-001', name: 'Cloud Architecture Fundamentals', category: 'Kỹ thuật', provider: 'AWS Training', duration: '40 giờ', enrolled: 12, status: 'Đang mở' },
+        { id: 'CRS-002', name: 'Agile Leadership & Scrum Master', category: 'Quản lý', provider: 'Bosch Academy', duration: '24 giờ', enrolled: 8, status: 'Đang mở' },
+        { id: 'CRS-003', name: 'MLOps Fundamentals', category: 'Kỹ thuật', provider: 'Coursera', duration: '60 giờ', enrolled: 5, status: 'Sắp khai giảng' },
+        { id: 'CRS-004', name: 'Advanced UI/UX Systems', category: 'Kỹ thuật', provider: 'Interaction Design', duration: '32 giờ', enrolled: 7, status: 'Đang mở' },
+        { id: 'CRS-005', name: 'Kubernetes & DevOps Pro', category: 'Kỹ thuật', provider: 'Linux Foundation', duration: '48 giờ', enrolled: 6, status: 'Đang mở' },
+        { id: 'CRS-006', name: 'Kỹ năng thuyết trình & giao tiếp', category: 'Kỹ năng mềm', provider: 'Bosch Academy', duration: '16 giờ', enrolled: 15, status: 'Đã kết thúc' },
+        { id: 'CRS-007', name: 'React Advanced Patterns', category: 'Kỹ thuật', provider: 'Frontend Masters', duration: '28 giờ', enrolled: 4, status: 'Sắp khai giảng' },
+        { id: 'CRS-008', name: 'Project Management Professional', category: 'Quản lý', provider: 'PMI', duration: '36 giờ', enrolled: 9, status: 'Đang mở' },
+    ];
+
+    function renderCourses() {
+        const tbody = coursesTable.querySelector('tbody');
+        const term     = (document.getElementById('courseSearch')?.value || '').toLowerCase();
+        const category = document.getElementById('filterCourseCategory')?.value || '';
+        const status   = document.getElementById('filterCourseStatus')?.value || '';
+
+        const filtered = COURSES_DATA.filter(c => {
+            const matchSearch   = !term     || c.name.toLowerCase().includes(term) || c.provider.toLowerCase().includes(term);
+            const matchCategory = !category || c.category === category;
+            const matchStatus   = !status   || c.status === status;
+            return matchSearch && matchCategory && matchStatus;
+        });
+
+        tbody.innerHTML = filtered.map(c => `
+            <tr data-id="${c.id}" style="cursor:pointer;" class="${selectedCourseId === c.id ? 'selected-row' : ''}">
+                <td class="code-col">${UI.escape(c.id)}</td>
+                <td class="name-col">${UI.escape(c.name)}</td>
+                <td>${UI.escape(c.category)}</td>
+                <td>${UI.escape(c.provider)}</td>
+                <td>${UI.escape(c.duration)}</td>
+                <td style="font-weight:700;color:var(--bosch-blue);">${c.enrolled}</td>
+                <td style="text-align:center;">${UI.badge(c.status)}</td>
+            </tr>`).join('');
+
+        // Row click — toggle selection
+        const selBadge = document.getElementById('courseSelectionBadge');
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', () => {
+                const id = tr.dataset.id;
+                if (selectedCourseId === id) {
+                    // Bỏ chọn
+                    selectedCourseId = null;
+                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                    if (selBadge) selBadge.style.display = 'none';
+                } else {
+                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                    tr.classList.add('selected-row');
+                    selectedCourseId = id;
+                    const c = COURSES_DATA.find(x => x.id === id);
+                    if (selBadge && c) {
+                        selBadge.textContent = `Đang chọn: ${c.name}`;
+                        selBadge.style.display = 'block';
+                    }
+                }
+            });
+        });
+    }
+
+    // ── Modal sửa khoá học ───────────────────────────────────────────────────
+    const editCourseModal = document.getElementById('editCourseModal');
+
+    function openEditCourseModal() {
+        if (!selectedCourseId) {
+            showToast('Lỗi', 'Chọn một khoá học trước.', 'error');
+            return;
+        }
+        const c = COURSES_DATA.find(x => x.id === selectedCourseId);
+        if (!c) return;
+        $('editCourseName').value     = c.name;
+        $('editCourseCategory').value = c.category;
+        $('editCourseStatus').value   = c.status;
+        $('editCourseProvider').value = c.provider;
+        $('editCourseDuration').value = c.duration;
+        $('editCourseEnrolled').value = c.enrolled;
+        editCourseModal?.classList.add('show');
+    }
+
+    document.getElementById('editCourseBtn')?.addEventListener('click', openEditCourseModal);
+    document.getElementById('closeEditCourseModal')?.addEventListener('click', () => editCourseModal?.classList.remove('show'));
+    document.getElementById('cancelEditCourseBtn')?.addEventListener('click', () => editCourseModal?.classList.remove('show'));
+    editCourseModal?.addEventListener('click', e => { if (e.target === editCourseModal) editCourseModal.classList.remove('show'); });
+
+    document.getElementById('saveEditCourseBtn')?.addEventListener('click', () => {
+        if (!selectedCourseId) return;
+        const c = COURSES_DATA.find(x => x.id === selectedCourseId);
+        if (!c) return;
+        c.name     = $('editCourseName').value.trim() || c.name;
+        c.category = $('editCourseCategory').value;
+        c.status   = $('editCourseStatus').value;
+        c.provider = $('editCourseProvider').value.trim() || c.provider;
+        c.duration = $('editCourseDuration').value.trim() || c.duration;
+        c.enrolled = parseInt($('editCourseEnrolled').value) || c.enrolled;
+        editCourseModal?.classList.remove('show');
+        showToast('Thành công', `Đã cập nhật khoá học "${c.name}".`);
+        renderCourses();
+        // Cập nhật lại selection badge
+        const selBadge = document.getElementById('courseSelectionBadge');
+        if (selBadge) selBadge.textContent = `Đang chọn: ${c.name}`;
+    });
+
+    function switchRoadmapSubtab(tab) {
+        activeRoadmapSubtab = tab;
+        const isProgress = tab === 'progress';
+
+        subtabProgress?.classList.toggle('active', isProgress);
+        subtabCourses?.classList.toggle('active', !isProgress);
+
+        progressControls.style.display = isProgress ? 'block' : 'none';
+        coursesControls.style.display  = isProgress ? 'none'  : 'block';
+
+        roadTable.style.display    = isProgress ? 'table' : 'none';
+        coursesTable.style.display = isProgress ? 'none'  : 'table';
+
+        if (!isProgress) renderCourses();
+    }
+
+    subtabProgress?.addEventListener('click', () => switchRoadmapSubtab('progress'));
+    subtabCourses?.addEventListener('click',  () => switchRoadmapSubtab('courses'));
+
+    document.getElementById('courseSearch')?.addEventListener('input', renderCourses);
+    document.getElementById('filterCourseCategory')?.addEventListener('change', renderCourses);
+    document.getElementById('filterCourseStatus')?.addEventListener('change', renderCourses);
+
+    document.getElementById('addCourseBtn')?.addEventListener('click', () => {
+        showToast('Thông tin', 'Chức năng thêm khoá học đang phát triển.', 'error');
+    });
+
+    // ── DM Approval ──────────────────────────────────────────────────────────
+
+    // Helper: badge HTML theo status — dùng UI.badge() chuẩn toàn app
+    function dmStatusBadge(status) {
+        return UI.badge(status);
+    }
+
+    function renderDmTable() {
+        const tbody = dmTable.querySelector('tbody');
+        const term   = (document.getElementById('dmSearch')?.value || '').toLowerCase();
+        const team   = document.getElementById('filterDmTeam')?.value || '';
+        const status = document.getElementById('filterDmStatus')?.value || '';
+
+        const filtered = DM_REQUESTS.filter(r => {
+            const matchSearch = !term   || r.id.toLowerCase().includes(term)
+                                        || r.project.toLowerCase().includes(term)
+                                        || r.position.toLowerCase().includes(term);
+            const matchTeam   = !team   || r.team === team;
+            const matchStatus = !status || r.status === status;
+            return matchSearch && matchTeam && matchStatus;
+        });
+
+        tbody.innerHTML = filtered.map(r => {
+            const alertCls = r.status === 'Bị từ chối' ? ' row-alert' : '';
+            return `<tr data-id="${r.id}" style="cursor:pointer;" class="${alertCls}">
+                <td class="code-col">${UI.escape(r.id)}</td>
+                <td><strong>${UI.escape(r.project)}</strong><br><small style="color:#9ca3af;">${UI.escape(r.projectId)}</small></td>
+                <td>${UI.escape(r.team)}</td>
+                <td>${UI.escape(r.position)}</td>
+                <td style="font-weight:700;color:var(--bosch-blue);text-align:center;">${r.qty}</td>
+                <td style="text-align:center;">${r.ot ? '<span class="badge badge-info">Có OT</span>' : '<span class="badge badge-muted">Không OT</span>'}</td>
+                <td style="font-size:12px;">${r.from}<br>${r.to}</td>
+                <td style="text-align:center;">${dmStatusBadge(r.status)}${r.note ? `<br><small style="color:#9ca3af;font-size:10px;">${UI.escape(r.note)}</small>` : ''}</td>
+            </tr>`;
+        }).join('');
+
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', () => openDmDetail(tr.dataset.id));
+        });
+    }
+
+    // Bind filter/search cho DM
+    document.getElementById('dmSearch')?.addEventListener('input', renderDmTable);
+    document.getElementById('filterDmTeam')?.addEventListener('change', renderDmTable);
+    document.getElementById('filterDmStatus')?.addEventListener('change', renderDmTable);
+
+    // ── Modal chi tiết yêu cầu ───────────────────────────────────────────────
+    const dmDetailModal  = document.getElementById('dmDetailModal');
+    const dmRejectModal  = document.getElementById('dmRejectModal');
+    const dmClarifyModal = document.getElementById('dmClarifyModal');
+
+    function openDmDetail(id) {
+        const req = DM_REQUESTS.find(x => x.id === id);
+        if (!req) return;
+        selectedDmId = id;
+
+        document.getElementById('dmDetailReqId').textContent  = `Chi tiết yêu cầu — ${req.id}`;
+        document.getElementById('dmDetailStatusRow').innerHTML = dmStatusBadge(req.status);
+        document.getElementById('dmDetailProject').value   = `${req.project} (${req.projectId})`;
+        document.getElementById('dmDetailTeam').value      = req.team;
+        document.getElementById('dmDetailPosition').value  = req.position;
+        document.getElementById('dmDetailQty').value       = `${req.qty} người`;
+        document.getElementById('dmDetailDate').value      = `${req.from} → ${req.to}`;
+        document.getElementById('dmDetailOt').innerHTML    = req.ot
+            ? '<span class="badge badge-info">Có OT</span>'
+            : '<span class="badge badge-muted">Không OT</span>';
+
+        const noteRow  = document.getElementById('dmDetailNoteRow');
+        const noteArea = document.getElementById('dmDetailNote');
+        if (req.note) {
+            noteRow.style.display  = 'block';
+            noteArea.value = req.note;
+        } else {
+            noteRow.style.display = 'none';
+        }
+
+        // Render action buttons dựa theo trạng thái
+        const actionsEl = document.getElementById('dmDetailActions');
+        const approvable = ['Chờ phê duyệt', 'Bị từ chối', 'Cần làm rõ'];
+        const canReject  = ['Chờ phê duyệt', 'Cần làm rõ'];
+        const canClarify = ['Chờ phê duyệt', 'Bị từ chối'];
+
+        let btns = '';
+        if (approvable.includes(req.status)) {
+            btns += `<button class="btn-action" id="dmDetailApproveBtn"
+                style="background:#16a34a;color:#fff;border:none;">
+                <i class="fa-solid fa-check"></i> Phê duyệt
+            </button>`;
+        }
+        if (canClarify.includes(req.status)) {
+            btns += `<button class="btn-action outline-yellow-btn" id="dmDetailClarifyBtn"
+                style="border-color:#0078d4;color:#0078d4;">
+                <i class="fa-solid fa-circle-question"></i> Yêu cầu làm rõ
+            </button>`;
+        }
+        if (canReject.includes(req.status)) {
+            btns += `<button class="btn-action" id="dmDetailRejectBtn"
+                style="background:#fff;color:#c0152a;border:1px solid #fca5a5;">
+                <i class="fa-solid fa-xmark"></i> Từ chối
+            </button>`;
+        }
+        btns += `<button class="btn-secondary" id="dmDetailCloseBtn" style="margin-left:auto;">Đóng</button>`;
+        actionsEl.innerHTML = btns;
+
+        // Bind nút trong modal chi tiết
+        document.getElementById('dmDetailApproveBtn')?.addEventListener('click', () => {
+            req.status = 'Đang tuyển dụng';
+            req.note = '';
+            dmDetailModal.classList.remove('show');
+            showToast('Thành công', `Đã phê duyệt ${req.id}. Trạng thái: Đang tuyển dụng.`);
+            renderDmCards();
+        });
+
+        document.getElementById('dmDetailClarifyBtn')?.addEventListener('click', () => {
+            dmDetailModal.classList.remove('show');
+            document.getElementById('dmClarifyReqId').textContent = req.id;
+            document.getElementById('dmClarifyNote').value = '';
+            updateClarifyBtn();
+            dmClarifyModal.classList.add('show');
+        });
+
+        document.getElementById('dmDetailRejectBtn')?.addEventListener('click', () => {
+            dmDetailModal.classList.remove('show');
+            document.getElementById('dmRejectReqId').textContent = req.id;
+            document.getElementById('dmRejectReason').value = '';
+            updateRejectBtn();
+            dmRejectModal.classList.add('show');
+        });
+
+        document.getElementById('dmDetailCloseBtn')?.addEventListener('click', () => {
+            dmDetailModal.classList.remove('show');
+        });
+
+        dmDetailModal.classList.add('show');
+    }
+
+    document.getElementById('closeDmDetailModal')?.addEventListener('click', () => dmDetailModal?.classList.remove('show'));
+    dmDetailModal?.addEventListener('click', e => { if (e.target === dmDetailModal) dmDetailModal.classList.remove('show'); });
+
+    // ── Modal Từ chối — validation 10 ký tự ─────────────────────────────────
+    function updateRejectBtn() {
+        const val = document.getElementById('dmRejectReason')?.value || '';
+        const btn = document.getElementById('saveDmRejectBtn');
+        const counter = document.getElementById('dmRejectCharCount');
+        const len = val.trim().length;
+        if (counter) counter.textContent = `${len} / 10 ký tự tối thiểu`;
+        if (btn) {
+            const ok = len >= 10;
+            btn.disabled = !ok;
+            btn.style.opacity = ok ? '1' : '.5';
+            btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+        }
+    }
+
+    document.getElementById('dmRejectReason')?.addEventListener('input', updateRejectBtn);
+    document.getElementById('closeDmRejectModal')?.addEventListener('click', () => dmRejectModal?.classList.remove('show'));
+    document.getElementById('cancelDmRejectBtn')?.addEventListener('click', () => dmRejectModal?.classList.remove('show'));
+    dmRejectModal?.addEventListener('click', e => { if (e.target === dmRejectModal) dmRejectModal.classList.remove('show'); });
+
+    document.getElementById('saveDmRejectBtn')?.addEventListener('click', () => {
+        const reason = document.getElementById('dmRejectReason').value.trim();
+        if (reason.length < 10) { showToast('Lỗi', 'Lý do từ chối phải có ít nhất 10 ký tự.', 'error'); return; }
+        const req = DM_REQUESTS.find(x => x.id === selectedDmId);
+        if (!req) return;
+        req.status = 'Bị từ chối';
+        req.note = reason;
+        dmRejectModal.classList.remove('show');
+        showToast('Đã từ chối', `Yêu cầu ${req.id} bị từ chối.`);
+        renderDmCards();
+    });
+
+    // ── Modal Làm rõ — validation 10 ký tự ──────────────────────────────────
+    function updateClarifyBtn() {
+        const val = document.getElementById('dmClarifyNote')?.value || '';
+        const btn = document.getElementById('saveDmClarifyBtn');
+        const counter = document.getElementById('dmClarifyCharCount');
+        const len = val.trim().length;
+        if (counter) counter.textContent = `${len} / 10 ký tự tối thiểu`;
+        if (btn) {
+            const ok = len >= 10;
+            btn.disabled = !ok;
+            btn.style.opacity = ok ? '1' : '.5';
+            btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+        }
+    }
+
+    document.getElementById('dmClarifyNote')?.addEventListener('input', updateClarifyBtn);
+    document.getElementById('closeDmClarifyModal')?.addEventListener('click', () => dmClarifyModal?.classList.remove('show'));
+    document.getElementById('cancelDmClarifyBtn')?.addEventListener('click', () => dmClarifyModal?.classList.remove('show'));
+    dmClarifyModal?.addEventListener('click', e => { if (e.target === dmClarifyModal) dmClarifyModal.classList.remove('show'); });
+
+    document.getElementById('saveDmClarifyBtn')?.addEventListener('click', () => {
+        const note = document.getElementById('dmClarifyNote').value.trim();
+        if (note.length < 10) { showToast('Lỗi', 'Nội dung làm rõ phải có ít nhất 10 ký tự.', 'error'); return; }
+        const req = DM_REQUESTS.find(x => x.id === selectedDmId);
+        if (!req) return;
+        req.status = 'Cần làm rõ';
+        req.note = note;
+        dmClarifyModal.classList.remove('show');
+        showToast('Đã gửi', `Yêu cầu ${req.id} trả về Leader để làm rõ.`);
+        renderDmCards();
+    });
+
     function renderDirectory() {
         const tbody = dirTable.querySelector('tbody');
         const all = MockStore.getStaff();
 
         tbody.innerHTML = all
             .map(
-                (s) => `
-            <tr data-id="${s.id}" class="${selectedId === s.id ? 'selected' : ''}" style="cursor:pointer;">
+                (s) => {
+                    const alert = s.workload >= 90 ? ' row-alert' : '';
+                    return `
+            <tr data-id="${s.id}" class="${selectedId === s.id ? 'selected' : ''}${alert}" style="cursor:pointer;">
                 <td class="code-col">${UI.escape(s.id)}</td>
                 <td class="name-col">${UI.escape(s.name)}</td>
                 <td class="role-col">${UI.escape(s.title)}</td>
                 <td class="project-col">${UI.escape(s.project)}</td>
                 <td>${workloadRow(s)}</td>
-            </tr>`
+            </tr>`;
+                }
             )
             .join('');
 
@@ -207,9 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function roadmapStatusBadge(status) {
-        if (status === 'Hoàn thành') return 'badge-success';
-        if (status === 'Đang học') return 'badge-info';
-        return 'badge-warning';
+        return UI.badge(status);
     }
 
     function renderRoadmap() {
@@ -226,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="role-col">${UI.escape(r.title)}</td>
                 <td>${UI.escape(r.level)}</td>
                 <td>${UI.escape(r.course)}</td>
-                <td style="text-align:center;"><span class="badge ${roadmapStatusBadge(r.status)}">${UI.escape(r.status)}</span></td>
+                <td style="text-align:center;">${roadmapStatusBadge(r.status)}</td>
             </tr>`;
                 }
             )

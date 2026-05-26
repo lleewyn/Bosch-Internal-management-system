@@ -59,10 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Render: Doanh thu dự án ──────────────────────────────────────────────
     function revBadge(status) {
-        const ok = ['Đang triển khai', 'Hoàn thành'].includes(status);
-        const warn = ['Tạm dừng'].includes(status);
-        const cls = ok ? 'badge-success' : warn ? 'badge-warning' : 'badge-secondary';
-        return `<span class="badge ${cls}">${UI.escape(status)}</span>`;
+        return UI.badge(status);
     }
 
     function renderRevenue() {
@@ -81,41 +78,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = document.getElementById('filterSlStatus')?.value || '';
         const sort   = document.getElementById('filterSlSort')?.value || '';
 
-        let rows = [...svView.querySelectorAll('tbody tr')];
+        const tbody = svView.querySelector('tbody');
+        const items = MockStore.getServiceLines().slice();
 
-        // Sort
-        if (sort === 'rate-asc' || sort === 'rate-desc') {
-            const tbody = svView.querySelector('tbody');
-            const items = MockStore.getServiceLines().slice();
-            items.sort((a, b) => sort === 'rate-asc' ? a.rate - b.rate : b.rate - a.rate);
-            tbody.innerHTML = items.map(s => `
-                <tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}">
-                    <td class="code-col">${UI.escape(s.id)}</td>
-                    <td class="name-col">${UI.escape(s.name)}</td>
-                    <td class="role-col">${UI.escape(s.desc)}</td>
-                    <td class="value-blue">${UI.formatNumber(s.rate)}</td>
-                    <td>${s.contracts}</td><td>${s.projects}</td>
-                    <td><span class="badge ${s.active ? 'badge-success' : 'badge-secondary'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
-                    <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
-                </tr>`).join('');
-            // Re-bind events after re-render
-            tbody.querySelectorAll('tr').forEach(tr => {
-                tr.addEventListener('click', (e) => {
-                    if (e.target.closest('[data-edit]')) return;
-                    const id = tr.dataset.id;
-                    if (selectedSlId === id) { clearSl(); return; }
-                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
-                    tr.classList.add('selected-row');
-                    selectedSlId = id;
-                    showBadge('slSelectionBadge', `Đang chọn: ${id}`);
-                });
-            });
-            tbody.querySelectorAll('[data-edit]').forEach(icon => {
-                icon.addEventListener('click', (e) => { e.stopPropagation(); selectedSlId = icon.dataset.edit; openSlModal(true); });
-            });
-            rows = [...tbody.querySelectorAll('tr')];
+        if (sort === 'rate-asc') {
+            items.sort((a, b) => a.rate - b.rate);
+        } else if (sort === 'rate-desc') {
+            items.sort((a, b) => b.rate - a.rate);
         }
 
+        tbody.innerHTML = items.map(s => {
+            const alert = !s.active ? ' row-alert' : '';
+            return `<tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}${alert}">
+                <td class="code-col">${UI.escape(s.id)}</td>
+                <td class="name-col">${UI.escape(s.name)}</td>
+                <td class="role-col">${UI.escape(s.desc)}</td>
+                <td class="value-blue">${UI.formatNumber(s.rate)}</td>
+                <td>${s.contracts}</td><td>${s.projects}</td>
+                <td><span class="badge ${s.active ? 'badge-success' : 'badge-muted'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
+                <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
+            </tr>`;
+        }).join('');
+
+        // Re-bind events after re-render
+        tbody.querySelectorAll('tr').forEach(tr => {
+            tr.addEventListener('click', (e) => {
+                if (e.target.closest('[data-edit]')) return;
+                const id = tr.dataset.id;
+                if (selectedSlId === id) { clearSl(); return; }
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                tr.classList.add('selected-row');
+                selectedSlId = id;
+                showBadge('slSelectionBadge', `Đang chọn: ${id}`);
+            });
+        });
+
+        tbody.querySelectorAll('[data-edit]').forEach(icon => {
+            icon.addEventListener('click', (e) => { e.stopPropagation(); selectedSlId = icon.dataset.edit; openSlModal(true); });
+        });
+
+        const rows = [...tbody.querySelectorAll('tr')];
         rows.forEach(tr => {
             const text = tr.textContent.toLowerCase();
             const rowStatus = tr.querySelector('.badge')?.textContent || '';
@@ -138,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = partView.querySelector('tbody');
         tbody.innerHTML = data.map(p => {
             const actualCls = p.actual > 100 ? 'val-red' : 'val-green';
-            return `<tr data-id="${p.staffId}" style="cursor:pointer;" class="${selectedPartId === p.staffId ? 'selected-row' : ''}">
+            const alert = p.actual > 100 ? ' row-alert' : '';
+            return `<tr data-id="${p.staffId}" style="cursor:pointer;" class="${selectedPartId === p.staffId ? 'selected-row' : ''}${alert}">
                 <td class="code-col">${UI.escape(p.staffId)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.title)}</td>
@@ -185,8 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sort === 'progress-desc') data.sort((a, b) => b.progress - a.progress);
 
         const tbody = revView.querySelector('tbody');
-        tbody.innerHTML = data.map(p => `
-            <tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}">
+        tbody.innerHTML = data.map(p => {
+            const alertStatuses = ['Tạm dừng', 'Đã hủy'];
+            const alert = alertStatuses.includes(p.status) ? ' row-alert' : '';
+            return `<tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}${alert}">
                 <td class="code-col">${UI.escape(p.id)}</td>
                 <td class="name-col">${UI.escape(p.name)}</td>
                 <td>${UI.escape(p.company)}</td>
@@ -202,7 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </td>
                 <td class="value-blue">${UI.formatNumber(p.revenue || 0)}</td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
 
         tbody.querySelectorAll('tr').forEach(tr => {
             tr.addEventListener('click', () => {

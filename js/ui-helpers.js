@@ -29,9 +29,71 @@ window.UI = {
         return 'green';
     },
 
+    // Bảng map trạng thái → class badge (dùng chung toàn app)
+    // Chuẩn màu lấy từ tab Khách hàng trang Vận hành:
+    //   badge-info    = xanh dương  (ĐÃ DEAL HỢP ĐỒNG)
+    //   badge-success = xanh lá     (ĐÃ CÓ DỰ ÁN, Đang triển khai, Hoàn thành...)
+    //   badge-warning = vàng        (TIỀM NĂNG, Sắp hết hạn, Chờ duyệt...)
+    //   badge-danger  = đỏ          (ĐANG ĐÀM PHÁN, Đã hủy, Quá hạn...)
+    //   badge-muted   = xám         (trung tính)
+    _statusClassMap: {
+        // ── Xanh lá — tích cực / đang chạy ──────────────────────────────────
+        'Đang hiệu lực':    'badge-success',
+        'Đã duyệt':         'badge-success',
+        'ĐÃ PHÂN BỔ':       'badge-success',
+        'Đã gia hạn':       'badge-success',
+        'Đang triển khai':  'badge-success',
+        'Hoàn thành':       'badge-success',
+        'Hoạt động':        'badge-success',
+        'ĐÃ CÓ DỰ ÁN':     'badge-success',
+        'Đang tuyển dụng':  'badge-success',
+        'Đang mở':          'badge-success',
+        'ỔN ĐỊNH':          'badge-success',
+        // ── Xanh dương — thông tin / đã deal ─────────────────────────────────
+        'ĐÃ DEAL HỢP ĐỒNG': 'badge-info',
+        'ĐANG TIẾN HÀNH':   'badge-info',
+        'Đang học':         'badge-info',
+        'Cần làm rõ':       'badge-info',
+        // ── Vàng — cảnh báo nhẹ / chờ xử lý ─────────────────────────────────
+        'Sắp hết hạn':      'badge-warning',
+        'Chờ duyệt':        'badge-warning',
+        'ĐANG CHỜ':         'badge-warning',
+        'Tạm dừng':         'badge-warning',
+        'TIỀM NĂNG':        'badge-warning',
+        'Chưa bắt đầu':     'badge-warning',
+        'Sắp khai giảng':   'badge-warning',
+        'Chờ phê duyệt':    'badge-warning',
+        'RẢNH RỖI':         'badge-warning',
+        'CAO':              'badge-warning',
+        // ── Đỏ — nguy hiểm / cần chú ý ───────────────────────────────────────
+        'ĐANG ĐÀM PHÁN':    'badge-danger',
+        'Đã hủy':           'badge-danger',
+        'Hết hạn':          'badge-danger',
+        'Quá hạn':          'badge-danger',
+        'QUÁ TẢI':          'badge-danger',
+        'QUÁ MỨC':          'badge-danger',
+        'Bị từ chối':       'badge-danger',
+        // ── Xám — trung tính / kết thúc ──────────────────────────────────────
+        'Ngừng':            'badge-muted',
+        'ĐÃ ĐĂNG XUẤT':     'badge-muted',
+        'Chưa':             'badge-muted',
+        'Đã kết thúc':      'badge-muted',
+    },
+
+    // Tạo badge HTML từ text, tự map class
+    badge(text, overrideCls) {
+        const cls = overrideCls || this._statusClassMap[text] || 'badge-muted';
+        return `<span class="badge ${cls}">${this.escape(text)}</span>`;
+    },
+
+    // Giữ lại để tương thích ngược, nhưng giờ dùng class thay inline style
     statusBadge(status, map) {
-        const m = map[status] || { bg: '#e8ecf1', color: '#555', label: status };
-        return `<span style="background:${m.bg};color:${m.color};padding:6px 12px;border-radius:4px;font-size:10px;font-weight:800;display:inline-block;line-height:1.4;">${this.escape(m.label)}</span>`;
+        if (map && map[status]) {
+            // Ưu tiên map nếu có, nhưng dùng class từ _statusClassMap
+            const cls = this._statusClassMap[status] || 'badge-muted';
+            return `<span class="badge ${cls}">${this.escape(status)}</span>`;
+        }
+        return this.badge(status);
     },
 
     openModal(el) {
