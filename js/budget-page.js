@@ -96,14 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="value-blue">${UI.formatNumber(s.rate)}</td>
                 <td>${s.contracts}</td><td>${s.projects}</td>
                 <td><span class="badge ${s.active ? 'badge-success' : 'badge-muted'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
-                <td><i class="fa-regular fa-pen-to-square edit-icon-btn" data-edit="${s.id}" style="cursor:pointer;"></i></td>
             </tr>`;
         }).join('');
 
         // Re-bind events after re-render
         tbody.querySelectorAll('tr').forEach(tr => {
             tr.addEventListener('click', (e) => {
-                if (e.target.closest('[data-edit]')) return;
                 const id = tr.dataset.id;
                 if (selectedSlId === id) { clearSl(); return; }
                 tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
@@ -111,10 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedSlId = id;
                 showBadge('slSelectionBadge', `Đang chọn: ${id}`);
             });
-        });
-
-        tbody.querySelectorAll('[data-edit]').forEach(icon => {
-            icon.addEventListener('click', (e) => { e.stopPropagation(); selectedSlId = icon.dataset.edit; openSlModal(true); });
         });
 
         const rows = [...tbody.querySelectorAll('tr')];
