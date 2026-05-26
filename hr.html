@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -96,17 +96,21 @@
 
 
                         <div class="hr-filters" style="display: flex; gap: 16px;">
-                            <select class="hr-select">
-                                <option>Group</option>
+                            <select class="hr-select" id="filterStaffGroup">
+                                <option value="">Tất cả Group</option>
                             </select>
-                            <select class="hr-select">
-                                <option>Team</option>
+                            <select class="hr-select" id="filterStaffTeam">
+                                <option value="">Tất cả Team</option>
                             </select>
-                            <select class="hr-select">
-                                <option>Dự án</option>
+                            <select class="hr-select" id="filterStaffProject">
+                                <option value="">Tất cả Dự án</option>
                             </select>
-                            <select class="hr-select">
-                                <option>Thời gian</option>
+                            <select class="hr-select" id="filterStaffWorkload">
+                                <option value="">Tất cả thời gian</option>
+                                <option value="low">Rảnh rỗi (&lt; 50%)</option>
+                                <option value="stable">Ổn định (50% - 74%)</option>
+                                <option value="high">Cao (75% - 89%)</option>
+                                <option value="overloaded">Quá tải (&gt;= 90%)</option>
                             </select>
                         </div>
                     </div>
@@ -424,14 +428,14 @@
                         <table class="bosch-table bosch-table-modern" id="roadmapTable"
                             style="display: none; min-width: 1000px;">
                             <thead>
-                                <tr>
-                                    <th>MÃ NV</th>
-                                    <th>HỌ VÀ TÊN</th>
-                                    <th>CHỨC DANH</th>
-                                    <th>KHÓA HỌC</th>
-                                    <th style="text-align: center;">TRẠNG THÁI</th>
-                                </tr>
-                            </thead>
+                            <tr>
+                                <th style="text-align:center;">MÃ NV</th>
+                                <th>HỌ VÀ TÊN</th>
+                                <th>CHỨC DANH</th>
+                                <th>KHÓA HỌC</th>
+                                <th style="text-align: center;">TRẠNG THÁI</th>
+                            </tr>
+                        </thead>
                             <tbody>
                                 <tr>
                                     <td class="code-col">BS2041</td>
@@ -477,12 +481,12 @@
                             style="display: none; min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th>MÃ KHOÁ</th>
+                                    <th style="text-align:center;">MÃ KHOÁ</th>
                                     <th>TÊN KHOÁ HỌC</th>
-                                    <th>DANH MỤC</th>
+                                    <th style="text-align:center;">DANH MỤC</th>
                                     <th>NHÀ CUNG CẤP</th>
-                                    <th>THỜI LƯỢNG</th>
-                                    <th>SỐ HV ĐĂNG KÝ</th>
+                                    <th style="text-align:center;">THỜI LƯỢNG</th>
+                                    <th style="text-align:center;">SỐ HV ĐĂNG KÝ</th>
                                     <th style="text-align:center;">TRẠNG THÁI</th>
                                 </tr>
                             </thead>
@@ -494,13 +498,13 @@
                             style="display: none; min-width: 1100px;">
                             <thead>
                                 <tr>
-                                    <th>MÃ YÊU CẦU</th>
+                                    <th style="text-align:center;">MÃ YÊU CẦU</th>
                                     <th>DỰ ÁN</th>
-                                    <th>TEAM</th>
+                                    <th style="text-align:center;">TEAM</th>
                                     <th>VỊ TRÍ TUYỂN DỤNG</th>
-                                    <th>SỐ LƯỢNG</th>
-                                    <th>YÊU CẦU OT</th>
-                                    <th>THỜI GIAN</th>
+                                    <th style="text-align:center;">SỐ LƯỢNG</th>
+                                    <th style="text-align:center;">YÊU CẦU OT</th>
+                                    <th style="text-align:center;">THỜI GIAN</th>
                                     <th style="text-align:center;">TRẠNG THÁI</th>
                                 </tr>
                             </thead>

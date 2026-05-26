@@ -549,6 +549,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = dirTable.querySelector('tbody');
         const all = MockStore.getStaff();
 
+        // Populate dynamic filters
+        const groupSel = document.getElementById('filterStaffGroup');
+        const teamSel = document.getElementById('filterStaffTeam');
+        const projSel = document.getElementById('filterStaffProject');
+        
+        if (groupSel && groupSel.options.length <= 1) {
+            const groups = [...new Set(all.map(s => s.group).filter(Boolean))].sort();
+            groups.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = `Group ${g}`;
+                groupSel.appendChild(opt);
+            });
+        }
+        if (teamSel && teamSel.options.length <= 1) {
+            const teams = [...new Set(all.map(s => s.team).filter(Boolean))].sort();
+            teams.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                teamSel.appendChild(opt);
+            });
+        }
+        if (projSel && projSel.options.length <= 1) {
+            const projs = [...new Set(all.map(s => s.project).filter(Boolean))].sort();
+            projs.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                projSel.appendChild(opt);
+            });
+        }
+
         tbody.innerHTML = all
             .map(
                 (s) => {
@@ -645,9 +678,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const active = dirTable.style.display !== 'none' ? dirTable : roadTable;
         const controls = active === dirTable ? dirControls : roadControls;
         const term = (controls?.querySelector('.search-box input')?.value || '').toLowerCase();
-        active.querySelectorAll('tbody tr').forEach((tr) => {
-            tr.style.display = tr.textContent.toLowerCase().includes(term) ? '' : 'none';
-        });
+        
+        if (active === dirTable) {
+            const group = document.getElementById('filterStaffGroup')?.value || '';
+            const team = document.getElementById('filterStaffTeam')?.value || '';
+            const project = document.getElementById('filterStaffProject')?.value || '';
+            const workloadVal = document.getElementById('filterStaffWorkload')?.value || '';
+            
+            const staffList = MockStore.getStaff();
+            
+            active.querySelectorAll('tbody tr').forEach((tr) => {
+                const id = tr.dataset.id;
+                const s = staffList.find(x => x.id === id);
+                if (!s) {
+                    tr.style.display = 'none';
+                    return;
+                }
+                
+                const matchSearch = !term || s.id.toLowerCase().includes(term) || s.name.toLowerCase().includes(term) || s.title.toLowerCase().includes(term) || s.project.toLowerCase().includes(term);
+                const matchGroup = !group || s.group === group;
+                const matchTeam = !team || s.team === team;
+                const matchProject = !project || s.project === project;
+                
+                let matchWorkload = true;
+                if (workloadVal === 'low') matchWorkload = s.workload < 50;
+                else if (workloadVal === 'stable') matchWorkload = s.workload >= 50 && s.workload < 75;
+                else if (workloadVal === 'high') matchWorkload = s.workload >= 75 && s.workload < 90;
+                else if (workloadVal === 'overloaded') matchWorkload = s.workload >= 90;
+                
+                tr.style.display = (matchSearch && matchGroup && matchTeam && matchProject && matchWorkload) ? '' : 'none';
+            });
+        } else {
+            active.querySelectorAll('tbody tr').forEach((tr) => {
+                tr.style.display = tr.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        }
     }
 
     dirControls?.querySelector('.search-box input')?.addEventListener('input', applyFilters);
