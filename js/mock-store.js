@@ -2,7 +2,7 @@
  * Kho dữ liệu giả lập — lưu localStorage, đồng bộ giữa các trang.
  */
 (function () {
-    const STORAGE_KEY = 'bosch_mock_db_v2';
+    const STORAGE_KEY = 'bosch_mock_db_v3';
 
     const SEED = {
         settings: {
@@ -71,15 +71,35 @@
             { id: 'HD-2025-05', customerId: 'KH-007', company: 'Masan Consumer Core', contact: 'Mr. Tran Truong Tuan', email: 'truongtuan.tran@masan.vn', phone: '02838275678', serviceLine: 'IoT Solutions', value: 1900000000, start: '2025-02-01', end: '2025-11-30', project: 'Smart Factory IoT', ot: false, signed: true, status: 'Đang hiệu lực' }
         ],
         projects: [
-            { id: 'PRJ-101', name: 'Precision Sensor Module - V2', customerId: 'KH-003', company: 'Samsung Electronics HCMC', leader: 'Nguyễn Văn An', serviceLine: 'Automotive Embedded', budget: 4500000000, start: '2025-01-15', end: '2025-12-31', desc: 'Embedded firmware & validation', progress: 68, status: 'Đang triển khai', revenue: 2100000000 },
-            { id: 'PRJ-102', name: 'Cloud Infra Platform', customerId: 'KH-005', company: 'FPT Software Alliance', leader: 'Trần Thị Bình', serviceLine: 'Digital & IT', budget: 2800000000, start: '2025-03-01', end: '2026-02-28', desc: 'Migration & DevOps', progress: 42, status: 'Đang triển khai', revenue: 980000000 },
-            { id: 'PRJ-103', name: 'Smart Factory IoT', customerId: 'KH-007', company: 'Masan Consumer Core', leader: 'Đặng Lan Hương', serviceLine: 'IoT Solutions', budget: 1900000000, start: '2025-02-01', end: '2025-11-30', desc: 'IoT sensors deployment', progress: 55, status: 'Đang triển khai', revenue: 750000000 },
-            { id: 'PRJ-104', name: 'Gas Monitoring System', customerId: 'KH-008', company: 'Petrovietnam Gas Node', leader: 'Phạm Minh Đức', serviceLine: 'Consulting', budget: 1200000000, start: '2024-06-01', end: '2025-05-31', desc: 'Real-time gas pipeline monitoring', progress: 90, status: 'Hoàn thành', revenue: 1100000000 },
-            { id: 'PRJ-105', name: 'ERP Migration Wave 2', customerId: 'KH-002', company: 'Viettel Network Corporation', leader: 'Hoàng Thị Em', serviceLine: 'Digital & IT', budget: 3200000000, start: '2025-04-01', end: '2026-03-31', desc: 'SAP S/4HANA migration', progress: 25, status: 'Đang triển khai', revenue: 600000000 },
-            { id: 'PRJ-106', name: 'Dairy Farm IoT Sensors', customerId: 'KH-006', company: 'TH Milk Food Joint Stock', leader: 'Bùi Thanh Tùng', serviceLine: 'IoT Solutions', budget: 2200000000, start: '2024-11-01', end: '2025-10-31', desc: 'Smart dairy farming sensors', progress: 48, status: 'Đang triển khai', revenue: 820000000 },
-            { id: 'PRJ-107', name: 'Automotive ECU Testing', customerId: 'KH-001', company: 'Bosch Global Partner', leader: 'Nguyễn Văn An', serviceLine: 'Automotive Embedded', budget: 5000000000, start: '2025-01-01', end: '2026-06-30', desc: 'ECU validation & HIL testing', progress: 35, status: 'Đang triển khai', revenue: 1400000000 },
-            { id: 'PRJ-108', name: 'Mobile App V3 Relaunch', customerId: 'KH-005', company: 'FPT Software Alliance', leader: 'Vũ Quốc Phong', serviceLine: 'Digital & IT', budget: 900000000, start: '2025-05-01', end: '2025-09-30', desc: 'Cross-platform mobile rewrite', progress: 15, status: 'Tạm dừng', revenue: 120000000 }
+            { id: 'PRJ-101', name: 'Precision Sensor Module - V2', contractId: 'HD-2025-01', customerId: 'KH-003', company: 'Samsung Electronics HCMC', contact: 'Mr. Park Ji-Sung', leader: 'Nguyễn Văn An', serviceLine: 'Automotive Embedded', budget: 4500000000, start: '2025-01-15', end: '2025-12-31', desc: 'Embedded firmware & validation', progress: 68, status: 'Đang triển khai', revenue: 2100000000 },
+            { id: 'PRJ-102', name: 'Cloud Infra Platform', contractId: 'HD-2025-02', customerId: 'KH-005', company: 'FPT Software Alliance', contact: 'Mr. Nguyen Quoc Hoa', leader: 'Trần Thị Bình', serviceLine: 'Digital & IT', budget: 2800000000, start: '2025-03-01', end: '2026-02-28', desc: 'Migration & DevOps', progress: 42, status: 'Đang triển khai', revenue: 980000000 },
+            { id: 'PRJ-103', name: 'Smart Factory IoT', contractId: 'HD-2025-05', customerId: 'KH-007', company: 'Masan Consumer Core', contact: 'Mr. Tran Truong Tuan', leader: 'Đặng Lan Hương', serviceLine: 'IoT Solutions', budget: 1900000000, start: '2025-02-01', end: '2025-11-30', desc: 'IoT sensors deployment', progress: 55, status: 'Đang triển khai', revenue: 750000000 },
+            { id: 'PRJ-104', name: 'Gas Monitoring System', contractId: 'HD-2024-08', customerId: 'KH-008', company: 'Petrovietnam Gas Node', contact: 'Mr. Le Hoang Thanh', leader: 'Phạm Minh Đức', serviceLine: 'Consulting', budget: 1200000000, start: '2024-06-01', end: '2025-05-31', desc: 'Real-time gas pipeline monitoring', progress: 100, status: 'Hoàn thành', revenue: 1100000000 },
+            { id: 'PRJ-105', name: 'ERP Migration Wave 2', contractId: 'HD-2025-03', customerId: 'KH-002', company: 'Viettel Network Corporation', contact: 'Ms. Nguyen Thi Mai', leader: 'Hoàng Thị Em', serviceLine: 'Digital & IT', budget: 3200000000, start: '2025-04-01', end: '2026-03-31', desc: 'SAP S/4HANA migration', progress: 25, status: 'Đang triển khai', revenue: 600000000 },
+            { id: 'PRJ-106', name: 'Dairy Farm IoT Sensors', contractId: 'HD-2024-06', customerId: 'KH-006', company: 'TH Milk Food Joint Stock', contact: 'Mrs. Cao Minh Huong', leader: 'Bùi Thanh Tùng', serviceLine: 'IoT Solutions', budget: 2200000000, start: '2024-11-01', end: '2025-10-31', desc: 'Smart dairy farming sensors', progress: 48, status: 'Đang triển khai', revenue: 820000000 },
+            { id: 'PRJ-107', name: 'Automotive ECU Testing', contractId: 'HD-2025-04', customerId: 'KH-001', company: 'Bosch Global Partner', contact: 'Mr. Hans Mueller', leader: 'Nguyễn Văn An', serviceLine: 'Automotive Embedded', budget: 5000000000, start: '2025-01-01', end: '2026-06-30', desc: 'ECU validation & HIL testing', progress: 35, status: 'Đang triển khai', revenue: 1400000000 },
+            { id: 'PRJ-108', name: 'Mobile App V3 Relaunch', contractId: 'HD-2025-02', customerId: 'KH-005', company: 'FPT Software Alliance', contact: 'Mr. Nguyen Quoc Hoa', leader: 'Vũ Quốc Phong', serviceLine: 'Digital & IT', budget: 900000000, start: '2025-05-01', end: '2025-09-30', desc: 'Cross-platform mobile rewrite', progress: 15, status: 'Tạm dừng', revenue: 120000000 }
         ],
+        projectAssignments: {
+            'PRJ-101': [
+                { staffId: 'BS2041', name: 'Nguyễn Văn An',  title: 'Lead Engineer',    team: 'Team X-Engine', percent: 65, isLeader: true },
+                { staffId: 'BS2110', name: 'Lê Hoàng Cường', title: 'QA Engineer',       team: 'Team X-Engine', percent: 30, isLeader: false }
+            ],
+            'PRJ-102': [
+                { staffId: 'BS2088', name: 'Trần Thị Bình',  title: 'Senior Developer', team: 'Team UI',       percent: 80, isLeader: true },
+                { staffId: 'BS2156', name: 'Phạm Minh Đức',  title: 'DevOps Engineer',  team: 'Team Cloud',    percent: 60, isLeader: false }
+            ],
+            'PRJ-103': [
+                { staffId: 'BS2290', name: 'Đặng Lan Hương', title: 'Scrum Master',      team: 'Team PM',       percent: 60, isLeader: true }
+            ],
+            'PRJ-105': [
+                { staffId: 'BS2201', name: 'Hoàng Thị Em',   title: 'Business Analyst', team: 'Team BA',       percent: 70, isLeader: true }
+            ],
+            'PRJ-107': [
+                { staffId: 'BS2041', name: 'Nguyễn Văn An',  title: 'Lead Engineer',    team: 'Team X-Engine', percent: 20, isLeader: true },
+                { staffId: 'BS2333', name: 'Bùi Thanh Tùng', title: 'Architect',         team: 'Team X-Engine', percent: 50, isLeader: false }
+            ]
+        },
         resources: [
             { id: 'REQ-001', projectId: 'PRJ-101', projectName: 'Precision Sensor Module - V2', from: '2025-04-01', to: '2025-08-31', ot: true, position: 'Senior Embedded Dev', qty: 2, file: 'jd_embedded.pdf', status: 'Đã duyệt' },
             { id: 'REQ-002', projectId: 'PRJ-102', projectName: 'Cloud Infra Platform', from: '2025-05-01', to: '2025-09-30', ot: false, position: 'DevOps Engineer', qty: 1, file: 'jd_devops.pdf', status: 'Chờ duyệt' },
@@ -161,6 +181,7 @@
                 if ((parsed.serviceLines?.length || 0) < merged.serviceLines.length) parsed.serviceLines = merged.serviceLines;
                 if ((parsed.staff?.length || 0) < merged.staff.length) parsed.staff = merged.staff;
                 if ((parsed.participation?.length || 0) < merged.participation.length) parsed.participation = merged.participation;
+                if (!parsed.projectAssignments) parsed.projectAssignments = merged.projectAssignments;
                 return parsed;
             }
         } catch (e) {
@@ -170,6 +191,10 @@
     }
 
     let db = load();
+    // Đảm bảo projectAssignments luôn tồn tại
+    if (!db.projectAssignments) {
+        db.projectAssignments = JSON.parse(JSON.stringify(SEED.projectAssignments || {}));
+    }
 
     function save() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
@@ -401,6 +426,27 @@
         },
         deleteProjects(ids) {
             db.projects = db.projects.filter((p) => !ids.includes(p.id));
+            save();
+        },
+
+        // Project Assignments
+        getProjectAssignments(projectId) {
+            if (!db.projectAssignments) db.projectAssignments = {};
+            return db.projectAssignments[projectId] || [];
+        },
+        setProjectAssignments(projectId, assignments) {
+            if (!db.projectAssignments) db.projectAssignments = {};
+            db.projectAssignments[projectId] = assignments;
+            // Cập nhật leader trên project
+            const leader = assignments.find(a => a.isLeader);
+            const pi = db.projects.findIndex(p => p.id === projectId);
+            if (pi !== -1 && leader) db.projects[pi].leader = leader.name;
+            save();
+            logActivity('Dự án', `Cập nhật phân công nhân sự cho ${projectId}`);
+        },
+        deleteProjectAssignments(projectId) {
+            if (!db.projectAssignments) return;
+            delete db.projectAssignments[projectId];
             save();
         },
 

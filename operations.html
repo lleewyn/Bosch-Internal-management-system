@@ -222,13 +222,20 @@
                 <div class="op-box-search">
                     <div class="search-box" style="width: 400px; height: 36px;">
                         <i class="fa-solid fa-search" style="color: #6c757d;"></i>
-                        <input type="text" placeholder="Tìm nhanh dự án theo tên, công ty đối tác..." style="font-size: 13px;">
+                        <input type="text" placeholder="Tìm nhanh dự án theo mã, tên, công ty đối tác..." style="font-size: 13px;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
                         <select class="hr-select" id="filterProjectCompany"><option value="">Tất cả công ty</option></select>
                         <select class="hr-select" id="filterProjectService"><option value="">Tất cả Service Line</option></select>
-                        <select class="hr-select" id="filterProjectStatus"><option value="">Tất cả trạng thái</option><option value="Đang triển khai">Đang triển khai</option><option value="Hoàn thành">Hoàn thành</option><option value="Tạm dừng">Tạm dừng</option><option value="Đã hủy">Đã hủy</option><option value="Quá hạn">Quá hạn</option></select>
-                        <select class="hr-select"><option>Sắp xếp: Mặc định</option></select>
+                        <select class="hr-select" id="filterProjectStatus">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Trễ tiến độ">Trễ tiến độ</option>
+                            <option value="Sắp hết hạn">Sắp hết hạn</option>
+                            <option value="Chưa phân bổ">Chưa phân bổ nhân sự</option>
+                            <option value="Đang triển khai">Đang triển khai</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Tạm dừng">Tạm dừng</option>
+                        </select>
                     </div>
                 </div>
 
@@ -245,33 +252,33 @@
                 <!-- Box 3: Table -->
                 <div class="op-box-table">
                     <div class="table-responsive" style="flex: 1; overflow-y: auto; padding: 0;">
-                        <table class="bosch-table bosch-table-modern" id="projectsTable" style="min-width: 1500px;">
+                        <table class="bosch-table bosch-table-modern" id="projectsTable" style="min-width: 1600px;">
                         <colgroup>
-                            <col style="width: 14%;">
-                            <col style="width: 14%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
                             <col style="width: 12%;">
-                            <col style="width: 6%;">
+                            <col style="width: 11%;">
+                            <col style="width: 9%;">
+                            <col style="width: 14%;">
+                            <col style="width: 10%;">
                             <col style="width: 7%;">
                             <col style="width: 7%;">
-                            <col style="width: 8%;">
-                            <col style="width: 6%;">
+                            <col style="width: 7%;">
+                            <col style="width: 10%;">
+                            <col style="width: 7%;">
                             <col style="width: 6%;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>TÊN DỰ ÁN</th>
+                                <th>MÃ - TÊN DỰ ÁN</th>
                                 <th>TÊN CÔNG TY</th>
-                                <th>KHÁCH HÀNG</th>
-                                <th>NHÂN SỰ PHỤ TRÁCH</th>
+                                <th>NGƯỜI LIÊN HỆ</th>
+                                <th>NHÂN SỰ THAM GIA</th>
                                 <th>SERVICE LINE</th>
                                 <th>NGÂN SÁCH</th>
                                 <th>NGÀY BẮT ĐẦU</th>
                                 <th>NGÀY KẾT THÚC</th>
-                                <th>MÔ TẢ CHI TIẾT</th>
                                 <th>TIẾN ĐỘ</th>
                                 <th>TRẠNG THÁI</th>
+                                <th>MÔ TẢ</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -418,78 +425,138 @@
         </div>
     </div>
 
-    <!-- MODAL TẠO DỰ ÁN MỚI -->
+    <!-- MODAL TẠO / SỬA DỰ ÁN -->
     <div class="modal-overlay" id="projectModal">
-        <div class="modal-content hr-modal" style="width: 450px;">
-            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px;">
-                <h3 style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO DỰ ÁN MỚI</h3>
+        <div class="modal-content hr-modal" style="width: 520px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 20px; position: sticky; top: 0; background: white; z-index: 1;">
+                <h3 id="projectModalTitle" style="font-size: 14px; font-weight: 800; color: var(--bosch-blue);"><i class="fa-solid fa-plus" style="margin-right: 8px;"></i> TẠO DỰ ÁN MỚI</h3>
                 <i class="fa-solid fa-xmark close-modal" id="closeProjectModal"></i>
             </div>
             <div class="modal-body" style="padding: 20px;">
+
+                <!-- Tên dự án -->
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Tên dự án <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="Nhập tên dự án công nghệ chi tiết..." class="bg-white-input">
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Tên dự án <span class="required-asterisk">*</span></label>
+                    <input type="text" id="opProjName" placeholder="Nhập tên dự án..." style="width:100%; border:1px solid #ddd; padding:10px 12px; border-radius:6px; font-size:13px; box-sizing:border-box; background:white;">
                 </div>
+
+                <!-- Hợp đồng -->
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Liên kết hợp đồng <span class="required-asterisk">*</span></label>
-                    <select class="custom-select bg-white-input">
-                        <option>-- Chọn hợp đồng đang hiệu lực --</option>
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Hợp đồng <span class="required-asterisk">*</span></label>
+                    <select id="opProjContract" style="width:100%; border:1px solid #ddd; padding:10px 12px; border-radius:6px; font-size:13px; color:#333; background:white;">
+                        <option value="">-- Chọn hợp đồng đang hiệu lực --</option>
                     </select>
                 </div>
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Khách hàng đại diện <span class="required-asterisk">*</span></label>
-                    <select class="custom-select bg-white-input">
-                        <option>-- Tự động liên kết theo hợp đồng --</option>
-                    </select>
-                </div>
-                <div class="form-row mb-15">
-                    <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Ngày bắt đầu <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+
+                <!-- Thông tin kế thừa từ hợp đồng (readonly) -->
+                <div style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; padding:14px; margin-bottom:15px;">
+                    <div style="font-size:11px; font-weight:800; color:#6c757d; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-lock" style="font-size:10px;"></i> Thông tin kế thừa từ hợp đồng
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <div style="font-size:10px; color:#6c757d; font-weight:700; margin-bottom:4px;">KHÁCH HÀNG</div>
+                            <div id="opProjCustomerDisplay" style="font-size:13px; font-weight:600; color:#333; min-height:20px;">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; color:#6c757d; font-weight:700; margin-bottom:4px;">SERVICE LINE</div>
+                            <div id="opProjServiceDisplay" style="font-size:13px; font-weight:600; color:#333; min-height:20px;">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; color:#6c757d; font-weight:700; margin-bottom:4px;">NGÂN SÁCH</div>
+                            <div id="opProjBudgetDisplay" style="font-size:13px; font-weight:600; color:#10B981; min-height:20px;">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; color:#6c757d; font-weight:700; margin-bottom:4px;">TRẠNG THÁI OT</div>
+                            <div id="opProjOtDisplay" style="font-size:13px; font-weight:600; color:#333; min-height:20px;">—</div>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <div style="font-size:10px; color:#6c757d; font-weight:700; margin-bottom:4px;">HIỆU LỰC HỢP ĐỒNG</div>
+                            <div id="opProjContractRange" style="font-size:12px; font-weight:600; color:#6c757d; min-height:20px;">—</div>
                         </div>
                     </div>
-                    <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase;">Hạn cuối dự án <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
-                        </div>
-                    </div>
                 </div>
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Service Line <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="Phạm vi dịch vụ..." class="bg-white-input">
-                </div>
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Ngân sách phân bổ (VND) <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="e.g. 1500000000" class="bg-white-input">
-                </div>
+
+                <!-- Thời gian thực hiện dự án -->
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Chủ trì dự án <span class="required-asterisk">*</span></label>
-                        <input type="text" placeholder="Họ và tên leader..." class="bg-white-input" style="border: none; padding-left: 0;">
+                        <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Ngày bắt đầu <span class="required-asterisk">*</span></label>
+                        <input type="date" id="opProjStart" style="width:100%; border:1px solid #ddd; padding:10px 12px; border-radius:6px; font-size:13px; box-sizing:border-box; background:white;">
                     </div>
                     <div class="form-group flex-1">
-                        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary);">Tên tệp mô tả chi tiết <span class="required-asterisk">*</span></label>
-                        <input type="text" placeholder="Ví dụ: spec_mesh_v2.pdf" class="bg-white-input" style="border: none; padding-left: 0;">
+                        <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Ngày kết thúc <span class="required-asterisk">*</span></label>
+                        <input type="date" id="opProjEnd" style="width:100%; border:1px solid #ddd; padding:10px 12px; border-radius:6px; font-size:13px; box-sizing:border-box; background:white;">
                     </div>
                 </div>
+                <div id="opProjDateError" style="display:none; color:#dc3545; font-size:12px; font-weight:600; margin-top:-10px; margin-bottom:12px; padding:8px 12px; background:#fff5f5; border-radius:6px; border:1px solid #fca5a5;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Thời gian dự án phải nằm trong phạm vi hiệu lực của hợp đồng.
+                </div>
+
+                <!-- File đính kèm -->
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase;">Trạng thái <span class="required-asterisk">*</span></label>
-                    <select id="opProjectStatus" class="custom-select bg-white-input" style="width: 100%; border: 1px solid #ddd; padding: 10px 12px; border-radius: 6px; color: var(--text-main); font-size: 13px;">
-                        <option value="Đang triển khai">Đang triển khai</option>
-                        <option value="Hoàn thành">Hoàn thành</option>
-                        <option value="Tạm dừng">Tạm dừng</option>
-                        <option value="Đã hủy">Đã hủy</option>
-                        <option value="Quá hạn">Quá hạn</option>
-                    </select>
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Tệp mô tả chi tiết</label>
+                    <div id="opProjFileArea" style="border:1px dashed #ccc; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; background:#fafafa; cursor:pointer;">
+                        <span id="opProjFileName" style="color:#9ca3af; font-size:13px; font-style:italic;"><i class="fa-regular fa-file-lines"></i> Chọn tệp đính kèm...</span>
+                        <i class="fa-solid fa-arrow-up-from-bracket" style="color:#0078d4;"></i>
+                        <input type="file" id="opProjFile" style="display:none;" accept=".pdf,.doc,.docx">
+                    </div>
+                </div>
+
+                <!-- Phân công nhân sự -->
+                <div class="form-group mb-15">
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Phân công nhân sự</label>
+                    <div style="display:flex; align-items:center; gap:10px; border:1px solid #ddd; border-radius:6px; padding:10px 12px; background:white; min-height:44px;">
+                        <div id="opProjStaffList" style="flex:1; display:flex; flex-wrap:wrap; gap:6px; min-height:22px;">
+                            <span style="color:#9ca3af; font-size:13px; font-style:italic;">Chưa phân công nhân sự...</span>
+                        </div>
+                        <button type="button" id="openStaffAssignBtn" title="Phân công nhân sự" style="background:#0078d4; color:white; border:none; border-radius:6px; width:32px; height:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fa-solid fa-user-plus" style="font-size:13px;"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: 1px solid #eee; padding: 16px 20px; position: sticky; bottom: 0; background: white;">
+                <button id="cancelProjectBtn" style="background: transparent; color: var(--text-main); font-weight: 700; padding: 10px 20px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; margin-right: 8px;">Hủy</button>
+                <button id="saveProjectBtn" style="background: #C4161C; color: white; padding: 10px 30px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PHÂN CÔNG NHÂN SỰ -->
+    <div class="modal-overlay" id="staffAssignModal">
+        <div class="modal-content" style="width: 700px; max-height: 85vh; display:flex; flex-direction:column; border-radius:10px; overflow:hidden;">
+            <div class="modal-header" style="border-bottom: 1px solid #eee; padding: 18px 24px; background:white;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-users" style="color:#0078d4; margin-right: 8px;"></i> PHÂN CÔNG NHÂN SỰ</h3>
+                <i class="fa-solid fa-xmark" id="closeStaffAssignModal" style="cursor:pointer; font-size:16px; color:#6c757d;"></i>
+            </div>
+            <div style="padding:12px 24px; border-bottom:1px solid #f0f0f0; background:white;">
+                <div style="background:#f4f5f7; border-radius:6px; display:flex; align-items:center; padding:0 12px; gap:8px; height:36px;">
+                    <i class="fa-solid fa-search" style="color:#9ca3af; font-size:12px;"></i>
+                    <input type="text" id="staffAssignSearch" placeholder="Tìm nhân viên theo tên, mã, chức danh..." style="border:none; background:transparent; outline:none; font-size:13px; width:100%;">
                 </div>
             </div>
-            <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
-                <button class="btn-cancel" id="cancelProjectBtn" style="background: transparent; color: var(--text-main); font-weight: 700;">Hủy</button>
-                <button class="btn-update" style="background: #C4161C; color: white; padding: 10px 30px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer;">Lưu</button>
+            <div style="flex:1; overflow-y:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead style="position:sticky; top:0; background:#e8ecf1; z-index:1;">
+                        <tr>
+                            <th style="width:44px; padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:center;"></th>
+                            <th style="padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:left;">MÃ - TÊN NHÂN VIÊN</th>
+                            <th style="padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:left;">CHỨC DANH</th>
+                            <th style="padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:left;">TEAM</th>
+                            <th style="padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:center;">KHỐI LƯỢNG<br>HIỆN TẠI</th>
+                            <th style="padding:12px 16px; font-size:11px; font-weight:800; color:#7A6960; text-align:center;">MỨC ĐỘ<br>THAM GIA (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffAssignTableBody"></tbody>
+                </table>
+            </div>
+            <div style="padding:14px 24px; border-top:1px solid #eee; background:white; display:flex; justify-content:space-between; align-items:center;">
+                <div id="staffAssignCount" style="font-size:13px; color:#6c757d; font-weight:600;">Đã chọn: 0 nhân viên</div>
+                <div style="display:flex; gap:10px;">
+                    <button id="cancelStaffAssignBtn" style="background:transparent; border:1px solid #ddd; padding:8px 20px; border-radius:6px; color:#6c757d; font-weight:600; cursor:pointer;">Hủy</button>
+                    <button id="saveStaffAssignBtn" style="background:#0078d4; color:white; border:none; padding:8px 24px; border-radius:6px; font-weight:700; cursor:pointer;">Lưu phân công</button>
+                </div>
             </div>
         </div>
     </div>

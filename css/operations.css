@@ -334,3 +334,71 @@
     background: var(--bg-card) !important;
     border: 1px solid #ddd !important;
 }
+
+/* ── Project status row highlights ─────────────────────────────────────── */
+.proj-row-late     { background: #fff5f5 !important; }
+.proj-row-expiring { background: #fffdf0 !important; }
+.proj-row-done     { opacity: 0.6; }
+
+/* ── Staff assign modal table ───────────────────────────────────────────── */
+#staffAssignTableBody tr:hover td {
+    background: #f8faff;
+}
+#staffAssignTableBody tr td {
+    vertical-align: middle;
+}
+
+/* ── Progress bar in project table ─────────────────────────────────────── */
+.proj-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.proj-progress-track {
+    flex: 1;
+    background: #e5e7eb;
+    border-radius: 4px;
+    height: 8px;
+    min-width: 60px;
+}
+.proj-progress-fill {
+    height: 8px;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* ── Inherited info block in project modal ──────────────────────────────── */
+.proj-inherited-block {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 15px;
+}
+.proj-inherited-block .lock-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.proj-inherited-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.proj-inherited-grid .field-label {
+    font-size: 10px;
+    color: #6c757d;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.proj-inherited-grid .field-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    min-height: 20px;
+}
