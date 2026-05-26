@@ -659,18 +659,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyRoadmapFilters() {
-        const level = document.getElementById('roadFilterLevel')?.value || '';
         const status = document.getElementById('roadFilterStatus')?.value || '';
         const term = (roadControls?.querySelector('.search-box input')?.value || '').toLowerCase();
         roadTable.querySelectorAll('tbody tr').forEach((tr) => {
             const text = tr.textContent.toLowerCase();
             const matchSearch = !term || text.includes(term);
             const cells = tr.querySelectorAll('td');
-            const rowLevel = cells[3]?.textContent || '';
-            const rowStatus = cells[5]?.textContent || '';
-            const matchLevel = !level || rowLevel.includes(level);
+            const rowStatus = cells[4]?.textContent || '';
             const matchStatus = !status || rowStatus.includes(status);
-            tr.style.display = matchSearch && matchLevel && matchStatus ? '' : 'none';
+            tr.style.display = matchSearch && matchStatus ? '' : 'none';
         });
     }
 
@@ -717,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dirControls?.querySelector('.search-box input')?.addEventListener('input', applyFilters);
     roadControls?.querySelector('.search-box input')?.addEventListener('input', applyRoadmapFilters);
-    document.getElementById('roadFilterLevel')?.addEventListener('change', applyRoadmapFilters);
     document.getElementById('roadFilterStatus')?.addEventListener('change', applyRoadmapFilters);
     dirControls?.querySelectorAll('.hr-select').forEach((sel) =>
         sel.addEventListener('change', applyFilters)
