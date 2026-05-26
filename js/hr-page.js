@@ -591,7 +591,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="code-col">${UI.escape(r.id)}</td>
                 <td class="name-col">${UI.escape(r.name)}</td>
                 <td class="role-col">${UI.escape(r.title)}</td>
-                <td>${UI.escape(r.level)}</td>
                 <td>${UI.escape(r.course)}</td>
                 <td style="text-align:center;">${roadmapStatusBadge(r.status)}</td>
             </tr>`;

@@ -87,7 +87,7 @@
                         <input type="text" placeholder="Tìm tên công ty đối tác, người liên hệ,..." style="width: 100%; border: none; background: transparent; outline: none; font-size: 13px; padding: 0;">
                     </div>
                     <div class="hr-filters" style="display: flex; gap: 16px;">
-                        <select class="hr-select" id="filterCustomerCountry" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;">
+                        <select class="hr-select" id="filterCustomerCountry" style="background-color: #f4f5f7; border: none; padding: 8px 32px 8px 14px; border-radius: 4px; font-weight: 600; color: #333;">
                             <option value="">Tất cả quốc gia</option>
                             <option value="Việt Nam">Việt Nam</option>
                             <option value="Hàn Quốc">Hàn Quốc</option>
@@ -95,7 +95,7 @@
                             <option value="Nhật Bản">Nhật Bản</option>
                             <option value="Mỹ">Mỹ</option>
                         </select>
-                        <select class="hr-select" id="filterCustomerStatus" style="background-color: #f4f5f7; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; color: #333;">
+                        <select class="hr-select" id="filterCustomerStatus" style="background-color: #f4f5f7; border: none; padding: 8px 32px 8px 14px; border-radius: 4px; font-weight: 600; color: #333;">
                             <option value="">Tất cả trạng thái hợp tác</option>
                             <option value="TIỀM NĂNG">TIỀM NĂNG</option>
                             <option value="ĐANG ĐÀM PHÁN">ĐANG ĐÀM PHÁN</option>
@@ -130,13 +130,13 @@
                             </colgroup>
                             <thead style="background-color: #e8ecf1;">
                                 <tr>
-                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">MÃ<br>KHÁCH<br>HÀNG</th>
+                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top; text-align: center;">MÃ<br>KHÁCH<br>HÀNG</th>
                                     <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">TÊN<br>CÔNG TY</th>
                                     <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">NGƯỜI<br>LIÊN HỆ</th>
                                     <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">EMAIL</th>
-                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">SỐ ĐIỆN<br>THOẠI</th>
-                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">QUỐC<br>GIA</th>
-                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top;">TRẠNG<br>THÁI</th>
+                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top; text-align: center;">SỐ ĐIỆN<br>THOẠI</th>
+                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top; text-align: center;">QUỐC<br>GIA</th>
+                                    <th style="color: #7A6960; font-size: 12px; padding: 16px; font-weight: 800; vertical-align: top; text-align: center;">TRẠNG<br>THÁI</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -193,19 +193,19 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>MÃ HỢP ĐỒNG</th>
+                                <th style="text-align:center;">MÃ HỢP ĐỒNG</th>
                                 <th>DOANH NGHIỆP</th>
                                 <th>NGƯỜI LIÊN HỆ</th>
                                 <th>EMAIL</th>
-                                <th>SỐ ĐT</th>
+                                <th style="text-align:center;">SỐ ĐT</th>
                                 <th>SERVICE LINE</th>
-                                <th>GIÁ TRỊ</th>
-                                <th>NGÀY HIỆU LỰC</th>
-                                <th>NGÀY HẾT HẠN</th>
+                                <th style="text-align:center;">GIÁ TRỊ</th>
+                                <th style="text-align:center;">NGÀY HIỆU LỰC</th>
+                                <th style="text-align:center;">NGÀY HẾT HẠN</th>
                                 <th>DỰ ÁN (NẾU CÓ)</th>
-                                <th>OT</th>
-                                <th>BẢN KÝ</th>
-                                <th>TRẠNG THÁI</th>
+                                <th style="text-align:center;">OT</th>
+                                <th style="text-align:center;">BẢN KÝ</th>
+                                <th style="text-align:center;">TRẠNG THÁI</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -273,11 +273,11 @@
                                 <th>NGƯỜI LIÊN HỆ</th>
                                 <th>NHÂN SỰ THAM GIA</th>
                                 <th>SERVICE LINE</th>
-                                <th>NGÂN SÁCH</th>
-                                <th>NGÀY BẮT ĐẦU</th>
-                                <th>NGÀY KẾT THÚC</th>
-                                <th>TIẾN ĐỘ</th>
-                                <th>TRẠNG THÁI</th>
+                                <th style="text-align:center;">NGÂN SÁCH</th>
+                                <th style="text-align:center;">NGÀY BẮT ĐẦU</th>
+                                <th style="text-align:center;">NGÀY KẾT THÚC</th>
+                                <th style="text-align:center;">TIẾN ĐỘ</th>
+                                <th style="text-align:center;">TRẠNG THÁI</th>
                                 <th>MÔ TẢ</th>
                             </tr>
                         </thead>
