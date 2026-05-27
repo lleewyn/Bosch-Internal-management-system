@@ -107,10 +107,10 @@
                             </select>
                             <select class="hr-select" id="filterStaffWorkload">
                                 <option value="">Tất cả thời gian</option>
-                                <option value="low">Rảnh rỗi (&lt; 50%)</option>
-                                <option value="stable">Ổn định (50% - 74%)</option>
-                                <option value="high">Cao (75% - 89%)</option>
-                                <option value="overloaded">Quá tải (&gt;= 90%)</option>
+                                <option value="low">Thấp (0% - 30%)</option>
+                                <option value="stable">Ổn định (31% - 70%)</option>
+                                <option value="high">Cao (71% - 90%)</option>
+                                <option value="overloaded">Quá tải (&gt; 90%)</option>
                             </select>
                         </div>
                     </div>
@@ -173,13 +173,8 @@
                         <div class="op-box-actions" style="margin-bottom: 0; margin-top: 12px;">
                             <div id="roadmapSelectionBadge" class="op-badge-selection" style="display:none;">Đang chọn: —</div>
                             <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                                <button type="button" class="btn-action red-btn" id="addRoadmapBtn"
-                                    style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
-                                    <i class="fa-solid fa-plus"></i> Thêm khoá học</button>
                                 <button type="button" class="btn-action" id="editRoadmapBtn"
-                                    style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Sửa</button>
-                                <button type="button" class="btn-action" id="updateRoadmapStatusBtn"
-                                    style="background-color: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật trạng thái</button>
+                                    style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">Cập nhật</button>
                             </div>
                         </div>
                     </div>
@@ -556,8 +551,6 @@
                 </div>
 
                 <div class="org-section">
-                    <h4>CƠ CẤU TỔ CHỨC</h4>
-
                     <div class="form-group mt-15">
                         <label for="staffGroup">Chọn Group Chiến lược <span class="required-asterisk">*</span></label>
                         <select id="staffGroup" class="hr-form-select custom-select">
@@ -573,9 +566,9 @@
                     </div>
 
                     <div class="form-group mt-15">
-                        <label for="staffManager">Quản lý trực tiếp <span class="required-asterisk">*</span></label>
+                        <label for="staffManager">Chọn Sub-team <span class="required-asterisk">*</span></label>
                         <select id="staffManager" class="hr-form-select custom-select">
-                            <option value="">-- Chọn quản lý --</option>
+                            <option value="">-- Chọn Sub-team --</option>
                         </select>
                     </div>
                 </div>
@@ -682,16 +675,6 @@
                     <input type="text" id="roadmapTitle" class="hr-form-input">
                 </div>
                 <div class="form-group mb-15">
-                    <label for="roadmapLevel">Cấp bậc <span class="required-asterisk">*</span></label>
-                    <select id="roadmapLevel" class="hr-form-select">
-                        <option value="">-- Chọn --</option>
-                        <option value="L2">L2 - Junior</option>
-                        <option value="L3">L3 - Mid</option>
-                        <option value="L4">L4 - Senior</option>
-                        <option value="L5">L5 - Lead</option>
-                    </select>
-                </div>
-                <div class="form-group mb-15">
                     <label for="roadmapCourse">Khóa học / Chứng chỉ <span class="required-asterisk">*</span></label>
                     <input type="text" id="roadmapCourse" class="hr-form-input" placeholder="VD: Cloud Architecture">
                 </div>
@@ -769,15 +752,6 @@
                     <label for="newRoadmapStaff">Nhân viên <span class="required-asterisk">*</span></label>
                     <select id="newRoadmapStaff" class="hr-form-select custom-select">
                         <option value="">-- Chọn nhân viên --</option>
-                    </select>
-                </div>
-                <div class="form-group mt-15">
-                    <label for="newRoadmapLevel">Cấp bậc <span class="required-asterisk">*</span></label>
-                    <select id="newRoadmapLevel" class="hr-form-select custom-select">
-                        <option value="L2">L2</option>
-                        <option value="L3">L3</option>
-                        <option value="L4">L4</option>
-                        <option value="L5">L5</option>
                     </select>
                 </div>
                 <div class="form-group mt-15">
@@ -919,6 +893,53 @@
     </div>
 
     <!-- MODAL SỬA KHOÁ HỌC -->
+    <div class="bosch-modal-overlay" id="addCourseModal">
+        <div class="bosch-modal-content hr-modal" style="width: 480px;">
+            <div class="bosch-modal-header">
+                <h3>Thêm khoá học mới</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeAddCourseModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <div class="form-group mb-15">
+                    <label>Tên khoá học <span class="required-asterisk">*</span></label>
+                    <input type="text" id="newCourseName" class="hr-form-input" placeholder="Nhập tên khoá học...">
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Danh mục <span class="required-asterisk">*</span></label>
+                        <select id="newCourseCategory" class="hr-form-select">
+                            <option value="Kỹ thuật">Kỹ thuật</option>
+                            <option value="Quản lý">Quản lý</option>
+                            <option value="Kỹ năng mềm">Kỹ năng mềm</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Trạng thái <span class="required-asterisk">*</span></label>
+                        <select id="newCourseStatus" class="hr-form-select">
+                            <option value="Đang mở">Đang mở</option>
+                            <option value="Sắp khai giảng">Sắp khai giảng</option>
+                            <option value="Đã kết thúc">Đã kết thúc</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row mb-15">
+                    <div class="form-group flex-1">
+                        <label>Nhà cung cấp <span class="required-asterisk">*</span></label>
+                        <input type="text" id="newCourseProvider" class="hr-form-input" placeholder="VD: Bosch Academy">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Thời lượng</label>
+                        <input type="text" id="newCourseDuration" class="hr-form-input" placeholder="VD: 40 giờ">
+                    </div>
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button type="button" class="btn-secondary" id="cancelAddCourseBtn">Hủy</button>
+                <button type="button" class="btn-primary" id="saveAddCourseBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+
     <div class="bosch-modal-overlay" id="editCourseModal">
         <div class="bosch-modal-content hr-modal" style="width: 480px;">
             <div class="bosch-modal-header">

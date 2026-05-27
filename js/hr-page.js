@@ -58,22 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     PageCommon.injectFormStyles();
     const style = document.createElement('style');
     style.textContent = `
-        tr.selected td,
-        tr.selected-row td {
-            background: #f0f7ff;
-            border-top: 2px solid #0078d4 !important;
-            border-bottom: 2px solid #0078d4 !important;
-            border-left: none !important;
-            border-right: none !important;
-        }
-        tr.selected td:first-child,
-        tr.selected-row td:first-child {
-            border-left: 2px solid #0078d4 !important;
-        }
-        tr.selected td:last-child,
-        tr.selected-row td:last-child {
-            border-right: 2px solid #0078d4 !important;
-        }
         #addStaffModal .bosch-modal-content { width: 560px; max-width: 95vw; }
         #addStaffModal .bosch-modal-body { max-height: 70vh; overflow-y: auto; }
     `;
@@ -119,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mgrSel) return;
         const leads = [...new Set([...MANAGERS, ...MockStore.getStaff().map((s) => s.manager).filter(Boolean)])];
         mgrSel.innerHTML =
-            '<option value="">-- Chọn quản lý --</option>' +
+            '<option value="">-- Chọn Sub-team --</option>' +
             leads.map((m) => `<option value="${UI.escape(m)}">${UI.escape(m)}</option>`).join('');
     }
 
@@ -354,7 +338,45 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filterCourseStatus')?.addEventListener('change', renderCourses);
 
     document.getElementById('addCourseBtn')?.addEventListener('click', () => {
-        showToast('Thông tin', 'Chức năng thêm khoá học đang phát triển.', 'error');
+        // Reset form
+        document.getElementById('newCourseName').value = '';
+        document.getElementById('newCourseCategory').value = 'Kỹ thuật';
+        document.getElementById('newCourseStatus').value = 'Đang mở';
+        document.getElementById('newCourseProvider').value = '';
+        document.getElementById('newCourseDuration').value = '';
+        document.getElementById('addCourseModal').classList.add('show');
+    });
+
+    document.getElementById('closeAddCourseModal')?.addEventListener('click', () =>
+        document.getElementById('addCourseModal').classList.remove('show'));
+    document.getElementById('cancelAddCourseBtn')?.addEventListener('click', () =>
+        document.getElementById('addCourseModal').classList.remove('show'));
+    document.getElementById('addCourseModal')?.addEventListener('click', e => {
+        if (e.target === document.getElementById('addCourseModal'))
+            document.getElementById('addCourseModal').classList.remove('show');
+    });
+
+    document.getElementById('saveAddCourseBtn')?.addEventListener('click', () => {
+        const name     = document.getElementById('newCourseName').value.trim();
+        const category = document.getElementById('newCourseCategory').value;
+        const status   = document.getElementById('newCourseStatus').value;
+        const provider = document.getElementById('newCourseProvider').value.trim();
+        const duration = document.getElementById('newCourseDuration').value.trim();
+
+        if (!name)     { showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error'); return; }
+        if (!provider) { showToast('Lỗi', 'Vui lòng nhập nhà cung cấp.', 'error'); return; }
+
+        const newCourse = {
+            id: 'CRS-' + String(COURSES_DATA.length + 1).padStart(3, '0'),
+            name, category, provider,
+            duration: duration || '—',
+            enrolled: 0,
+            status
+        };
+        COURSES_DATA.push(newCourse);
+        document.getElementById('addCourseModal').classList.remove('show');
+        showToast('Thành công', `Đã thêm khoá học "${name}".`);
+        renderCourses();
     });
 
     // ── DM Approval ──────────────────────────────────────────────────────────
@@ -735,10 +757,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const matchProject = !project || s.project === project;
                 
                 let matchWorkload = true;
-                if (workloadVal === 'low') matchWorkload = s.workload < 50;
-                else if (workloadVal === 'stable') matchWorkload = s.workload >= 50 && s.workload < 75;
-                else if (workloadVal === 'high') matchWorkload = s.workload >= 75 && s.workload < 90;
-                else if (workloadVal === 'overloaded') matchWorkload = s.workload >= 90;
+                if (workloadVal === 'low') matchWorkload = s.workload <= 30;
+                else if (workloadVal === 'stable') matchWorkload = s.workload >= 31 && s.workload <= 70;
+                else if (workloadVal === 'high') matchWorkload = s.workload >= 71 && s.workload <= 90;
+                else if (workloadVal === 'overloaded') matchWorkload = s.workload > 90;
                 
                 tr.style.display = (matchSearch && matchGroup && matchTeam && matchProject && matchWorkload) ? '' : 'none';
             });
@@ -768,7 +790,6 @@ document.addEventListener('DOMContentLoaded', () => {
         $('roadmapStaffId').value = r.id;
         $('roadmapName').value = r.name;
         $('roadmapTitle').value = r.title;
-        $('roadmapLevel').value = r.level || '';
         $('roadmapCourse').value = r.course || '';
         $('roadmapStatus').value = r.status || 'Đang học';
         roadmapModal.classList.add('show');
@@ -787,7 +808,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 MockStore.getStaff().map(s => `<option value="${s.id}">${UI.escape(s.name)} (${s.id})</option>`).join('');
         }
         document.getElementById('newRoadmapCourse').value = '';
-        document.getElementById('newRoadmapLevel').value = 'L2';
         document.getElementById('newRoadmapStatus').value = 'Chưa bắt đầu';
         addRoadmapModal?.classList.add('show');
     }
@@ -800,12 +820,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveAddRoadmapBtn')?.addEventListener('click', () => {
         const staffId = document.getElementById('newRoadmapStaff').value;
         const course = document.getElementById('newRoadmapCourse').value.trim();
-        const level = document.getElementById('newRoadmapLevel').value;
         const status = document.getElementById('newRoadmapStatus').value;
         if (!staffId) { showToast('Lỗi', 'Vui lòng chọn nhân viên.', 'error'); return; }
         if (!course) { showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error'); return; }
         const staff = MockStore.getStaff().find(s => s.id === staffId);
-        MockStore.addRoadmap({ id: staffId, courseId: 'c_' + Date.now(), name: staff?.name || '', title: staff?.title || '', level, course, status });
+        MockStore.addRoadmap({ id: staffId, courseId: 'c_' + Date.now(), name: staff?.name || '', title: staff?.title || '', course, status });
         addRoadmapModal?.classList.remove('show');
         showToast('Thành công', `Đã thêm khoá học "${course}".`);
         renderRoadmap();
@@ -838,7 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const patch = {
             name: $('roadmapName').value.trim(),
             title: $('roadmapTitle').value.trim(),
-            level: $('roadmapLevel').value,
             course: $('roadmapCourse').value.trim(),
             status: $('roadmapStatus').value
         };

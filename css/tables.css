@@ -69,6 +69,16 @@
     background: var(--bg-body);
 }
 
+/* ROW SELECTION - Unified */
+tr.selected td,
+tr.selected-row td {
+    background: #f0f7ff;
+}
+tr.selected td:first-child,
+tr.selected-row td:first-child {
+    box-shadow: inset 3px 0 0 #0078d4;
+}
+
 /* ===== COLUMN STYLE UTILITIES ===== */
 
 /* CODE/ID COLUMNS */
