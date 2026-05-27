@@ -110,6 +110,6 @@
         isAuthenticated,
         redirect,
         init,
-        defaultAfterLogin: 'account.html'
+        defaultAfterLogin: 'dashboard.html'
     };
 })();

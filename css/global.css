@@ -114,6 +114,12 @@ body {
     text-transform: uppercase;
 }
 
+.bosch-logo-img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
 .app-subtitle {
     font-weight: var(--font-medium);
     font-size: var(--text-md);

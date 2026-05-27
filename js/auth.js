@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     window.location.href = window.AppRouter
                         ? AppRouter.defaultAfterLogin
-                        : 'account.html'; 
+                        : 'dashboard.html'; 
                 }
 
                 submitBtn.innerHTML = oldBtnText; // Trả lại text cho nút
