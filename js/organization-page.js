@@ -1,5 +1,5 @@
 /**
- * Cơ cấu tổ chức — điều hướng, thêm group/team, tìm kiếm
+ * Cơ cấu tổ chức — điều hướng, thêm group/team, tìm kiếm, collapse/expand
  */
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.MockStore || !window.PageCommon) return;
@@ -13,13 +13,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(id)
     );
 
+    // ── Collapse/Expand nodes ────────────────────────────────────────────────
+    function initCollapseToggle() {
+        document.querySelectorAll('.org-tree li').forEach(li => {
+            const childUl = li.querySelector(':scope > ul');
+            if (!childUl) return;
+            const node = li.querySelector(':scope > .org-node');
+            if (!node || node.dataset.toggleBound) return; // tránh duplicate
+
+            node.dataset.toggleBound = '1';
+            node.classList.add('has-children');
+
+            node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isCollapsed = childUl.classList.toggle('org-children-collapsed');
+                node.classList.toggle('is-collapsed', isCollapsed);
+            });
+        });
+    }
+
+    // ── Switch view ──────────────────────────────────────────────────────────
     function switchView(activeItem, activeChart) {
         [deptHeader, ...groupItems].forEach((i) => i?.classList.remove('active'));
         activeItem?.classList.add('active');
-        charts.forEach((c) => {
-            if (c) c.style.display = 'none';
-        });
-        if (activeChart) activeChart.style.display = 'flex';
+        charts.forEach((c) => { if (c) c.style.display = 'none'; });
+        if (activeChart) {
+            activeChart.style.display = 'flex';
+            setTimeout(initCollapseToggle, 50);
+        }
     }
 
     deptHeader?.addEventListener('click', () => switchView(deptHeader, charts[0]));
@@ -27,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
         item?.addEventListener('click', () => switchView(item, charts[i + 1]));
     });
 
+    // Init toggle cho chart mặc định đang hiển thị
+    setTimeout(initCollapseToggle, 100);
+
+    // ── Refresh sidebar ──────────────────────────────────────────────────────
     function refreshSidebar() {
         const groups = MockStore.getOrgGroups();
         groups.forEach((g, i) => {
@@ -42,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (deptMeta) deptMeta.textContent = `${totalStaff} nhân sự · ${groups.length} group`;
     }
 
+    // ── Modals ───────────────────────────────────────────────────────────────
     const gModal = document.getElementById('addGroupModal');
     const tModal = document.getElementById('addTeamModal');
 
@@ -91,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshSidebar();
     });
 
+    // ── Search ───────────────────────────────────────────────────────────────
     const searchInp =
-        document.querySelector('.org-sidebar input') ||
-        document.querySelector('.sidebar-panel input') ||
+        document.querySelector('.org-search input') ||
         document.querySelector('[placeholder*="Tìm kiếm nhân sự"]');
     searchInp?.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
@@ -104,10 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ── Toggle sidebar ───────────────────────────────────────────────────────
     document.getElementById('toggleSidebarBtn')?.addEventListener('click', () => {
-        document.querySelector('.org-sidebar, .sidebar-panel')?.classList.toggle('collapsed');
+        document.querySelector('.org-sidebar')?.classList.toggle('collapsed');
     });
 
+    // ── Close modals on backdrop click ───────────────────────────────────────
     [gModal, tModal].forEach((m) => {
         m?.addEventListener('click', (e) => {
             if (e.target === m) m.classList.remove('show');

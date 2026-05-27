@@ -339,7 +339,39 @@
         .sub-node .n-name { font-size: 12px; }
         .sub-node .n-role { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
 
-        /* Modal specific */
+        /* Toggle collapse - click vào card */
+        .org-node.has-children {
+            cursor: pointer;
+        }
+        .org-node.has-children::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #cbd5e1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-size: 14px;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+        .org-node.has-children.is-collapsed::after {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+            background-color: #0078d4;
+            border-color: #0078d4;
+        }
+
+        /* Collapsed children */
+        .org-children-collapsed {
+            display: none !important;
+        }
         .auto-permission-box {
             background: var(--bg-body);
             border-radius: 8px;
