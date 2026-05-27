@@ -107,12 +107,6 @@
     flex: 1;
 }
 
-.code-col {
-    color: var(--text-muted);
-    font-weight: var(--font-semibold);
-    font-family: monospace;
-}
-
 .name-col {
     font-weight: var(--font-bold);
     color: var(--text-main);
