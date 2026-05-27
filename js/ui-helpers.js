@@ -76,7 +76,16 @@ window.UI = {
         'QUÁ MỨC':          'badge-danger',
         'Bị từ chối':       'badge-danger',
         // ── Xám — trung tính / kết thúc ──────────────────────────────────────
-        'Ngừng':            'badge-muted',
+        'Trễ tiến độ':      'badge-danger',
+        'Chưa phân bổ':     'badge-muted',
+        // ── Nhật ký hoạt động ─────────────────────────────────────────────────
+        'Đăng nhập':        'badge-info',
+        'Bảo mật':          'badge-danger',
+        'Nhân sự':          'badge-success',
+        'Ngân sách':        'badge-warning',
+        'Vận hành':         'badge-info',
+        'Dự án':            'badge-success',
+        'Tổ chức':          'badge-muted',
         'ĐÃ ĐĂNG XUẤT':     'badge-muted',
         'Chưa':             'badge-muted',
         'Đã kết thúc':      'badge-muted',

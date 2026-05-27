@@ -121,9 +121,17 @@
                             Đang chọn: Tất cả nhân sự
                         </div>
                         <div class="action-buttons" style="display: flex; gap: 12px; margin-left: auto;">
-                            <button class="btn-action red-btn" id="openAddModalBtn"
-                                style="border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                            <button class="btn-action" id="openAddModalBtn"
+                                style="background-color: #0078d4; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                                 <i class="fa-solid fa-plus"></i> Thêm nhân sự mới
+                            </button>
+                            <button class="btn-action"
+                                style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                Sửa
+                            </button>
+                            <button class="btn-action"
+                                style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                Xóa
                             </button>
                         </div>
                     </div>
@@ -723,13 +731,6 @@
                 </div>
 
                 <div class="form-row mb-15">
-                    <div class="form-group" style="width: 30%;">
-                        <label for="assignPercent">% Công suất <span class="required-asterisk">*</span></label>
-                        <div class="input-with-text">
-                            <input type="number" id="assignPercent" class="hr-form-input" min="1" max="100" value="60">
-                            <span>%</span>
-                        </div>
-                    </div>
                     <div class="form-group flex-1">
                         <label for="assignDateFrom">Từ ngày <span class="required-asterisk">*</span></label>
                         <input type="date" id="assignDateFrom" class="hr-form-input" value="2025-01-01">
@@ -737,15 +738,6 @@
                     <div class="form-group flex-1">
                         <label for="assignDateTo">Đến ngày <span class="required-asterisk">*</span></label>
                         <input type="date" id="assignDateTo" class="hr-form-input" value="2025-12-31">
-                    </div>
-                </div>
-
-                <div class="capacity-preview mb-20">
-                    <p class="capacity-text">Công suất hiện tại: 40% <span class="dot-sep">•</span> Công suất dự kiến:
-                        100%</p>
-                    <div class="capacity-bar">
-                        <div class="cap-fill gray" style="width: 40%;">40%</div>
-                        <div class="cap-fill red" style="width: 60%;">NEW: +60%</div>
                     </div>
                 </div>
 

@@ -282,17 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Render Projects ──────────────────────────────────────────────────────
     function projectStatusBadge(status) {
-        const map = {
-            'Trễ tiến độ':    'background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;',
-            'Sắp hết hạn':    'background:#fffbeb;color:#d97706;border:1px solid #fde68a;',
-            'Chưa phân bổ':   'background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;',
-            'Đang triển khai':'background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;',
-            'Hoàn thành':     'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;',
-            'Tạm dừng':       'background:#fdf4ff;color:#9333ea;border:1px solid #e9d5ff;',
-            'Đã hủy':         'background:#f9fafb;color:#9ca3af;border:1px solid #e5e7eb;'
-        };
-        const style = map[status] || 'background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;';
-        return `<span style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;${style}">${UI.escape(status)}</span>`;
+        return UI.badge(status);
     }
 
     function progressBar(pct) {
@@ -357,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td style="padding:12px 16px;font-size:12px;">${p.start}</td>
                 <td style="padding:12px 16px;font-size:12px;${isLate ? 'color:#dc2626;font-weight:700;' : ''}">${p.end}</td>
                 <td style="padding:12px 16px;">${progressBar(p.progress)}</td>
-                <td style="padding:12px 16px;">${projectStatusBadge(status)}</td>
+                <td style="padding:12px 16px;text-align:center;">${projectStatusBadge(status)}</td>
                 <td style="padding:12px 16px;font-size:12px;color:#6b7280;">${UI.escape(p.desc || '—')}</td>
             </tr>`;
         }).join('');
@@ -479,7 +469,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return showToast('Không thể xóa', 'Chỉ được xóa khách hàng có trạng thái "Đang đàm phán".', 'error');
         }
         if (confirm('Xóa khách hàng này?')) {
-            MockStore.deleteCustomers([selected.customers]);
+            const custId = selected.customers;
+            // Cascade: xóa hợp đồng và dự án liên quan
+            const relatedContracts = MockStore.getContracts().filter(c => c.customerId === custId).map(c => c.id);
+            const relatedProjects  = MockStore.getProjects().filter(p => p.customerId === custId).map(p => p.id);
+            if (relatedContracts.length) MockStore.deleteContracts(relatedContracts);
+            if (relatedProjects.length)  MockStore.deleteProjects(relatedProjects);
+            MockStore.deleteCustomers([custId]);
             clearSelection('customers');
             renderCustomers();
             showToast('Thành công', 'Đã xóa khách hàng.');
@@ -530,6 +526,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('renewContractBtn')?.addEventListener('click', () => {
         if (!selected.contracts) return showToast('Lỗi', 'Vui lòng chọn hợp đồng.', 'error');
+        // Hiển thị mã hợp đồng đang gia hạn
+        const renewDisplay = $('renewContractIdDisplay');
+        if (renewDisplay) renewDisplay.textContent = selected.contracts;
+        // Set ngày mặc định = 1 năm sau ngày hết hạn hiện tại
+        const c = getItem('contracts', selected.contracts);
+        if (c?.end && $('renewNewEndDate')) {
+            const d = new Date(c.end);
+            d.setFullYear(d.getFullYear() + 1);
+            $('renewNewEndDate').value = d.toISOString().split('T')[0];
+            $('renewNewEndDate').min = c.end;
+        }
         open(modals.renew);
     });
     $('deleteContractBtn')?.addEventListener('click', () => {
@@ -579,7 +586,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('confirmRenewBtn')?.addEventListener('click', () => {
         if (selected.contracts) {
-            MockStore.updateContract(selected.contracts, { status: 'Đã gia hạn', end: '2026-12-31' });
+            const newEnd = $('renewNewEndDate')?.value;
+            if (!newEnd) return showToast('Lỗi', 'Vui lòng chọn ngày hết hạn mới.', 'error');
+            MockStore.updateContract(selected.contracts, { status: 'Đã gia hạn', end: newEnd });
             showToast('Thành công', 'Đã gia hạn hợp đồng.');
         }
         close(modals.renew);
@@ -588,13 +597,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ── Project Modal: populate contract dropdown ────────────────────────────
-    function refreshProjectContracts() {
+    function refreshProjectContracts(includeAll = false) {
         const sel = $('opProjContract');
         if (!sel) return;
         const validStatuses = ['Có hiệu lực', 'Sắp hết hạn'];
-        const active = MockStore.getContracts().filter(c => validStatuses.includes(c.status));
+        const contracts = includeAll
+            ? MockStore.getContracts()
+            : MockStore.getContracts().filter(c => validStatuses.includes(computeContractStatus(c)));
         sel.innerHTML = '<option value="">-- Chọn hợp đồng đang hiệu lực --</option>' +
-            active.map(c => `<option value="${c.id}">${UI.escape(c.id)} — ${UI.escape(c.company)}</option>`).join('');
+            contracts.map(c => {
+                const status = computeContractStatus(c);
+                const label = includeAll && !validStatuses.includes(status) ? ` (${status})` : '';
+                return `<option value="${c.id}">${UI.escape(c.id)} — ${UI.escape(c.company)}${label}</option>`;
+            }).join('');
     }
 
     // Auto-fill thông tin từ hợp đồng khi chọn
@@ -888,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         editing.projects = true;
-        refreshProjectContracts();
+        refreshProjectContracts(true); // load tất cả để hợp đồng gốc vẫn hiển thị
         resetProjectModal();
 
         $('opProjName').value = p.name || '';
@@ -991,9 +1006,32 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Thành công', 'Đã tạo dự án mới.');
         }
 
-        // Lưu phân công nhân sự
+        // Lưu phân công nhân sự + sync workload về HR
         if (MockStore.setProjectAssignments) {
             MockStore.setProjectAssignments(projectId, tempStaffAssignments);
+
+            // Tính lại workload cho từng nhân sự được phân công
+            const allStaff = MockStore.getStaff();
+            const allAssignments = MockStore.get().projectAssignments || {};
+
+            // Với mỗi nhân sự trong dự án này, tính tổng % từ tất cả dự án
+            tempStaffAssignments.forEach(a => {
+                let total = 0;
+                Object.values(allAssignments).forEach(projAssigns => {
+                    const found = projAssigns.find(x => x.staffId === a.staffId);
+                    if (found) total += (found.percent || 0);
+                });
+                MockStore.updateStaff(a.staffId, { workload: Math.min(120, total) });
+
+                // Sync participation
+                const db = MockStore.get();
+                const pi = db.participation?.findIndex(p => p.staffId === a.staffId);
+                if (pi !== undefined && pi >= 0) {
+                    db.participation[pi].actual = Math.min(120, total);
+                    db.participation[pi].project = payload.name;
+                }
+            });
+            MockStore.save();
         }
 
         close(modals.project);

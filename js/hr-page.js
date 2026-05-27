@@ -869,6 +869,19 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedId = editingId;
         } else {
             const created = MockStore.addStaff(payload);
+            // Tự thêm vào participation với giá trị mặc định
+            if (MockStore.get().participation) {
+                MockStore.get().participation.push({
+                    staffId: created.id,
+                    name: created.name,
+                    title: created.title || '',
+                    project: created.project || 'Chưa gán',
+                    planned: 0,
+                    otHours: 0,
+                    actual: 0
+                });
+                MockStore.save();
+            }
             showToast('Thành công', `Đã thêm ${created.name} (${created.id}).`);
             selectedId = created.id;
         }
@@ -929,21 +942,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!validateForm(assignModal)) return;
 
         const project = $('assignProject').value;
-        const percent = parseInt($('assignPercent').value, 10) || 0;
         const from = $('assignDateFrom').value;
         const to = $('assignDateTo').value;
 
         if (!MockStore.get().assignments) MockStore.get().assignments = [];
-        MockStore.get().assignments.push({ staffId: selectedId, project, percent, from, to });
+        MockStore.get().assignments.push({ staffId: selectedId, project, from, to });
         MockStore.save();
         MockStore.logActivity('Nhân sự', `Gán ${project} cho ${selectedId}`);
 
         const s = MockStore.getStaff().find((x) => x.id === selectedId);
         if (s) {
-            MockStore.updateStaff(selectedId, {
-                project,
-                workload: Math.min(100, (s.workload || 0) + percent)
-            });
+            MockStore.updateStaff(selectedId, { project });
         }
         assignModal.classList.remove('show');
         showToast('Thành công', 'Đã gán dự án.');

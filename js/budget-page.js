@@ -48,11 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Render: Mức độ tham gia ──────────────────────────────────────────────
     function renderParticipation() {
-        // Populate project filter
+        // Repopulate project filter mỗi lần render
         const projSel = document.getElementById('filterPartProject');
-        if (projSel && projSel.options.length <= 1) {
+        if (projSel) {
+            const current = projSel.value;
+            projSel.innerHTML = '<option value="">Tất cả dự án</option>';
             const projects = [...new Set(MockStore.getParticipation().map(p => p.project).filter(Boolean))];
             projects.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; projSel.appendChild(o); });
+            projSel.value = current;
         }
         applyPartFilter();
     }
@@ -63,11 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderRevenue() {
-        // Populate company filter
+        // Repopulate company filter mỗi lần render
         const compSel = document.getElementById('filterRevCompany');
-        if (compSel && compSel.options.length <= 1) {
+        if (compSel) {
+            const current = compSel.value;
+            compSel.innerHTML = '<option value="">Tất cả công ty</option>';
             const companies = [...new Set(MockStore.getProjects().map(p => p.company).filter(Boolean))];
             companies.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; compSel.appendChild(o); });
+            compSel.value = current;
         }
         applyRevFilter();
     }
@@ -222,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${UI.escape(p.company)}</td>
                 <td><span class="tag-project">${UI.escape(p.serviceLine)}</span></td>
                 <td style="text-align:center;">${revBadge(p.status)}</td>
-                <td style="text-align:center;">1</td>
+                <td style="text-align:center;">${MockStore.getProjectAssignments ? MockStore.getProjectAssignments(p.id).length : 0}</td>
                 <td style="text-align:center;">
                     <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
                         <div style="width:50px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
@@ -343,9 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('savePartModal')?.addEventListener('click', () => {
         if (!validateForm(document.getElementById('participationForm'))) return;
-        MockStore.updateParticipation(selectedPartId, {
-            planned: parseInt($('partPlanned').value) || 0
-        });
+        const planned = parseInt($('partPlanned').value) || 0;
+        MockStore.updateParticipation(selectedPartId, { planned });
+        // Sync workload nhân sự tương ứng
+        const p = MockStore.getParticipation().find(x => x.staffId === selectedPartId);
+        if (p) MockStore.updateStaff(selectedPartId, { workload: Math.min(100, planned) });
         partModal.classList.remove('show');
         showToast('Thành công', 'Đã cập nhật mức tham gia.');
         renderParticipation();

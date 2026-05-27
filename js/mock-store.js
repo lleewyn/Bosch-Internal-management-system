@@ -2,7 +2,7 @@
  * Kho dữ liệu giả lập — lưu localStorage, đồng bộ giữa các trang.
  */
 (function () {
-    const STORAGE_KEY = 'bosch_mock_db_v4';
+    const STORAGE_KEY = 'bosch_mock_db_v5';
 
     const SEED = {
         settings: {
@@ -141,10 +141,13 @@
             { id: 'd2', name: 'iPhone 14 Pro', icon: 'fa-mobile-screen', ip: '192.168.1.22', time: '2 giờ trước', location: 'TP. Hồ Chí Minh', active: false }
         ],
         activityLogs: [
-            { id: 'log1', time: '2025-05-25T09:15:00', user: 'Nguyễn Văn Admin', category: 'Đăng nhập', desc: 'Đăng nhập hệ thống thành công', ip: '10.0.12.45', device: 'Chrome v118 / macOS', location: 'TP.HCM' },
-            { id: 'log2', time: '2025-05-25T08:42:00', user: 'Trần Thị Bình', category: 'Bảo mật', desc: 'Thay đổi mật khẩu tài khoản', ip: '10.0.8.22', device: 'Safari / iOS', location: 'Hà Nội' },
-            { id: 'log3', time: '2025-05-24T16:30:00', user: 'Hệ thống', category: 'Ngân sách', desc: 'Cập nhật dòng dịch vụ SL-002', ip: '10.0.1.1', device: 'System', location: 'Server' },
-            { id: 'log4', time: '2025-05-24T14:10:00', user: 'Phạm Minh Đức', category: 'Nhân sự', desc: 'Thêm nhân sự mới BS2400', ip: '10.0.15.88', device: 'Firefox / Windows 11', location: 'TP.HCM' }
+            { id: 'log1', time: '2026-05-27T09:15:00', user: 'Nguyễn Văn Admin', category: 'Đăng nhập', desc: 'Đăng nhập hệ thống thành công', ip: '10.0.12.45', device: 'Chrome v118 / macOS', location: 'TP.HCM' },
+            { id: 'log2', time: '2026-05-27T08:42:00', user: 'Trần Thị Bình', category: 'Bảo mật', desc: 'Thay đổi mật khẩu tài khoản', ip: '10.0.8.22', device: 'Safari / iOS', location: 'Hà Nội' },
+            { id: 'log3', time: '2026-05-26T16:30:00', user: 'Hệ thống', category: 'Ngân sách', desc: 'Cập nhật dòng dịch vụ SL-002', ip: '10.0.1.1', device: 'System', location: 'Server' },
+            { id: 'log4', time: '2026-05-26T14:10:00', user: 'Phạm Minh Đức', category: 'Nhân sự', desc: 'Thêm nhân sự mới BS2400', ip: '10.0.15.88', device: 'Firefox / Windows 11', location: 'TP.HCM' },
+            { id: 'log5', time: '2026-05-25T11:20:00', user: 'Đặng Lan Hương', category: 'Vận hành', desc: 'Tạo hợp đồng HD-2026-01 với Samsung Electronics', ip: '10.0.9.33', device: 'Chrome / Windows', location: 'TP.HCM' },
+            { id: 'log6', time: '2026-05-24T15:05:00', user: 'Bùi Thanh Tùng', category: 'Dự án', desc: 'Cập nhật tiến độ dự án PRJ-107 lên 40%', ip: '10.0.7.12', device: 'Edge / Windows', location: 'TP.HCM' },
+            { id: 'log7', time: '2026-05-23T10:00:00', user: 'Hoàng Thị Em', category: 'Nhân sự', desc: 'Gán nhân sự BS2201 vào dự án ERP Migration Wave 2', ip: '10.0.5.88', device: 'Firefox / macOS', location: 'Hà Nội' }
         ],
         reportSchedules: [],
         counters: { customer: 9, contract: 4, project: 104, staff: 2400, resource: 3, serviceLine: 5 }

@@ -1,8 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     const userStr = localStorage.getItem('currentUser');
-    if (!userStr) return;
 
-    const currentUser = JSON.parse(userStr);
+    // Nếu chưa đăng nhập, dùng mock user mặc định thay vì trang trắng
+    let currentUser;
+    if (!userStr) {
+        currentUser = {
+            full_name: 'Nguyễn Văn A',
+            FullName: 'Nguyễn Văn A',
+            Email: 'admin@bosch.com',
+            email: 'admin@bosch.com',
+            phone_number: '0901234567',
+            role: 'Quản trị viên hệ thống'
+        };
+    } else {
+        currentUser = JSON.parse(userStr);
+    }
 
     const fullName = currentUser.full_name || currentUser.FullName || currentUser.Username || 'User';
     const emailStr = currentUser.Email || currentUser.email || '';

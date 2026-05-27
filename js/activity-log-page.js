@@ -90,18 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 : filtered
                       .map((l) => {
                           const dt = new Date(l.time);
-                          const catClass =
-                              l.category === 'Bảo mật'
-                                  ? 'badge-danger'
-                                  : l.category === 'Đăng nhập'
-                                    ? 'badge-info'
-                                    : 'badge-success';
                           return `
             <tr>
                 <td class="time-cell"><span class="date">${dt.toLocaleDateString('vi-VN')}</span>
                 <span class="time">${dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></td>
                 <td><strong>${UI.escape(l.user)}</strong></td>
-                <td style="text-align:center;"><span class="badge ${catClass}">${UI.escape(l.category)}</span></td>
+                <td style="text-align:center;">${UI.badge(l.category)}</td>
                 <td>${UI.escape(l.desc)}</td>
                 <td class="tech-cell">
                     <span><b>IP:</b> ${UI.escape(l.ip)}</span>

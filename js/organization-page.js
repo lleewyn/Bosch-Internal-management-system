@@ -57,26 +57,31 @@ document.addEventListener('DOMContentLoaded', () => {
         groups.forEach((g, i) => {
             const el = groupItems[i];
             if (!el) return;
-            const title = el.querySelector('h4, .group-title, strong');
-            if (title) title.textContent = g.name;
-            const meta = el.querySelector('p, .group-meta, span');
-            if (meta) meta.textContent = `${g.members} thành viên · ${g.teams} team`;
+            const gName = el.querySelector('.g-name');
+            if (gName) gName.textContent = g.name;
+            const badge = el.querySelector('.badge');
+            if (badge) badge.textContent = `${g.members} thành viên • ${g.teams} Teams`;
         });
         const totalStaff = MockStore.getStaff().length;
-        const deptMeta = deptHeader?.querySelector('p, span');
-        if (deptMeta) deptMeta.textContent = `${totalStaff} nhân sự · ${groups.length} group`;
+        const deptBadge = document.querySelector('#deptHeader .badge');
+        if (deptBadge) deptBadge.textContent = `${totalStaff} thành viên • ${groups.length} Groups`;
     }
 
     // ── Modals ───────────────────────────────────────────────────────────────
     const gModal = document.getElementById('addGroupModal');
     const tModal = document.getElementById('addTeamModal');
 
-    const teamGroupSelect = tModal?.querySelector('select');
-    if (teamGroupSelect) {
+    const teamGroupSelect = document.getElementById('teamGroupSelect');
+
+    function populateTeamGroupSelect() {
+        if (!teamGroupSelect) return;
+        const current = teamGroupSelect.value;
         teamGroupSelect.innerHTML = MockStore.getOrgGroups()
             .map((g) => `<option value="${g.id}">${UI.escape(g.name)}</option>`)
             .join('');
+        if (current) teamGroupSelect.value = current;
     }
+    populateTeamGroupSelect();
 
     document.getElementById('openAddGroupBtn')?.addEventListener('click', () => {
         gModal?.querySelector('input') && (gModal.querySelector('input').value = '');
@@ -91,11 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gModal.classList.remove('show');
         showToast('Thành công', `Đã tạo ${name}`);
         refreshSidebar();
-        if (teamGroupSelect) {
-            teamGroupSelect.innerHTML = MockStore.getOrgGroups()
-                .map((g) => `<option value="${g.id}">${UI.escape(g.name)}</option>`)
-                .join('');
-        }
+        populateTeamGroupSelect();
     });
 
     document.getElementById('openAddTeamBtn')?.addEventListener('click', () => tModal?.classList.add('show'));
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelTeamBtn')?.addEventListener('click', () => tModal?.classList.remove('show'));
     document.getElementById('saveTeamBtn')?.addEventListener('click', () => {
         const inputs = tModal?.querySelectorAll('input');
-        const name = inputs?.[1]?.value.trim() || inputs?.[0]?.value.trim();
+        const name = inputs?.[0]?.value.trim(); // input đầu = tên team
         const groupId = teamGroupSelect?.value || 'g-a';
         if (!name) return showToast('Lỗi', 'Nhập tên team.', 'error');
         MockStore.addOrgTeam({ groupId, name, dm: 'Chưa gán' });
