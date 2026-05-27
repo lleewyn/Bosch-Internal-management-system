@@ -58,8 +58,22 @@ document.addEventListener('DOMContentLoaded', () => {
     PageCommon.injectFormStyles();
     const style = document.createElement('style');
     style.textContent = `
-        tr.selected td { background: #f0f7ff; }
-        tr.selected td:first-child { border-left: 3px solid #0078d4; }
+        tr.selected td,
+        tr.selected-row td {
+            background: #f0f7ff;
+            border-top: 2px solid #0078d4 !important;
+            border-bottom: 2px solid #0078d4 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+        tr.selected td:first-child,
+        tr.selected-row td:first-child {
+            border-left: 2px solid #0078d4 !important;
+        }
+        tr.selected td:last-child,
+        tr.selected-row td:last-child {
+            border-right: 2px solid #0078d4 !important;
+        }
         #addStaffModal .bosch-modal-content { width: 560px; max-width: 95vw; }
         #addStaffModal .bosch-modal-body { max-height: 70vh; overflow-y: auto; }
     `;
@@ -380,7 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         tbody.querySelectorAll('tr').forEach(tr => {
-            tr.addEventListener('click', () => openDmDetail(tr.dataset.id));
+            tr.addEventListener('click', () => {
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                tr.classList.add('selected-row');
+                openDmDetail(tr.dataset.id);
+            });
         });
     }
 
@@ -600,11 +618,29 @@ document.addEventListener('DOMContentLoaded', () => {
             .join('');
 
         tbody.querySelectorAll('tr').forEach((tr) => {
+            // Single click: chọn nhân viên, hiện badge
             tr.addEventListener('click', () => {
-                selectedId = tr.dataset.id;
-                tbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected'));
-                tr.classList.add('selected');
-                openDrawer(selectedId);
+                const id = tr.dataset.id;
+                const badge = document.getElementById('staffSelectionBadge');
+                if (selectedId === id) {
+                    // Click lại → bỏ chọn
+                    selectedId = null;
+                    tbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected'));
+                    if (badge) badge.style.display = 'none';
+                } else {
+                    selectedId = id;
+                    tbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected'));
+                    tr.classList.add('selected');
+                    const s = MockStore.getStaff().find((x) => x.id === id);
+                    if (badge && s) {
+                        badge.textContent = `Đang chọn: ${s.name} (${s.id})`;
+                        badge.style.display = 'block';
+                    }
+                }
+            });
+            // Double click: mở drawer chi tiết
+            tr.addEventListener('dblclick', () => {
+                if (selectedId) openDrawer(selectedId);
             });
         });
     }
