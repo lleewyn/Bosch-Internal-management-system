@@ -808,7 +808,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!emp) return;
         if (!confirm(`Xác nhận xóa nhân sự "${emp.full_name}"?`)) return;
         const { error } = await DB.Employees.delete(selectedId);
-        if (error) { showToast('Lỗi', error.message, 'error'); return; }
+        if (error) {
+            console.error('[Delete Staff] error:', error);
+            // FK constraint — cần xóa các bảng liên quan trước
+            if (error.code === '23503' || error.message?.includes('foreign key')) {
+                showToast('Lỗi', 'Không thể xóa vì nhân sự này đang có dữ liệu liên quan (dự án, tổ chức, tài khoản...).', 'error');
+            } else {
+                showToast('Lỗi', error.message, 'error');
+            }
+            return;
+        }
         showToast('Thành công', `Đã xóa nhân sự ${emp.full_name}.`);
         selectedId = null;
         await loadAll();

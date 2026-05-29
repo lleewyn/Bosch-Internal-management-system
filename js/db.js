@@ -75,6 +75,11 @@ window.DB = (() => {
         },
 
         async delete(id) {
+            // Xóa các bảng liên quan trước (tránh FK constraint)
+            await query(sb => sb.from('employee_organizations').delete().eq('employee_id', id));
+            await query(sb => sb.from('project_assignments').delete().eq('employee_id', id));
+            await query(sb => sb.from('employee_study').delete().eq('employee_id', id));
+            await query(sb => sb.from('users').delete().eq('employee_id', id));
             return query(sb => sb.from('employees').delete().eq('employee_id', id));
         }
     };
