@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let _positions  = [];
     let _groups     = [];
     let _teams      = [];
+    let _subTeams   = [];
     let _studyList  = [];   // employee_study + courses
     let _dmRequests = [];   // project_resource_requests + projects
 
@@ -38,11 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadAll() {
         showLoading('directory');
-        const [empRes, posRes, grpRes, teamRes, assignRes, orgRes] = await Promise.all([
+        const [empRes, posRes, grpRes, teamRes, subTeamRes, assignRes, orgRes] = await Promise.all([
             DB.Employees.getAll(),
             DB.Meta.getPositions(),
             DB.Org.getGroups(),
             DB.Org.getTeams(),
+            DB.Org.getSubTeams(),
             window.supabaseClient
                 .from('project_assignments')
                 .select(`
@@ -54,14 +56,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `),
             window.supabaseClient
                 .from('employee_organizations')
-                .select('employee_id, group_id, team_id, status')
+                .select('employee_id, group_id, team_id, sub_team_id, status')
         ]);
-        if (empRes.data)    _employees   = empRes.data;
-        if (posRes.data)    _positions   = posRes.data;
-        if (grpRes.data)    _groups      = grpRes.data;
-        if (teamRes.data)   _teams       = teamRes.data;
-        if (assignRes.data) _assignments = assignRes.data;
-        if (orgRes.data)    _empOrgs     = orgRes.data;
+        if (empRes.data)      _employees   = empRes.data;
+        if (posRes.data)      _positions   = posRes.data;
+        if (grpRes.data)      _groups      = grpRes.data;
+        if (teamRes.data)     _teams       = teamRes.data;
+        if (subTeamRes.data)  _subTeams    = subTeamRes.data;
+        if (assignRes.data)   _assignments = assignRes.data;
+        if (orgRes.data)      _empOrgs     = orgRes.data;
 
         if (empRes.error)    console.error('[HR] employees:', empRes.error);
         if (assignRes.error) console.error('[HR] assignments:', assignRes.error);
@@ -98,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await window.supabaseClient
             .from('project_resource_requests')
             .select(`
-                project_resource_request_id, quantity, is_ot, description, created_at,
+                project_resource_request_id, quantity, is_ot, description, status, created_at,
                 projects ( project_id, project_code, project_name ),
                 positions ( position_id, position_name )
             `)
@@ -389,6 +392,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             : '<span class="badge badge-muted">Không OT</span>';
     }
 
+    function dmRequestStatusBadge(status) {
+        const map = {
+            'pending':       { cls: 'badge-warning', text: 'CHỜ PHÊ DUYỆT' },
+            'approved':      { cls: 'badge-success', text: 'ĐÃ DUYỆT' },
+            'rejected':      { cls: 'badge-danger',  text: 'TỪ CHỐI' },
+            'clarification': { cls: 'badge-info',    text: 'CẦN LÀM RÕ' },
+            'recruiting':    { cls: 'badge-success', text: 'ĐANG TUYỂN' },
+            'fulfilled':     { cls: 'badge-success', text: 'ĐÃ ĐÁP ỨNG' },
+        };
+        const s = map[status] || { cls: 'badge-warning', text: 'CHỜ PHÊ DUYỆT' };
+        return `<span class="badge ${s.cls}">${s.text}</span>`;
+    }
+
     function renderDmApproval() {
         // Dùng bảng đã có sẵn trong HTML
         const dmTable = $('dmTable');
@@ -428,7 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${r.quantity}</td>
                 <td style="text-align:center;">${dmStatusBadge(r.is_ot)}</td>
                 <td style="text-align:center;font-size:12px;">${date}</td>
-                <td style="text-align:center;"><span class="badge ${r.status === 'Đã duyệt' ? 'badge-success' : r.status === 'Từ chối' ? 'badge-danger' : 'badge-warning'}">${esc(r.status || 'Chờ phê duyệt')}</span></td>
+                <td style="text-align:center;">${dmRequestStatusBadge(r.status)}</td>
             </tr>`;
         }).join('');
 
@@ -513,6 +529,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 $('dmDetailModal')?.classList.remove('show');
                 const reqIdEl = $('dmRejectReqId');
                 if (reqIdEl) reqIdEl.textContent = `YC-${r.project_resource_request_id?.slice(-6).toUpperCase()}`;
+                // Lưu ID thật vào dataset để dùng khi submit
+                const rejectModal = $('dmRejectModal');
+                if (rejectModal) rejectModal.dataset.requestId = r.project_resource_request_id;
+                // Reset textarea và nút
+                if ($('dmRejectReason')) $('dmRejectReason').value = '';
+                if ($('dmRejectCharCount')) $('dmRejectCharCount').textContent = '0 / 10 ký tự tối thiểu';
+                const rejectBtn = $('saveDmRejectBtn');
+                if (rejectBtn) { rejectBtn.disabled = true; rejectBtn.style.opacity = '.5'; rejectBtn.style.cursor = 'not-allowed'; }
                 $('dmRejectModal')?.classList.add('show');
             });
 
@@ -520,6 +544,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 $('dmDetailModal')?.classList.remove('show');
                 const reqIdEl = $('dmClarifyReqId');
                 if (reqIdEl) reqIdEl.textContent = `YC-${r.project_resource_request_id?.slice(-6).toUpperCase()}`;
+                // Lưu ID thật vào dataset để dùng khi submit
+                const clarifyModal = $('dmClarifyModal');
+                if (clarifyModal) clarifyModal.dataset.requestId = r.project_resource_request_id;
+                // Reset textarea và nút
+                if ($('dmClarifyNote')) $('dmClarifyNote').value = '';
+                if ($('dmClarifyCharCount')) $('dmClarifyCharCount').textContent = '0 / 10 ký tự tối thiểu';
+                const clarifyBtn = $('saveDmClarifyBtn');
+                if (clarifyBtn) { clarifyBtn.disabled = true; clarifyBtn.style.opacity = '.5'; clarifyBtn.style.cursor = 'not-allowed'; }
                 $('dmClarifyModal')?.classList.add('show');
             });
         }
@@ -577,21 +609,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('cancelDmClarifyBtn')?.addEventListener('click',  () => $('dmClarifyModal')?.classList.remove('show'));
 
     // Reject char count
-    $('dmRejectReason')?.addEventListener('input', function() {
-        const len = this.value.trim().length;
-        const el = $('dmRejectCharCount');
-        if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
-        const btn = $('saveDmRejectBtn');
-        if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+    ['input', 'paste'].forEach(evt => {
+        $('dmRejectReason')?.addEventListener(evt, function() {
+            setTimeout(() => {
+                const len = this.value.trim().length;
+                const el = $('dmRejectCharCount');
+                if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
+                const btn = $('saveDmRejectBtn');
+                if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+            }, 0);
+        });
     });
 
     // Clarify char count
-    $('dmClarifyNote')?.addEventListener('input', function() {
-        const len = this.value.trim().length;
-        const el = $('dmClarifyCharCount');
-        if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
-        const btn = $('saveDmClarifyBtn');
-        if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+    ['input', 'paste'].forEach(evt => {
+        $('dmClarifyNote')?.addEventListener(evt, function() {
+            setTimeout(() => {
+                const len = this.value.trim().length;
+                const el = $('dmClarifyCharCount');
+                if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
+                const btn = $('saveDmClarifyBtn');
+                if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+            }, 0);
+        });
+    });
+
+    // ── Gửi yêu cầu làm rõ ───────────────────────────────────────────────────
+    $('saveDmClarifyBtn')?.addEventListener('click', async () => {
+        const note = $('dmClarifyNote')?.value.trim();
+        if (!note || note.length < 10) return;
+
+        const requestId = $('dmClarifyModal')?.dataset.requestId;
+        if (!requestId) { showToast('Lỗi', 'Không tìm thấy yêu cầu.', 'error'); return; }
+
+        const { error } = await window.supabaseClient
+            .from('project_resource_requests')
+            .update({ status: 'clarification', updated_at: new Date().toISOString() })
+            .eq('project_resource_request_id', requestId);
+
+        if (error) { showToast('Lỗi', error.message, 'error'); return; }
+
+        await DB.Logs.addAuditLog({
+            action_type: 'UPDATE',
+            table_name:  'project_resource_requests',
+            record_id:   requestId,
+            new_value:   { status: 'clarification', note }
+        });
+
+        showToast('Đã gửi', 'Yêu cầu làm rõ đã được gửi thành công.');
+        $('dmClarifyModal')?.classList.remove('show');
+        if ($('dmClarifyNote')) $('dmClarifyNote').value = '';
+        await loadDmApproval();
+    });
+
+    // ── Xác nhận từ chối ─────────────────────────────────────────────────────
+    $('saveDmRejectBtn')?.addEventListener('click', async () => {
+        const reason = $('dmRejectReason')?.value.trim();
+        if (!reason || reason.length < 10) return;
+
+        const requestId = $('dmRejectModal')?.dataset.requestId;
+        if (!requestId) { showToast('Lỗi', 'Không tìm thấy yêu cầu.', 'error'); return; }
+
+        const { error } = await window.supabaseClient
+            .from('project_resource_requests')
+            .update({ status: 'rejected', updated_at: new Date().toISOString() })
+            .eq('project_resource_request_id', requestId);
+
+        if (error) { showToast('Lỗi', error.message, 'error'); return; }
+
+        await DB.Logs.addAuditLog({
+            action_type: 'UPDATE',
+            table_name:  'project_resource_requests',
+            record_id:   requestId,
+            new_value:   { status: 'rejected', reason }
+        });
+
+        showToast('Đã từ chối', 'Yêu cầu nguồn lực đã bị từ chối.');
+        $('dmRejectModal')?.classList.remove('show');
+        if ($('dmRejectReason')) $('dmRejectReason').value = '';
+        await loadDmApproval();
     });
 
     // ── Sub-tab: Lộ trình phát triển ─────────────────────────────────────────
@@ -629,7 +725,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             (c.description||'').toLowerCase().includes(search)
         );
         if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#888;">Không có khoá học</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">Không có khoá học</td></tr>`;
             return;
         }
 
@@ -637,8 +733,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             <tr data-id="${c.course_id}" style="cursor:pointer;">
                 <td style="font-weight:600;">${esc(c.course_name)}</td>
                 <td style="color:#6b7280;font-size:13px;">${esc(c.description || '—')}</td>
+                <td style="text-align:center;font-size:13px;">${esc(c.certificate || '—')}</td>
                 <td style="text-align:center;">${c.duration ? c.duration + ' giờ' : '—'}</td>
-                <td style="font-size:12px;color:#9ca3af;">${c.created_at ? new Date(c.created_at).toLocaleDateString('vi-VN') : '—'}</td>
+                <td style="text-align:center;font-size:12px;color:#9ca3af;">${c.created_at ? new Date(c.created_at).toLocaleDateString('vi-VN') : '—'}</td>
             </tr>`).join('');
     }
 
@@ -721,17 +818,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name     = $('newCourseName')?.value.trim();
         const duration = parseInt($('newCourseDuration')?.value) || null;
         const cert     = $('newCourseProvider')?.value.trim() || null;
+        const desc     = $('newCourseDescription')?.value.trim() || null;
 
         if (!name) return showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error');
 
         const { error } = await window.supabaseClient
             .from('courses')
-            .insert({ course_name: name, duration, certificate: cert });
+            .insert({ course_name: name, duration, certificate: cert, description: desc });
 
         if (error) return showToast('Lỗi', error.message, 'error');
         showToast('Thành công', 'Đã thêm khoá học.');
         $('addCourseModal')?.classList.remove('show');
-        _courses = []; // reset cache
+        _courses = [];
         await loadCourses();
     });
 
@@ -758,9 +856,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const course = _courses.find(c => c.course_id === selectedCourseId);
         if (!course) return;
 
-        if ($('editCourseName'))     $('editCourseName').value     = course.course_name || '';
-        if ($('editCourseDuration')) $('editCourseDuration').value = course.duration    || '';
-        if ($('editCourseProvider')) $('editCourseProvider').value = course.certificate || '';
+        if ($('editCourseName'))        $('editCourseName').value        = course.course_name  || '';
+        if ($('editCourseDuration'))    $('editCourseDuration').value    = course.duration     || '';
+        if ($('editCourseProvider'))    $('editCourseProvider').value    = course.certificate  || '';
+        if ($('editCourseDescription')) $('editCourseDescription').value = course.description  || '';
 
         $('editCourseModal').style.display = 'flex';
     });
@@ -769,12 +868,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name     = $('editCourseName')?.value.trim();
         const duration = parseInt($('editCourseDuration')?.value) || null;
         const cert     = $('editCourseProvider')?.value.trim() || null;
+        const desc     = $('editCourseDescription')?.value.trim() || null;
 
         if (!name) return showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error');
 
         const { error } = await window.supabaseClient
             .from('courses')
-            .update({ course_name: name, duration, certificate: cert, updated_at: new Date().toISOString() })
+            .update({ course_name: name, duration, certificate: cert, description: desc, updated_at: new Date().toISOString() })
             .eq('course_id', selectedCourseId);
 
         if (error) return showToast('Lỗi', error.message, 'error');
@@ -830,14 +930,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         const h3 = modal.querySelector('h3');
         if (h3) h3.textContent = isEdit ? 'Sửa thông tin nhân sự' : 'Tiếp nhận nhân sự mới';
 
+        // Load chức danh từ _positions
         const posSel = $('staffTitle');
         if (posSel && _positions.length) {
             posSel.innerHTML = '<option value="">-- Chọn chức danh --</option>' +
                 _positions.map(p => `<option value="${p.position_id}" ${emp?.position_id===p.position_id?'selected':''}>${esc(p.position_name)}</option>`).join('');
         }
+
+        // Load Groups
+        const groupSel = $('staffGroup');
+        if (groupSel && _groups.length) {
+            groupSel.innerHTML = '<option value="">-- Chọn Group --</option>' +
+                _groups.map(g => `<option value="${g.group_id}">${esc(g.group_name)}</option>`).join('');
+        }
+
+        // Load Teams theo Group khi chọn
+        const teamSel = $('staffTeam');
+        const subTeamSel = $('staffManager');
+
+        function loadTeams(groupId) {
+            if (!teamSel) return;
+            const filtered = groupId ? _teams.filter(t => t.group_id === groupId) : _teams;
+            teamSel.innerHTML = '<option value="">-- Chọn Team --</option>' +
+                filtered.map(t => `<option value="${t.team_id}">${esc(t.team_name)}</option>`).join('');
+            if (subTeamSel) subTeamSel.innerHTML = '<option value="">-- Chọn Sub-team --</option>';
+        }
+
+        function loadSubTeams(teamId) {
+            if (!subTeamSel) return;
+            const filtered = teamId ? _subTeams.filter(s => s.team_id === teamId) : _subTeams;
+            subTeamSel.innerHTML = '<option value="">-- Chọn Sub-team --</option>' +
+                filtered.map(s => `<option value="${s.sub_team_id}">${esc(s.sub_team_name)}</option>`).join('');
+        }
+
+        groupSel?.addEventListener('change', () => loadTeams(groupSel.value));
+        teamSel?.addEventListener('change',  () => loadSubTeams(teamSel.value));
+
+        loadTeams('');
+
+        // Fill dữ liệu khi sửa
         if (isEdit) {
             if ($('staffFullName'))  $('staffFullName').value  = emp.full_name || '';
             if ($('staffBirthDate')) $('staffBirthDate').value = emp.day_of_birth?.slice(0,10) || '';
+
+            // Fill Group/Team/Sub-team từ employee_organizations
+            const activeOrg = _empOrgs.find(o => o.employee_id === emp.employee_id && o.status === 'active')
+                           || _empOrgs.find(o => o.employee_id === emp.employee_id);
+            if (activeOrg) {
+                const gId = activeOrg.group_id;
+                const tId = activeOrg.team_id;
+                const sId = activeOrg.sub_team_id;
+                if (groupSel && gId) { groupSel.value = gId; loadTeams(gId); }
+                setTimeout(() => {
+                    if (teamSel && tId) { teamSel.value = tId; loadSubTeams(tId); }
+                    setTimeout(() => {
+                        if (subTeamSel && sId) subTeamSel.value = sId;
+                    }, 50);
+                }, 50);
+            }
         } else {
             modal.querySelectorAll('input[type="text"],input[type="date"]').forEach(i => i.value = '');
         }
@@ -846,18 +996,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         const saveBtn = $('saveAddModalBtn');
         if (saveBtn) {
             saveBtn.onclick = async () => {
+                const fullName   = $('staffFullName')?.value.trim();
+                const birthDate  = $('staffBirthDate')?.value || null;
+                const positionId = $('staffTitle')?.value || null;
+                const subTeamId  = $('staffManager')?.value || null;
+
+                if (!fullName) return showToast('Lỗi', 'Vui lòng nhập họ tên.', 'error');
+
                 const payload = {
-                    full_name:    $('staffFullName')?.value.trim(),
-                    day_of_birth: $('staffBirthDate')?.value || null,
-                    position_id:  $('staffTitle')?.value || null,
-                    status:       'probation',
-                    hire_date:    new Date().toISOString().slice(0,10)
+                    full_name:    fullName,
+                    day_of_birth: birthDate,
+                    position_id:  positionId,
+                    status:       isEdit ? (emp.status || 'active') : 'probation',
+                    hire_date:    isEdit ? emp.hire_date : new Date().toISOString().slice(0,10)
                 };
-                if (!payload.full_name) return showToast('Lỗi', 'Vui lòng nhập họ tên.', 'error');
-                const { error } = isEdit
+
+                const { data: savedEmp, error } = isEdit
                     ? await DB.Employees.update(emp.employee_id, payload)
                     : await DB.Employees.create(payload);
                 if (error) return showToast('Lỗi', error.message, 'error');
+
+                // Cập nhật employee_organizations nếu có chọn sub-team
+                const empId = isEdit ? emp.employee_id : savedEmp?.employee_id;
+                if (empId && subTeamId) {
+                    // Deactivate org cũ
+                    await window.supabaseClient
+                        .from('employee_organizations')
+                        .update({ status: 'inactive' })
+                        .eq('employee_id', empId);
+                    // Thêm org mới
+                    await window.supabaseClient
+                        .from('employee_organizations')
+                        .insert({ employee_id: empId, sub_team_id: subTeamId, status: 'active' });
+                }
+
                 showToast('Thành công', isEdit ? 'Đã cập nhật nhân sự.' : 'Đã thêm nhân sự.');
                 modal.classList.remove('show');
                 await loadAll();

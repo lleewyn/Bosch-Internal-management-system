@@ -14,21 +14,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     let _employees = [];
     let _orgMap    = {}; // { group_id: count }
 
+    let _dhName = '—'; // Tên Head of Department
     let activeGroupId = null; // null = overview
+    let activeTeamId  = null; // team đang được chọn/xem
 
     // ── Load data ─────────────────────────────────────────────────────────────
     async function loadAll() {
-        const [grpRes, teamRes, subRes, empRes, orgRes] = await Promise.all([
+        const [grpRes, teamRes, subRes, empRes, orgRes, dhRes] = await Promise.all([
             DB.Org.getGroups(),
             DB.Org.getTeams(),
             DB.Org.getSubTeams(),
             DB.Employees.getAll(),
-            window.supabaseClient.from('employee_organizations').select('group_id, status')
+            window.supabaseClient.from('employee_organizations').select('group_id, status'),
+            // Lấy user có role DH
+            window.supabaseClient
+                .from('users')
+                .select('employees(full_name)')
+                .eq('role_id', '11111111-0000-0000-0000-000000000001')
+                .limit(1)
+                .single()
         ]);
         if (grpRes.data)  _groups    = grpRes.data;
         if (teamRes.data) _teams     = teamRes.data;
         if (subRes.data)  _subTeams  = subRes.data;
         if (empRes.data)  _employees = empRes.data;
+        if (dhRes.data)   _dhName    = dhRes.data.employees?.full_name || '—';
 
         // Đếm thành viên active theo group_id
         _orgMap = {};
@@ -68,9 +78,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const groupList  = document.querySelector('.group-list');
         if (!groupList) return;
 
-        // Cập nhật dept header
-        const totalEmp = _employees.length;
-        const deptBadge = deptHeader?.querySelector('.badge');
+        // Cập nhật tên DH — lấy từ DB user có role DH
+        const deptLeaderName = $('deptLeaderName');
+        if (deptLeaderName) deptLeaderName.textContent = _dhName.toUpperCase();
+
+        // Cập nhật badge số liệu
+        const totalEmp  = _employees.length;
+        const deptBadge = $('deptBadgeText') || deptHeader?.querySelector('.badge');
         if (deptBadge) deptBadge.textContent = `${totalEmp} thành viên • ${_groups.length} Groups`;
 
         // Render group list
@@ -93,6 +107,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.addEventListener('click', () => {
                 const gid = item.dataset.groupId;
                 activeGroupId = activeGroupId === gid ? null : gid;
+
+                // Set _editTarget khi click sidebar group
+                if (activeGroupId) {
+                    const g = _groups.find(x => x.group_id === activeGroupId);
+                    if (g) _editTarget = { type: 'group', id: g.group_id, name: g.group_name };
+                } else {
+                    _editTarget = null;
+                }
+
                 renderSidebar();
                 renderChart(activeGroupId);
                 setTimeout(bindNodeSelect, 200);
@@ -126,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const managerName = getManagerName(g.manager_id);
             const teamCount   = _teams.filter(t => t.group_id === g.group_id).length;
             return `<li>
-                <div class="org-node" style="cursor:pointer;" onclick="document.querySelector('[data-group-id=\\'${g.group_id}\\']')?.click()">
+                <div class="org-node" data-type="group" data-id="${g.group_id}" data-name="${esc(g.group_name)}" style="cursor:pointer;" onclick="document.querySelector('[data-group-id=\\'${g.group_id}\\']')?.click()">
                     <div class="badge badge-danger">MANAGER OF ${esc(g.group_name.toUpperCase())}</div>
                     <div class="n-title">${esc(g.group_name.toUpperCase())}</div>
                     <img src="${avatar(managerName)}" class="n-avatar" alt="Avatar">
@@ -166,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const subNodes = teamSubTeams.map(sub => {
                 const subManager = getManagerName(sub.manager_id);
                 return `<li>
-                    <div class="org-node sub-node">
+                    <div class="org-node sub-node" data-type="subteam" data-id="${sub.sub_team_id}" data-name="${esc(sub.sub_team_name)}">
                         <div class="badge badge-member" style="font-size:9px;font-weight:700;">KEY MEMBER</div>
                         <div class="n-title">${esc(sub.sub_team_name)}</div>
                         <img src="${avatar(subManager)}" class="n-avatar" alt="Avatar">
@@ -177,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).join('');
 
             return `<li>
-                <div class="org-node">
+                <div class="org-node" data-type="team" data-id="${team.team_id}" data-name="${esc(team.team_name)}">
                     <div class="badge badge-leader">TEAM LEADER</div>
                     <div class="n-title">${esc(team.team_name.toUpperCase())}</div>
                     <img src="${avatar(teamManager)}" class="n-avatar" alt="Avatar">
@@ -191,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = `<div class="org-tree gray-lines">
             <ul>
                 <li>
-                    <div class="org-node root-node">
+                    <div class="org-node root-node" data-type="group" data-id="${group.group_id}" data-name="${esc(group.group_name)}">
                         <div class="badge badge-danger">MANAGER OF ${esc(group.group_name.toUpperCase())}</div>
                         <div class="n-title">${esc(group.group_name.toUpperCase())}</div>
                         <img src="${avatar(managerName)}" class="n-avatar" alt="Avatar">
@@ -312,6 +335,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sel) {
             sel.innerHTML = '<option value="">-- Chọn Group --</option>' +
                 _groups.map(g => `<option value="${g.group_id}">${esc(g.group_name)}</option>`).join('');
+            // Pre-select group đang xem
+            if (activeGroupId) sel.value = activeGroupId;
         }
         tModal?.querySelectorAll('input:not([type=hidden])').forEach(i => i.value = '');
         document.getElementById('teamManagerId').value = '';
@@ -347,7 +372,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         const sel = $('subTeamTeamSelect');
         if (sel) {
             sel.innerHTML = '<option value="">-- Chọn Team --</option>' +
-                _teams.map(t => `<option value="${t.team_id}">${esc(t.team_name)}</option>`).join('');
+                _teams.map(t => {
+                    const groupName = _groups.find(g => g.group_id === t.group_id)?.group_name || '';
+                    return `<option value="${t.team_id}">${esc(t.team_name)}${groupName ? ' (' + esc(groupName) + ')' : ''}</option>`;
+                }).join('');
+            // Pre-select team đang xem, hoặc team thuộc group đang xem
+            if (activeTeamId) {
+                sel.value = activeTeamId;
+            } else if (activeGroupId) {
+                const firstTeam = _teams.find(t => t.group_id === activeGroupId);
+                if (firstTeam) sel.value = firstTeam.team_id;
+            }
+        }
+        // Load danh sách nhân viên vào dropdown Leader
+        const leaderSel = $('subTeamLeaderSelect');
+        if (leaderSel) {
+            leaderSel.innerHTML = '<option value="">-- Chọn Leader --</option>' +
+                _employees
+                    .filter(e => e.status === 'active' || e.status === 'probation')
+                    .map(e => `<option value="${e.employee_id}">${esc(e.full_name)}${e.positions?.position_name ? ' — ' + esc(e.positions.position_name) : ''}</option>`)
+                    .join('');
         }
         if ($('subTeamNameInput')) $('subTeamNameInput').value = '';
         stModal?.classList.add('show');
@@ -355,13 +399,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('closeSubTeamModal')?.addEventListener('click', () => stModal?.classList.remove('show'));
     $('cancelSubTeamBtn')?.addEventListener('click',  () => stModal?.classList.remove('show'));
     $('saveSubTeamBtn')?.addEventListener('click', async () => {
-        const name   = $('subTeamNameInput')?.value.trim();
-        const teamId = $('subTeamTeamSelect')?.value;
-        if (!name)   return showToast('Lỗi', 'Vui lòng nhập tên Sub-team.', 'error');
-        if (!teamId) return showToast('Lỗi', 'Vui lòng chọn Team.', 'error');
+        const name     = $('subTeamNameInput')?.value.trim();
+        const teamId   = $('subTeamTeamSelect')?.value;
+        const leaderId = $('subTeamLeaderSelect')?.value;
+        if (!name)     return showToast('Lỗi', 'Vui lòng nhập tên Sub-team.', 'error');
+        if (!teamId)   return showToast('Lỗi', 'Vui lòng chọn Team.', 'error');
+        if (!leaderId) return showToast('Lỗi', 'Vui lòng chọn Leader.', 'error');
         const { error } = await window.supabaseClient
             .from('sub_teams')
-            .insert({ sub_team_name: name, team_id: teamId, status: 'active' });
+            .insert({ sub_team_name: name, team_id: teamId, manager_id: leaderId, status: 'active' });
         if (error) return showToast('Lỗi', error.message, 'error');
         showToast('Thành công', `Đã tạo Sub-team "${name}".`);
         stModal.classList.remove('show');
@@ -383,14 +429,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('editOrgType').value        = _editTarget.type;
         $('editOrgId').value          = _editTarget.id;
         $('editOrgNameInput').value   = _editTarget.name;
+
+        // Fill manager hiện tại
+        const managerSearch = $('editOrgManagerSearch');
+        const managerId     = $('editOrgManagerId');
+        if (managerSearch) managerSearch.value = '';
+        if (managerId)     managerId.value     = '';
+
+        // Tìm manager_id của target hiện tại
+        let currentManagerId = null;
+        if (_editTarget.type === 'group') {
+            currentManagerId = _groups.find(g => g.group_id === _editTarget.id)?.manager_id;
+        } else if (_editTarget.type === 'team') {
+            currentManagerId = _teams.find(t => t.team_id === _editTarget.id)?.manager_id;
+        } else {
+            currentManagerId = _subTeams.find(s => s.sub_team_id === _editTarget.id)?.manager_id;
+        }
+        if (currentManagerId) {
+            const emp = _employees.find(e => e.employee_id === currentManagerId);
+            if (emp && managerSearch) managerSearch.value = emp.full_name;
+            if (managerId) managerId.value = currentManagerId;
+        }
+
+        // Bind search
+        bindEmpSearch('editOrgManagerSearch', 'editOrgManagerDropdown', 'editOrgManagerId');
         eModal?.classList.add('show');
     });
     $('closeEditOrgModal')?.addEventListener('click', () => eModal?.classList.remove('show'));
     $('cancelEditOrgBtn')?.addEventListener('click',  () => eModal?.classList.remove('show'));
     $('saveEditOrgBtn')?.addEventListener('click', async () => {
-        const type = $('editOrgType')?.value;
-        const id   = $('editOrgId')?.value;
-        const name = $('editOrgNameInput')?.value.trim();
+        const type       = $('editOrgType')?.value;
+        const id         = $('editOrgId')?.value;
+        const name       = $('editOrgNameInput')?.value.trim();
+        const managerId  = $('editOrgManagerId')?.value || null;
         if (!name) return showToast('Lỗi', 'Tên không được để trống.', 'error');
 
         const tableMap = { group: 'groups', team: 'teams', subteam: 'sub_teams' };
@@ -399,10 +470,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const { error } = await window.supabaseClient
             .from(tableMap[type])
-            .update({ [nameMap[type]]: name })
+            .update({ [nameMap[type]]: name, manager_id: managerId })
             .eq(idMap[type], id);
         if (error) return showToast('Lỗi', error.message, 'error');
-        showToast('Thành công', 'Đã cập nhật tên thành công.');
+        showToast('Thành công', 'Đã cập nhật thành công.');
         eModal.classList.remove('show');
         _editTarget = null;
         await loadAll();
@@ -411,42 +482,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Gắn click chọn node để edit — gọi lại sau mỗi lần render
     function bindNodeSelect() {
-        document.querySelectorAll('.org-node').forEach(node => {
+        document.querySelectorAll('.org-node[data-type]').forEach(node => {
             if (node.dataset.editBound) return;
             node.dataset.editBound = '1';
             node.addEventListener('click', (e) => {
                 e.stopPropagation();
 
+                const type = node.dataset.type;
+                const id   = node.dataset.id;
+                const name = node.dataset.name;
+
+                if (!type || !id) return;
+
                 // Bỏ highlight cũ
                 document.querySelectorAll('.org-node.edit-selected').forEach(n => n.classList.remove('edit-selected'));
 
-                // Lấy thông tin từ node
-                const title = node.querySelector('.n-title')?.textContent?.trim() || '';
-                const badge = node.querySelector('.badge')?.textContent?.trim() || '';
+                _editTarget = { type, id, name };
+                node.classList.add('edit-selected');
 
-                // Xác định type
-                let type = 'group';
-                if (node.classList.contains('sub-node')) type = 'subteam';
-                else if (badge.includes('TEAM LEADER') || badge.includes('LEADER')) type = 'team';
-                else if (node.classList.contains('root-node')) return; // bỏ qua root
-
-                // Tìm id
-                let id = null, name = title;
-                if (type === 'group') {
-                    const found = _groups.find(g => g.group_name.toUpperCase() === title.toUpperCase());
-                    id = found?.group_id; name = found?.group_name || title;
-                } else if (type === 'team') {
-                    const found = _teams.find(t => t.team_name.toUpperCase() === title.toUpperCase());
-                    id = found?.team_id; name = found?.team_name || title;
-                } else {
-                    const found = _subTeams.find(s => s.sub_team_name.toUpperCase() === title.toUpperCase());
-                    id = found?.sub_team_id; name = found?.sub_team_name || title;
-                }
-
-                if (id) {
-                    _editTarget = { type, id, name };
-                    node.classList.add('edit-selected');
-                }
+                // Track active team để pre-select khi thêm sub-team
+                if (type === 'team') activeTeamId = id;
             });
         });
     }

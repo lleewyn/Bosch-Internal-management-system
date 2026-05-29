@@ -6,6 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hiển thị trang đăng nhập ngay
     document.body.classList.add('page-ready');
 
+    // Load email đã ghi nhớ
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+        const emailInput = document.getElementById('loginEmail');
+        const rememberMe = document.getElementById('rememberMe');
+        if (emailInput) emailInput.value = savedEmail;
+        if (rememberMe) rememberMe.checked = true;
+    }
+
     // Đã đăng nhập → chuyển sang dashboard
     if (localStorage.getItem('currentUser')) {
         window.location.href = 'dashboard.html';
@@ -151,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (posData) positionName = posData.position_name;
                         }
                     }
+                }
+
+                // Ghi nhớ tài khoản nếu được chọn
+                const rememberMe = document.getElementById('rememberMe');
+                if (rememberMe?.checked) {
+                    localStorage.setItem('rememberedEmail', emailInput);
+                } else {
+                    localStorage.removeItem('rememberedEmail');
                 }
 
                 // Bước 7: Lưu session vào localStorage

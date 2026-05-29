@@ -459,10 +459,18 @@
                         <!-- BẢNG DANH SÁCH KHOÁ HỌC -->
                         <table class="bosch-table bosch-table-modern" id="coursesTable"
                             style="display: none; min-width: 1000px;">
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 30%;">
+                                <col style="width: 20%;">
+                                <col style="width: 10%;">
+                                <col style="width: 15%;">
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th style="white-space:nowrap; vertical-align:middle;">TÊN KHOÁ HỌC</th>
                                     <th style="white-space:nowrap; vertical-align:middle;">MÔ TẢ</th>
+                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">NHÀ CUNG CẤP</th>
                                     <th style="text-align:center; white-space:nowrap; vertical-align:middle;">THỜI LƯỢNG</th>
                                     <th style="text-align:center; white-space:nowrap; vertical-align:middle;">NGÀY TẠO</th>
                                 </tr>
@@ -905,6 +913,10 @@
                         <input type="text" id="newCourseDuration" class="hr-form-input" placeholder="VD: 40 giờ">
                     </div>
                 </div>
+                <div class="form-group mb-15">
+                    <label>Mô tả khoá học</label>
+                    <textarea id="newCourseDescription" class="hr-form-input" rows="3" placeholder="Nhập mô tả ngắn về khoá học..." style="resize:vertical;"></textarea>
+                </div>
             </div>
             <div class="bosch-modal-footer">
                 <button type="button" class="btn-secondary" id="cancelAddCourseBtn">Hủy</button>
@@ -951,6 +963,10 @@
                         <label>Thời lượng</label>
                         <input type="text" id="editCourseDuration" class="hr-form-input" placeholder="VD: 40 giờ">
                     </div>
+                </div>
+                <div class="form-group mb-15">
+                    <label>Mô tả khoá học</label>
+                    <textarea id="editCourseDescription" class="hr-form-input" rows="3" placeholder="Nhập mô tả ngắn về khoá học..." style="resize:vertical;"></textarea>
                 </div>
                 <div class="form-group mb-15">
                     <label>Số học viên đăng ký</label>
