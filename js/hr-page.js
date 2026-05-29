@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             (c.description||'').toLowerCase().includes(search)
         );
         if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">Không có khoá học</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#888;">Không có khoá học</td></tr>`;
             return;
         }
 
@@ -635,7 +635,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td style="font-weight:600;">${esc(c.course_name)}</td>
                 <td style="color:#6b7280;font-size:13px;">${esc(c.description || '—')}</td>
                 <td style="text-align:center;">${c.duration ? c.duration + ' giờ' : '—'}</td>
-                <td style="text-align:center;">${c.certificate ? `<span class="badge badge-success">${esc(c.certificate)}</span>` : '<span style="color:#9ca3af;">—</span>'}</td>
                 <td style="font-size:12px;color:#9ca3af;">${c.created_at ? new Date(c.created_at).toLocaleDateString('vi-VN') : '—'}</td>
             </tr>`).join('');
     }
@@ -760,7 +759,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if ($('editCourseDuration')) $('editCourseDuration').value = course.duration    || '';
         if ($('editCourseProvider')) $('editCourseProvider').value = course.certificate || '';
 
-        $('editCourseModal')?.classList.add('show');
+        $('editCourseModal').style.display = 'flex';
     });
 
     $('saveEditCourseBtn')?.addEventListener('click', async () => {
@@ -777,12 +776,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (error) return showToast('Lỗi', error.message, 'error');
         showToast('Thành công', 'Đã cập nhật khoá học.');
-        $('editCourseModal')?.classList.remove('show');
+        $('editCourseModal').style.display = 'none';
         _courses = [];
         await loadCourses();
     });
 
-    $('cancelEditCourseBtn')?.addEventListener('click', () => $('editCourseModal')?.classList.remove('show'));
+    $('cancelEditCourseBtn')?.addEventListener('click', () => { $('editCourseModal').style.display = 'none'; });
+    $('closeEditCourseModal')?.addEventListener('click', () => { $('editCourseModal').style.display = 'none'; });
 
     // ── CRUD: Thêm/Sửa nhân sự ───────────────────────────────────────────────
     $('openAddModalBtn')?.addEventListener('click', () => openStaffModal(null));

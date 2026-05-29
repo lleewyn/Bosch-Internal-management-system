@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const activeSessions = new Set(allLogs.map(l => l.user)).size;
 
         if (stats[0]) stats[0].textContent = todayLogs.length.toLocaleString('vi-VN');
-        if (stats[1]) stats[1].textContent = String(securityLogs.length).padStart(2, '0');
-        if (stats[2]) stats[2].textContent = activeSessions;
+        if (stats[1]) stats[1].textContent = securityLogs.length.toLocaleString('vi-VN');
+        if (stats[2]) stats[2].textContent = activeSessions.toLocaleString('vi-VN');
 
         const term = (searchInp?.value || '').toLowerCase();
         const filtered = allLogs.filter(l => {
