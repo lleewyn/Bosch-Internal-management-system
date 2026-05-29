@@ -4,6 +4,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (window.AppRouter) {
         AppRouter.init();
+        // Hiển thị trang sau khi router init xong
+        setTimeout(() => document.body.classList.add('page-ready'), 100);
         return;
     }
 
@@ -32,6 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
             logout();
         });
     });
+
+    // Hiển thị trang sau khi load xong
+    setTimeout(() => document.body.classList.add('page-ready'), 100);
 });
 
 function updateSidebar(user) {

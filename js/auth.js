@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('loginError');
     const loginErrorMessage = document.getElementById('loginErrorMessage');
 
+    // Hiển thị trang đăng nhập ngay
+    document.body.classList.add('page-ready');
+
     // Đã đăng nhập → chuyển sang dashboard
     if (localStorage.getItem('currentUser')) {
         window.location.href = 'dashboard.html';
