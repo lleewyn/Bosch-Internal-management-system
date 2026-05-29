@@ -1,25 +1,101 @@
 /**
- * Ngân sách — 3 tab: Dòng dịch vụ, Mức độ tham gia, Doanh thu dự án
+ * Ngân sách — 3 tab: Dòng dịch vụ | Mức độ tham gia | Doanh thu dự án
+ * Kết nối Supabase qua DB service
  */
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.MockStore || !window.PageCommon) return;
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!window.PageCommon) return;
     PageCommon.injectFormStyles();
 
-    const svView   = document.getElementById('serviceLineView');
-    const partView = document.getElementById('participationView');
-    const revView  = document.getElementById('revenueView');
-    const slModal  = document.getElementById('serviceLineModal');
-    const partModal = document.getElementById('participationModal');
-
     const $ = (id) => document.getElementById(id);
+    const svView   = $('serviceLineView');
+    const partView = $('participationView');
+    const revView  = $('revenueView');
+    const slModal  = $('serviceLineModal');
 
-    let activeTab     = 'serviceLine';
-    let selectedSlId  = null;
+    let activeTab      = 'serviceLine';
+    let selectedSlId   = null;
     let selectedPartId = null;
     let selectedRevId  = null;
-    let editSl = false;
+    let editSl         = false;
 
-    // ── Tab switching ────────────────────────────────────────────────────────
+    // Data cache
+    let _serviceLines  = [];
+    let _slRates       = {};
+    let _assignments   = [];
+    let _projects      = [];
+    let _employees     = [];
+    let _contracts     = [];
+    let _effortMap     = {}; // { assignment_id: { hours, percent } }
+
+    function esc(v) {
+        return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function fmtMoney(v) {
+        if (!v && v !== 0) return '—';
+        return Number(v).toLocaleString('vi-VN') + ' VND';
+    }
+    function fmtRate(v) {
+        if (!v) return '—';
+        return Number(v).toLocaleString('vi-VN');
+    }
+
+    // ── Load data ─────────────────────────────────────────────────────────────
+    async function loadAll() {
+        showLoading();
+        const [slRes, projRes, empRes, contRes] = await Promise.all([
+            DB.ServiceLines.getAll(),
+            DB.Projects.getAll(),
+            DB.Employees.getAll(),
+            DB.Contracts.getAll()
+        ]);
+
+        if (slRes.data)   _serviceLines = slRes.data;
+        if (projRes.data) _projects     = projRes.data;
+        if (empRes.data)  _employees    = empRes.data;
+        _contracts = contRes.data || [];
+
+        await loadRates();
+
+        const assignRes = await DB.Assignments.getAll();
+        _assignments = assignRes.data || [];
+
+        // Load effort để lấy giờ OT
+        const effortRes = await window.supabaseClient
+            .from('effort_projects')
+            .select('assignment_id, actual_hours, effort_percent');
+        _effortMap = {};
+        if (effortRes.data) {
+            effortRes.data.forEach(e => {
+                if (!_effortMap[e.assignment_id]) _effortMap[e.assignment_id] = { hours: 0, percent: 0 };
+                _effortMap[e.assignment_id].hours   += Number(e.actual_hours  || 0);
+                _effortMap[e.assignment_id].percent += Number(e.effort_percent || 0);
+            });
+        }
+
+        renderActive();
+    }
+
+    async function loadRates() {
+        _slRates = {};
+        for (const sl of _serviceLines) {
+            const res = await DB.ServiceLines.getRates(sl.service_line_id);
+            if (res.data && res.data.length > 0) {
+                // Lấy rate mới nhất (effective_from lớn nhất, effective_to = null)
+                const active = res.data.find(r => !r.effective_to) || res.data[0];
+                _slRates[sl.service_line_id] = active?.hourly_rate || 0;
+            }
+        }
+    }
+
+    function showLoading() {
+        [svView, partView, revView].forEach(v => {
+            const tbody = v?.querySelector('tbody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:32px;color:#888;">
+                <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Đang tải...</td></tr>`;
+        });
+    }
+
+    // ── Tab switching ─────────────────────────────────────────────────────────
     PageCommon.bindTabs('.bosch-tab', {
         serviceLine:   svView,
         participation: partView,
@@ -29,7 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
         renderActive();
     });
 
-    // ── Badge helpers ────────────────────────────────────────────────────────
+    function renderActive() {
+        if (activeTab === 'serviceLine')   renderServiceLines();
+        else if (activeTab === 'participation') renderParticipation();
+        else renderRevenue();
+    }
+
+    // ── Badge helpers ─────────────────────────────────────────────────────────
     function showBadge(badgeId, text) {
         const b = $(badgeId);
         if (!b) return;
@@ -37,255 +119,277 @@ document.addEventListener('DOMContentLoaded', () => {
         else b.style.display = 'none';
     }
 
-    function clearSl()   { selectedSlId   = null; svView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('slSelectionBadge',   null); }
-    function clearPart() { selectedPartId = null; partView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('partSelectionBadge', null); }
-    function clearRev()  { selectedRevId  = null; revView.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('revSelectionBadge',  null); }
+    function clearSl()   { selectedSlId   = null; svView?.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row'));   showBadge('slSelectionBadge',   null); }
+    function clearPart() { selectedPartId = null; partView?.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row')); showBadge('partSelectionBadge', null); }
+    function clearRev()  { selectedRevId  = null; revView?.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected-row'));  showBadge('revSelectionBadge',  null); }
 
-    // ── Render: Dòng dịch vụ ────────────────────────────────────────────────
+    // ── TAB 1: Dòng dịch vụ ──────────────────────────────────────────────────
     function renderServiceLines() {
-        applySlFilter();
-    }
+        const tbody = svView?.querySelector('tbody');
+        if (!tbody) return;
 
-    // ── Render: Mức độ tham gia ──────────────────────────────────────────────
-    function renderParticipation() {
-        // Repopulate project filter mỗi lần render
-        const projSel = document.getElementById('filterPartProject');
-        if (projSel) {
-            const current = projSel.value;
-            projSel.innerHTML = '<option value="">Tất cả dự án</option>';
-            const projects = [...new Set(MockStore.getParticipation().map(p => p.project).filter(Boolean))];
-            projects.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; projSel.appendChild(o); });
-            projSel.value = current;
-        }
-        applyPartFilter();
-    }
-
-    // ── Render: Doanh thu dự án ──────────────────────────────────────────────
-    function revBadge(status) {
-        return UI.badge(status);
-    }
-
-    function renderRevenue() {
-        // Repopulate company filter mỗi lần render
-        const compSel = document.getElementById('filterRevCompany');
-        if (compSel) {
-            const current = compSel.value;
-            compSel.innerHTML = '<option value="">Tất cả công ty</option>';
-            const companies = [...new Set(MockStore.getProjects().map(p => p.company).filter(Boolean))];
-            companies.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; compSel.appendChild(o); });
-            compSel.value = current;
-        }
-        applyRevFilter();
-    }
-
-    // ── Filter logic ─────────────────────────────────────────────────────────
-    function applySlFilter() {
         const term   = (svView.querySelector('.search-box input')?.value || '').toLowerCase();
-        const status = document.getElementById('filterSlStatus')?.value || '';
-        const sort   = document.getElementById('filterSlSort')?.value || '';
+        const status = $('filterSlStatus')?.value || '';
+        const sort   = $('filterSlSort')?.value   || '';
 
-        const tbody = svView.querySelector('tbody');
-        const items = MockStore.getServiceLines().slice();
+        let data = _serviceLines.slice();
+        if (sort === 'rate-asc')  data.sort((a,b) => (_slRates[a.service_line_id]||0) - (_slRates[b.service_line_id]||0));
+        if (sort === 'rate-desc') data.sort((a,b) => (_slRates[b.service_line_id]||0) - (_slRates[a.service_line_id]||0));
 
-        if (sort === 'rate-asc') {
-            items.sort((a, b) => a.rate - b.rate);
-        } else if (sort === 'rate-desc') {
-            items.sort((a, b) => b.rate - a.rate);
+        // Đếm hợp đồng và dự án theo service_line_id
+        const contractCountMap = {};
+        const projectCountMap  = {};
+        _contracts.forEach(c => {
+            const id = c.service_line_id;
+            if (id) contractCountMap[id] = (contractCountMap[id] || 0) + 1;
+        });
+        _projects.forEach(p => {
+            const id = p.contracts?.service_line_id;
+            if (id) projectCountMap[id] = (projectCountMap[id] || 0) + 1;
+        });
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#888;">Chưa có dữ liệu dòng dịch vụ</td></tr>`;
+            return;
         }
 
-        tbody.innerHTML = items.map(s => {
-            const alert = !s.active ? ' row-alert' : '';
-            return `<tr data-id="${s.id}" style="cursor:pointer;" class="${selectedSlId === s.id ? 'selected-row' : ''}${alert}">
-                <td class="code-col" style="text-align:center;">${UI.escape(s.id)}</td>
-                <td class="name-col">${UI.escape(s.name)}</td>
-                <td class="role-col">${UI.escape(s.desc)}</td>
-                <td class="value-blue" style="text-align:center;">${UI.formatNumber(s.rate)}</td>
-                <td style="text-align:center;">${s.contracts}</td>
-                <td style="text-align:center;">${s.projects}</td>
-                <td style="text-align:center;"><span class="badge ${s.active ? 'badge-success' : 'badge-muted'}">${s.active ? 'Hoạt động' : 'Ngừng'}</span></td>
+        tbody.innerHTML = data.map(s => {
+            const rate     = _slRates[s.service_line_id] || 0;
+            const isActive = s.status === 'active';
+            const alertCls = !isActive ? ' row-alert' : '';
+            const matchSearch = !term   || (s.service_line_name||'').toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term);
+            const matchStatus = !status || s.status === status;
+            if (!matchSearch || !matchStatus) return '';
+            return `<tr data-id="${s.service_line_id}" style="cursor:pointer;" class="${selectedSlId===s.service_line_id?'selected-row':''}${alertCls}">
+                <td class="code-col" style="text-align:center;font-size:11px;color:#6b7280;" title="${esc(s.service_line_id)}">${esc(s.service_line_id.slice(-8))}</td>
+                <td class="name-col">${esc(s.service_line_name)}</td>
+                <td class="role-col">${esc(s.description || '—')}</td>
+                <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${fmtRate(rate)}</td>
+                <td style="text-align:center;">${contractCountMap[s.service_line_id] || 0}</td>
+                <td style="text-align:center;">${projectCountMap[s.service_line_id]  || 0}</td>
+                <td style="text-align:center;">
+                    <span class="badge ${isActive?'badge-success':'badge-muted'}">${isActive?'Hoạt động':'Ngừng'}</span>
+                </td>
             </tr>`;
         }).join('');
 
-        // Re-bind events after re-render
-        tbody.querySelectorAll('tr').forEach(tr => {
-            tr.addEventListener('click', (e) => {
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+            tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
                 if (selectedSlId === id) { clearSl(); return; }
                 tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                 tr.classList.add('selected-row');
                 selectedSlId = id;
-                showBadge('slSelectionBadge', `Đang chọn: ${id}`);
+                const sl = _serviceLines.find(x => x.service_line_id === id);
+                showBadge('slSelectionBadge', sl ? `Đang chọn: ${sl.service_line_name}` : null);
             });
-        });
-
-        const rows = [...tbody.querySelectorAll('tr')];
-        rows.forEach(tr => {
-            const text = tr.textContent.toLowerCase();
-            const rowStatus = tr.querySelector('.badge')?.textContent || '';
-            const matchSearch = !term || text.includes(term);
-            const matchStatus = !status || rowStatus.includes(status);
-            tr.style.display = matchSearch && matchStatus ? '' : 'none';
         });
     }
 
-    function applyPartFilter() {
+    // ── TAB 2: Mức độ tham gia ────────────────────────────────────────────────
+    function renderParticipation() {
+        const tbody = partView?.querySelector('tbody');
+        if (!tbody) return;
+
         const term    = (partView.querySelector('.search-box input')?.value || '').toLowerCase();
-        const project = (document.getElementById('filterPartProject')?.value || '').toLowerCase();
-        const ot      = document.getElementById('filterPartOt')?.value || '';
-        const sort    = document.getElementById('filterPartSort')?.value || '';
+        const projFilter = $('filterPartProject')?.value || '';
+        const otFilter   = $('filterPartOt')?.value     || '';
+        const sort       = $('filterPartSort')?.value   || '';
 
-        let data = MockStore.getParticipation().slice();
-        if (sort === 'actual-desc') data.sort((a, b) => b.actual - a.actual);
-        if (sort === 'actual-asc')  data.sort((a, b) => a.actual - b.actual);
+        // Populate project filter
+        const projSel = $('filterPartProject');
+        if (projSel && projSel.options.length <= 1) {
+            const names = [...new Set(_projects.map(p => p.project_name).filter(Boolean))];
+            names.forEach(n => { const o = document.createElement('option'); o.value=n; o.textContent=n; projSel.appendChild(o); });
+        }
 
-        const tbody = partView.querySelector('tbody');
+        // Build participation data từ assignments
+        let data = _assignments.map(a => {
+            const emp  = a.employees || {};
+            // Lấy chức danh từ cache _employees
+            const empFull = _employees.find(e => e.employee_id === (emp.employee_id || a.employee_id));
+            const pos  = empFull?.positions?.position_name || '—';
+            // Tìm project qua request
+            const reqProjectId = a.project_resource_requests?.project_id;
+            const proj = _projects.find(p => p.project_id === reqProjectId) || {};
+            // Giờ OT: lấy từ effort_projects
+            const effort   = _effortMap[a.assignment_id] || {};
+            const otHours  = effort.hours || 0;
+            const isOt     = a.project_resource_requests?.is_ot === true || otHours > 0;
+            return {
+                assignmentId: a.assignment_id,
+                empId:        emp.employee_id || a.employee_id,
+                empCode:      empFull?.employee_code || emp.employee_code || '—',
+                empName:      empFull?.full_name || emp.full_name || '—',
+                position:     pos,
+                projectName:  proj.project_name || '—',
+                planned:      Number(a.allocation_percent) || 0,
+                actual:       Number(a.allocation_percent) || 0,
+                isOt:         false,
+                otHours:      otHours
+            };
+        }).filter(a => a.empName !== '—');
+
+        if (sort === 'actual-desc') data.sort((a,b) => b.actual - a.actual);
+        if (sort === 'actual-asc')  data.sort((a,b) => a.actual - b.actual);
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#888;">Chưa có dữ liệu mức độ tham gia</td></tr>`;
+            return;
+        }
+
         tbody.innerHTML = data.map(p => {
-            const actualCls = p.actual > 100 ? 'val-red' : 'val-green';
-            const alert = p.actual > 100 ? ' row-alert' : '';
+            const matchSearch  = !term       || p.empName.toLowerCase().includes(term) || p.empCode.toLowerCase().includes(term);
+            const matchProject = !projFilter || p.projectName === projFilter;
+            const matchOt      = !otFilter   || (otFilter === 'ot' ? p.isOt : !p.isOt);
+            if (!matchSearch || !matchProject || !matchOt) return '';
 
-            // Thanh tiến độ + badge mức độ
             const pct = Math.min(p.actual, 100);
-            let barColor, badgeLabel, badgeStyle, rowBg;
-            if (p.actual > 90) {
-                barColor   = '#dc2626';
-                badgeLabel = 'QUÁ TẢI';
-                badgeStyle = 'background:#fee2e2;color:#dc2626;';
-                rowBg      = 'background:#fff5f5 !important;';
-            } else if (p.actual > 70) {
-                barColor   = '#f59e0b';
-                badgeLabel = 'CAO';
-                badgeStyle = 'background:#fef3c7;color:#d97706;';
-                rowBg      = '';
-            } else {
-                barColor   = '#10b981';
-                badgeLabel = 'ỔN ĐỊNH';
-                badgeStyle = 'background:#d1fae5;color:#059669;';
-                rowBg      = '';
-            }
+            let barColor='#10b981', badgeLabel='ỔN ĐỊNH', badgeStyle='background:#d1fae5;color:#059669;', rowBg='';
+            if (p.actual > 90) { barColor='#dc2626'; badgeLabel='QUÁ TẢI'; badgeStyle='background:#fee2e2;color:#dc2626;'; rowBg='background:#fff5f5 !important;'; }
+            else if (p.actual > 70) { barColor='#f59e0b'; badgeLabel='CAO'; badgeStyle='background:#fef3c7;color:#d97706;'; }
+
             const progressBar = `
                 <div style="width:100%;background:#e5e7eb;border-radius:4px;height:6px;margin-bottom:6px;">
-                    <div style="width:${pct}%;background:${barColor};height:6px;border-radius:4px;transition:width .3s;"></div>
+                    <div style="width:${pct}%;background:${barColor};height:6px;border-radius:4px;"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;${badgeStyle}">${badgeLabel}</span>
                     <span style="font-size:12px;font-weight:700;color:#374151;">${p.actual}%</span>
                 </div>`;
 
-            return `<tr data-id="${p.staffId}" style="cursor:pointer;${rowBg}" class="${selectedPartId === p.staffId ? 'selected-row' : ''}${alert}">
-                <td class="code-col" style="text-align:center;">${UI.escape(p.staffId)}</td>
-                <td class="name-col">${UI.escape(p.name)}</td>
-                <td>${UI.escape(p.title)}</td>
-                <td><span class="tag-project">${UI.escape(p.project)}</span></td>
-                <td class="value-blue" style="text-align:center;">${p.planned}%</td>
-                <td style="text-align:center;">${p.otHours > 0 ? `<span class="value-green">${p.otHours}h</span><span class="ot-highlight">OT</span>` : '—'}</td>
+            return `<tr data-id="${p.assignmentId}" style="cursor:pointer;${rowBg}" class="${selectedPartId===p.assignmentId?'selected-row':''}">
+                <td class="code-col" style="text-align:center;">${esc(p.empCode)}</td>
+                <td class="name-col">${esc(p.empName)}</td>
+                <td>${esc(p.position)}</td>
+                <td><span class="tag-project">${esc(p.projectName)}</span></td>
+                <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${p.planned}%</td>
+                <td style="text-align:center;">${p.otHours > 0 ? `<span style="color:#10b981;font-weight:700;">${p.otHours}h</span><span style="color:#E20015;font-size:10px;font-weight:700;display:block;">OT</span>` : '—'}</td>
                 <td style="padding:10px 16px;min-width:160px;">${progressBar}</td>
             </tr>`;
         }).join('');
 
-        tbody.querySelectorAll('tr').forEach(tr => {
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
             tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
                 if (selectedPartId === id) { clearPart(); return; }
                 tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                 tr.classList.add('selected-row');
                 selectedPartId = id;
-                const p = MockStore.getParticipation().find(x => x.staffId === id);
-                showBadge('partSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
+                const a = _assignments.find(x => x.assignment_id === id);
+                showBadge('partSelectionBadge', a ? `Đang chọn: ${a.employees?.full_name || id}` : null);
             });
-        });
-
-        tbody.querySelectorAll('tr').forEach(tr => {
-            const text = tr.textContent.toLowerCase();
-            const rowProject = tr.querySelectorAll('td')[3]?.textContent.toLowerCase() || '';
-            const rowOtCell  = tr.querySelectorAll('td')[5]?.textContent || '';
-            const hasOt = rowOtCell.includes('h') && !rowOtCell.includes('—');
-            const matchSearch  = !term    || text.includes(term);
-            const matchProject = !project || rowProject.includes(project);
-            const matchOt = !ot || (ot === 'ot' ? hasOt : !hasOt);
-            tr.style.display = matchSearch && matchProject && matchOt ? '' : 'none';
         });
     }
 
-    function applyRevFilter() {
-        const term    = (revView.querySelector('.search-box input')?.value || '').toLowerCase();
-        const status  = (document.getElementById('filterRevStatus')?.value || '').toLowerCase();
-        const company = (document.getElementById('filterRevCompany')?.value || '').toLowerCase();
-        const sort    = document.getElementById('filterRevSort')?.value || '';
+    function computeProjectStatus(p) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        function pd(s) { if(!s) return null; const [y,m,d]=String(s).slice(0,10).split('-').map(Number); return new Date(y,m-1,d); }
+        const end = pd(p.end_date);
+        const pct = Number(p.progress_percent) || 0;
+        if (pct >= 100) return { label:'Hoàn thành', cls:'badge-success' };
+        if (!end)       return { label:'Đang triển khai', cls:'badge-info' };
+        if (today > end) return { label:'Trễ tiến độ', cls:'badge-danger' };
+        const days = Math.ceil((end - today) / 86400000);
+        if (days <= 30) return { label:'Sắp hết hạn', cls:'badge-warning' };
+        return { label:'Đang triển khai', cls:'badge-info' };
+    }
+    function renderRevenue() {
+        const tbody = revView?.querySelector('tbody');
+        if (!tbody) return;
 
-        let data = MockStore.getProjects().slice();
-        if (sort === 'revenue-desc') data.sort((a, b) => (b.revenue||0) - (a.revenue||0));
-        if (sort === 'revenue-asc')  data.sort((a, b) => (a.revenue||0) - (b.revenue||0));
-        if (sort === 'progress-desc') data.sort((a, b) => b.progress - a.progress);
-        if (sort === 'progress-asc')  data.sort((a, b) => a.progress - b.progress);
+        const term       = (revView.querySelector('.search-box input')?.value || '').toLowerCase();
+        const compFilter = $('filterRevCompany')?.value || '';
+        const sort       = $('filterRevSort')?.value    || '';
 
-        const tbody = revView.querySelector('tbody');
+        // Populate company filter
+        const compSel = $('filterRevCompany');
+        if (compSel && compSel.options.length <= 1) {
+            const companies = [...new Set(_projects.map(p => p.customers?.company_name).filter(Boolean))];
+            companies.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; compSel.appendChild(o); });
+        }
+
+        let data = _projects.slice();
+        if (sort === 'revenue-desc')  data.sort((a,b) => (Number(b.revenue_amount)||0) - (Number(a.revenue_amount)||0));
+        if (sort === 'revenue-asc')   data.sort((a,b) => (Number(a.revenue_amount)||0) - (Number(b.revenue_amount)||0));
+        if (sort === 'progress-desc') data.sort((a,b) => (Number(b.progress_percent)||0) - (Number(a.progress_percent)||0));
+        if (sort === 'progress-asc')  data.sort((a,b) => (Number(a.progress_percent)||0) - (Number(b.progress_percent)||0));
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#888;">Chưa có dữ liệu doanh thu</td></tr>`;
+            return;
+        }
+
         tbody.innerHTML = data.map(p => {
-            const alertStatuses = ['Tạm dừng', 'Đã hủy'];
-            const alert = alertStatuses.includes(p.status) ? ' row-alert' : '';
-            return `<tr data-id="${p.id}" style="cursor:pointer;" class="${selectedRevId === p.id ? 'selected-row' : ''}${alert}">
-                <td class="code-col" style="text-align:center;">${UI.escape(p.id)}</td>
-                <td class="name-col">${UI.escape(p.name)}</td>
-                <td>${UI.escape(p.company)}</td>
-                <td><span class="tag-project">${UI.escape(p.serviceLine)}</span></td>
-                <td style="text-align:center;">${revBadge(p.status)}</td>
-                <td style="text-align:center;">${MockStore.getProjectAssignments ? MockStore.getProjectAssignments(p.id).length : 0}</td>
+            const cust   = p.customers || {};
+            const slName = p.contracts?.service_lines?.service_line_name || '—';
+            const pct    = Number(p.progress_percent) || 0;
+            const staffCount = _assignments.filter(a => {
+                const reqProjectId = a.project_resource_requests?.project_id;
+                return reqProjectId === p.project_id;
+            }).length;
+
+            const matchSearch  = !term       || (p.project_name||'').toLowerCase().includes(term) || (p.project_code||'').toLowerCase().includes(term);
+            const matchCompany = !compFilter || (cust.company_name||'') === compFilter;
+            if (!matchSearch || !matchCompany) return '';
+
+            return `<tr data-id="${p.project_id}" style="cursor:pointer;" class="${selectedRevId===p.project_id?'selected-row':''}">
+                <td class="code-col" style="text-align:center;">${esc(p.project_code)}</td>
+                <td class="name-col">${esc(p.project_name)}</td>
+                <td>${esc(cust.company_name)}</td>
+                <td><span class="tag-project">${esc(slName)}</span></td>
+                <td style="text-align:center;">
+                    ${(() => { const s = computeProjectStatus(p); return `<span class="badge ${s.cls}">${s.label}</span>`; })()}
+                </td>
+                <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${staffCount}</td>
                 <td style="text-align:center;">
                     <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
                         <div style="width:50px;height:5px;background:#eee;border-radius:3px;overflow:hidden;">
-                            <div style="width:${p.progress}%;height:100%;background:${p.progress>=70?'#28a745':'#f58220'};border-radius:3px;"></div>
+                            <div style="width:${pct}%;height:100%;background:${pct>=70?'#28a745':'#f58220'};border-radius:3px;"></div>
                         </div>
-                        <span style="font-size:12px;font-weight:700;">${p.progress}%</span>
+                        <span style="font-size:12px;font-weight:700;">${pct}%</span>
                     </div>
                 </td>
-                <td class="value-blue" style="text-align:center;">${UI.formatNumber(p.revenue || 0)}</td>
+                <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${fmtMoney(p.revenue_amount)}</td>
             </tr>`;
         }).join('');
 
-        tbody.querySelectorAll('tr').forEach(tr => {
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
             tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
                 if (selectedRevId === id) { clearRev(); return; }
                 tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                 tr.classList.add('selected-row');
                 selectedRevId = id;
-                const p = MockStore.getProjects().find(x => x.id === id);
-                showBadge('revSelectionBadge', p ? `Đang chọn: ${p.name}` : null);
+                const p = _projects.find(x => x.project_id === id);
+                showBadge('revSelectionBadge', p ? `Đang chọn: ${p.project_name}` : null);
             });
-        });
-
-        tbody.querySelectorAll('tr').forEach(tr => {
-            const text       = tr.textContent.toLowerCase();
-            const rowStatus  = tr.querySelectorAll('td')[4]?.textContent.toLowerCase() || '';
-            const rowCompany = tr.querySelectorAll('td')[2]?.textContent.toLowerCase() || '';
-            const matchSearch  = !term    || text.includes(term);
-            const matchStatus  = !status  || rowStatus.includes(status);
-            const matchCompany = !company || rowCompany.includes(company);
-            tr.style.display = matchSearch && matchStatus && matchCompany ? '' : 'none';
         });
     }
 
-    // Bind search inputs
-    svView.querySelector('.search-box input')?.addEventListener('input', applySlFilter);
-    partView.querySelector('.search-box input')?.addEventListener('input', applyPartFilter);
-    revView.querySelector('.search-box input')?.addEventListener('input', applyRevFilter);
+    // ── Bind search & filter ──────────────────────────────────────────────────
+    svView?.querySelector('.search-box input')?.addEventListener('input', renderServiceLines);
+    partView?.querySelector('.search-box input')?.addEventListener('input', renderParticipation);
+    revView?.querySelector('.search-box input')?.addEventListener('input', renderRevenue);
 
-    // Bind filter selects
-    ['filterSlStatus','filterSlSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applySlFilter));
-    ['filterPartProject','filterPartOt','filterPartSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applyPartFilter));
-    ['filterRevStatus','filterRevCompany','filterRevSort'].forEach(id => document.getElementById(id)?.addEventListener('change', applyRevFilter));
+    ['filterSlStatus','filterSlSort'].forEach(id => $(id)?.addEventListener('change', renderServiceLines));
+    ['filterPartProject','filterPartOt','filterPartSort'].forEach(id => $(id)?.addEventListener('change', renderParticipation));
+    ['filterRevCompany','filterRevSort'].forEach(id => $(id)?.addEventListener('change', renderRevenue));
 
-    // ── Modal: Dòng dịch vụ ──────────────────────────────────────────────────
+    // ── CRUD: Dòng dịch vụ ────────────────────────────────────────────────────
     function openSlModal(edit) {
         editSl = edit;
-        const s = edit ? MockStore.getServiceLines().find(x => x.id === selectedSlId) : null;
+        const s = edit ? _serviceLines.find(x => x.service_line_id === selectedSlId) : null;
         slModal.querySelector('h3').innerHTML = edit
             ? '<i class="fa-regular fa-pen-to-square" style="margin-right:8px;"></i> SỬA DÒNG DỊCH VỤ'
             : '<i class="fa-solid fa-plus" style="margin-right:8px;"></i> TẠO MỚI DÒNG DỊCH VỤ';
         const inputs = slModal.querySelectorAll('input.custom-input');
-        inputs[0].value = s?.name || '';
-        slModal.querySelector('textarea').value = s?.desc || '';
-        if (inputs[1]) inputs[1].value = s?.rate || '';
-        slModal.querySelector('#statusCheck').checked = s ? s.active : true;
+        if (inputs[0]) inputs[0].value = s?.service_line_name || '';
+        const textarea = slModal.querySelector('textarea');
+        if (textarea) textarea.value = s?.description || '';
+        if (inputs[1]) inputs[1].value = s ? (_slRates[s.service_line_id] || '') : '';
+        const statusCheck = slModal.querySelector('#statusCheck');
+        if (statusCheck) statusCheck.checked = s ? s.status === 'active' : true;
         slModal.classList.add('show');
     }
 
@@ -294,89 +398,97 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ trước.', 'error');
         openSlModal(true);
     });
-    $('deleteServiceLineBtn')?.addEventListener('click', () => {
+    $('deleteServiceLineBtn')?.addEventListener('click', async () => {
         if (!selectedSlId) return showToast('Lỗi', 'Chọn dòng dịch vụ trước.', 'error');
-        const sl = MockStore.getServiceLines().find(x => x.id === selectedSlId);
+        const sl = _serviceLines.find(x => x.service_line_id === selectedSlId);
         if (!sl) return;
-        if (sl.active) {
-            return showToast('Không thể xóa', 'Chỉ được xóa dòng dịch vụ có trạng thái "Ngừng".', 'error');
-        }
-        if (confirm('Xóa dòng dịch vụ đã chọn?')) {
-            MockStore.deleteServiceLines([selectedSlId]);
-            clearSl();
-            renderServiceLines();
-            showToast('Thành công', 'Đã xóa dòng dịch vụ.');
-        }
+        if (sl.status === 'active') return showToast('Không thể xóa', 'Chỉ xóa dòng dịch vụ có trạng thái "Ngừng".', 'error');
+        if (!confirm('Xóa dòng dịch vụ này?')) return;
+        const { error } = await DB.ServiceLines.delete(selectedSlId);
+        if (error) return showToast('Lỗi', error.message, 'error');
+        showToast('Thành công', 'Đã xóa dòng dịch vụ.');
+        clearSl();
+        await loadAll();
     });
 
-    $('saveServiceLineBtn')?.addEventListener('click', () => {
-        if (!validateForm(slModal)) return;
+    $('saveServiceLineBtn')?.addEventListener('click', async () => {
         const inputs = slModal.querySelectorAll('input.custom-input');
+        const name = inputs[0]?.value.trim();
+        const desc = slModal.querySelector('textarea')?.value.trim() || '';
+        const rate = Number(String(inputs[1]?.value || '').replace(/\D/g,'')) || 0;
+        const isActive = slModal.querySelector('#statusCheck')?.checked;
+
+        if (!name) return showToast('Lỗi', 'Vui lòng nhập tên dòng dịch vụ.', 'error');
+        if (!rate) return showToast('Lỗi', 'Vui lòng nhập đơn giá.', 'error');
+
         const payload = {
-            name: inputs[0].value.trim(),
-            desc: slModal.querySelector('textarea').value.trim(),
-            rate: parseInt((inputs[1]?.value || '').replace(/\D/g, '')) || 1000000,
-            active: slModal.querySelector('#statusCheck').checked
+            service_line_name: name,
+            description:       desc,
+            status:            isActive ? 'active' : 'inactive'
         };
+
+        let result;
         if (editSl && selectedSlId) {
-            MockStore.updateServiceLine(selectedSlId, payload);
-            showToast('Thành công', 'Đã cập nhật dòng dịch vụ.');
+            result = await DB.ServiceLines.update(selectedSlId, payload);
         } else {
-            MockStore.addServiceLine({ ...payload, contracts: 0, projects: 0 });
-            showToast('Thành công', 'Đã tạo dòng dịch vụ.');
+            result = await DB.ServiceLines.create(payload);
         }
+        if (result.error) return showToast('Lỗi', result.error.message, 'error');
+
+        // Lưu rate mới
+        const slId = editSl ? selectedSlId : result.data?.service_line_id;
+        if (slId && rate) {
+            await window.supabaseClient.from('service_line_rates').insert({
+                service_line_id: slId,
+                hourly_rate:     rate,
+                effective_from:  new Date().toISOString().slice(0,10)
+            });
+        }
+
+        showToast('Thành công', editSl ? 'Đã cập nhật dòng dịch vụ.' : 'Đã tạo dòng dịch vụ.');
         slModal.classList.remove('show');
-        renderServiceLines();
+        await loadAll();
     });
 
     $('closeServiceLineModal')?.addEventListener('click', () => slModal.classList.remove('show'));
     $('cancelServiceLineBtn')?.addEventListener('click', () => slModal.classList.remove('show'));
     slModal?.addEventListener('click', e => { if (e.target === slModal) slModal.classList.remove('show'); });
 
-    // ── Modal: Mức độ tham gia ───────────────────────────────────────────────
-    function openPartModal() {
-        const p = MockStore.getParticipation().find(x => x.staffId === selectedPartId);
-        if (!p) return;
-        $('partStaffName').value = `${p.name} (${p.staffId})`;
-        $('partPlanned').value = p.planned;
-        partModal.classList.add('show');
-    }
+    // ── CRUD: Mức độ tham gia ─────────────────────────────────────────────────
+    const partModal = $('participationModal');
 
     $('editPartBtn')?.addEventListener('click', () => {
-        if (!selectedPartId) return showToast('Lỗi', 'Chọn nhân sự trước.', 'error');
-        openPartModal();
+        if (!selectedPartId) return showToast('Lỗi', 'Vui lòng chọn nhân sự trước.', 'error');
+        const a = _assignments.find(x => x.assignment_id === selectedPartId);
+        if (!a) return;
+        const empFull = _employees.find(e => e.employee_id === (a.employees?.employee_id || a.employee_id));
+        const name = empFull?.full_name || a.employees?.full_name || '—';
+        const code = empFull?.employee_code || a.employees?.employee_code || '—';
+        if ($('partStaffName')) $('partStaffName').value = `${name} (${code})`;
+        if ($('partPlanned'))   $('partPlanned').value   = a.allocation_percent || 0;
+        partModal?.classList.add('show');
     });
 
-    $('savePartModal')?.addEventListener('click', () => {
-        if (!validateForm(document.getElementById('participationForm'))) return;
-        const planned = parseInt($('partPlanned').value) || 0;
-        MockStore.updateParticipation(selectedPartId, { planned });
-        // Sync workload nhân sự tương ứng
-        const p = MockStore.getParticipation().find(x => x.staffId === selectedPartId);
-        if (p) MockStore.updateStaff(selectedPartId, { workload: Math.min(100, planned) });
-        partModal.classList.remove('show');
+    $('savePartModal')?.addEventListener('click', async () => {
+        if (!selectedPartId) return;
+        const planned = Number($('partPlanned')?.value) || 0;
+        if (planned < 0 || planned > 100) return showToast('Lỗi', '% tham gia phải từ 0 đến 100.', 'error');
+        const { error } = await DB.Assignments.update(selectedPartId, { allocation_percent: planned });
+        if (error) return showToast('Lỗi', error.message, 'error');
         showToast('Thành công', 'Đã cập nhật mức tham gia.');
-        renderParticipation();
+        partModal?.classList.remove('show');
+        await loadAll();
     });
 
-    $('closePartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
-    $('cancelPartModal')?.addEventListener('click', () => partModal.classList.remove('show'));
+    $('closePartModal')?.addEventListener('click',  () => partModal?.classList.remove('show'));
+    $('cancelPartModal')?.addEventListener('click', () => partModal?.classList.remove('show'));
     partModal?.addEventListener('click', e => { if (e.target === partModal) partModal.classList.remove('show'); });
-
-    // ── Doanh thu: Đồng bộ ──────────────────────────────────────────────────
-    $('syncRevenueBtn')?.addEventListener('click', () => {
-        MockStore.recalcBudgetFromProjects();
-        showToast('Thành công', 'Đã đồng bộ doanh thu từ dự án vận hành.');
-        renderRevenue();
-        renderParticipation();
+    $('syncRevenueBtn')?.addEventListener('click', async () => {
+        showToast('Đang xử lý', 'Đang đồng bộ dữ liệu...', 'info');
+        await loadAll();
+        showToast('Thành công', 'Đã đồng bộ dữ liệu từ Supabase.');
     });
 
-    // ── Render active ────────────────────────────────────────────────────────
-    function renderActive() {
-        if (activeTab === 'serviceLine')   renderServiceLines();
-        else if (activeTab === 'participation') renderParticipation();
-        else renderRevenue();
-    }
-
-    renderActive();
+    // ── Khởi động ─────────────────────────────────────────────────────────────
+    await loadAll();
 });

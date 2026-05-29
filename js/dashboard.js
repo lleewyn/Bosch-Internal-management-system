@@ -1,30 +1,35 @@
 /**
- * Dashboard — dữ liệu động từ MockStore
+ * Dashboard — dữ liệu động từ Supabase (DB.*)
  */
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.MockStore) return;
+document.addEventListener('DOMContentLoaded', async () => {
 
-    const db = MockStore.get();
-    let period = db.settings.period || 'Tháng';
-    let distMode = db.settings.distributionMode || 'service';
-    let hrPill = 'position';
+    let period   = 'Tháng';
+    let distMode = 'service';
+    let hrPill   = 'position';
     let projectModalPage = 1;
-    let hrModalPage = 1;
+    let hrModalPage      = 1;
     const PAGE_SIZE = 4;
 
-    const revenueView = document.getElementById('revenueView');
-    const hrView = document.getElementById('hrView');
+    // Cache dữ liệu để tránh gọi lại nhiều lần
+    let _projects     = [];
+    let _employees    = [];
+    let _assignments  = [];
+    let _effortData   = [];
+    let _serviceLines = [];
+
+    const revenueView  = document.getElementById('revenueView');
+    const hrView       = document.getElementById('hrView');
     const projectsView = document.getElementById('projectsView');
 
-    // --- Modals ---
+    // ── Modals ────────────────────────────────────────────────────────────────
     const modals = {
-        report: document.getElementById('reportModal'),
-        export: document.getElementById('exportModal'),
-        hrSel: document.getElementById('hrSelectionModal'),
-        projectList: document.getElementById('projectListModal'),
+        report:        document.getElementById('reportModal'),
+        export:        document.getElementById('exportModal'),
+        hrSel:         document.getElementById('hrSelectionModal'),
+        projectList:   document.getElementById('projectListModal'),
         revenueDetail: document.getElementById('revenueDetailModal')
     };
-    const openMdl = (m) => UI.openModal(m);
+    const openMdl  = (m) => UI.openModal(m);
     const closeMdl = (m) => UI.closeModal(m);
 
     document.querySelector('.btn-report-auto')?.addEventListener('click', () => openMdl(modals.report));
@@ -49,30 +54,246 @@ document.addEventListener('DOMContentLoaded', () => {
         openMdl(modals.revenueDetail);
     });
 
-    [['closeReportModal', 'cancelReportBtn', modals.report],
-     ['closeExportModal', 'cancelExportBtn', modals.export],
-     ['closeHRModal', 'backHRModal', modals.hrSel],
-     ['closeProjectModal', 'backProjectModal', modals.projectList],
-     ['closeRevenueModal', 'backRevenueModal', modals.revenueDetail]].forEach(([a, b, m]) => {
+    [['closeReportModal',   'cancelReportBtn',   modals.report],
+     ['closeExportModal',   'cancelExportBtn',   modals.export],
+     ['closeHRModal',       'backHRModal',        modals.hrSel],
+     ['closeProjectModal',  'backProjectModal',   modals.projectList],
+     ['closeRevenueModal',  'backRevenueModal',   modals.revenueDetail]].forEach(([a, b, m]) => {
         document.getElementById(a)?.addEventListener('click', () => closeMdl(m));
         document.getElementById(b)?.addEventListener('click', () => closeMdl(m));
     });
 
-    document.querySelector('.btn-save-settings')?.addEventListener('click', () => {
+    document.querySelector('.btn-save-settings')?.addEventListener('click', async () => {
         if (validateForm(modals.report)) {
-            showToast('Thành công', 'Đã lưu thiết lập báo cáo tự động.');
-            MockStore.logActivity('Báo cáo', 'Cấu hình báo cáo tự động');
+            const user = DB.Auth.currentUser();
+            const cycle  = document.getElementById('reportCycle')?.value || 'Tháng';
+            const day    = document.getElementById('reportDay')?.value;
+            const time   = document.getElementById('reportTime')?.value;
+            const note   = document.getElementById('reportNote')?.value || '';
+            const fmt    = modals.report.querySelector('input[name="reportFormat"]:checked')?.value || 'PDF';
+
+            // Lưu vào report_requests
+            await DB.Logs.addAuditLog({
+                action_type: 'INSERT',
+                table_name:  'report_schedules',
+                new_value:   { cycle, day, time, format: fmt, note }
+            });
+
+            showToast('Thành công', `Đã lưu thiết lập báo cáo tự động (${cycle}, ngày ${day}, ${time}).`);
             closeMdl(modals.report);
         }
     });
-    document.querySelector('.btn-confirm-export')?.addEventListener('click', () => {
+
+    document.querySelector('.btn-confirm-export')?.addEventListener('click', async () => {
         if (validateForm(modals.export)) {
-            const fmt = modals.export.querySelector('.format-card.active')?.textContent?.includes('Excel') ? 'Excel' : 'PDF';
-            showToast('Thành công', `Đang xuất báo cáo định dạng ${fmt}...`);
-            MockStore.logActivity('Báo cáo', `Xuất báo cáo ${fmt}`);
+            const fmt  = modals.export.querySelector('.format-card.active')?.dataset?.format?.toUpperCase() || 'PDF';
+            const name = modals.export.querySelector('.modal-input-text')?.value?.trim() || 'Báo_cáo_Dashboard';
+
+            showToast('Đang xử lý', `Đang tạo file ${fmt}...`);
             closeMdl(modals.export);
+
+            try {
+                if (fmt === 'PDF') {
+                    exportPDF(name);
+                } else {
+                    exportExcel(name);
+                }
+                await DB.Logs.addAuditLog({
+                    action_type: 'EXPORT',
+                    table_name:  'dashboard',
+                    new_value:   { report_name: name, format: fmt }
+                });
+            } catch (err) {
+                console.error('[Export]', err);
+                showToast('Lỗi', 'Xuất báo cáo thất bại: ' + err.message, 'error');
+            }
         }
     });
+
+    // ── EXPORT PDF ────────────────────────────────────────────────────────────
+    function exportPDF(fileName) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        // Bỏ dấu tiếng Việt để jsPDF hiển thị đúng (jsPDF không hỗ trợ Unicode)
+        function vi(str) {
+            if (!str) return '';
+            return str
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        // Tiêu đề
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DASHBOARD REPORT — BOSCH VIETNAM', 148, 15, { align: 'center' });
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Xuat ngay: ${new Date().toLocaleDateString('vi-VN')}`, 148, 22, { align: 'center' });
+
+        let y = 30;
+
+        // ── Bảng 1: Tổng quan dự án ──────────────────────────────────────────
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('1. Danh sach du an', 14, y);
+        y += 4;
+
+        const projRows = _projects.map(p => [
+            p.project_code || '',
+            vi(p.project_name || '').substring(0, 30),
+            vi(p.customers?.company_name || '—'),
+            (parseFloat(p.progress_percent) || 0).toFixed(1) + '%',
+            p.priority || '—',
+            p.revenue_amount
+                ? new Intl.NumberFormat('vi-VN').format(parseFloat(p.revenue_amount)) + ' VND'
+                : '0 VND'
+        ]);
+
+        doc.autoTable({
+            startY: y,
+            head: [['MA DU AN', 'TEN DU AN', 'KHACH HANG', 'TIEN DO', 'UU TIEN', 'DOANH THU']],
+            body: projRows,
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [0, 21, 61], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [245, 247, 250] },
+            margin: { left: 14, right: 14 }
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+
+        // ── Bảng 2: Doanh thu theo tháng ─────────────────────────────────────
+        if (y > 170) { doc.addPage(); y = 15; }
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('2. Doanh thu theo thang (trieu VND)', 14, y);
+        y += 4;
+
+        const monthRevenue = new Array(12).fill(0);
+        _effortData.forEach(e => {
+            const m = (e.effort_month || 1) - 1;
+            if (m >= 0 && m < 12) monthRevenue[m] += (parseFloat(e.revenue_amount) || 0) / 1_000_000;
+        });
+
+        doc.autoTable({
+            startY: y,
+            head: [['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']],
+            body: [monthRevenue.map(v => Math.round(v) + 'M')],
+            styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
+            headStyles: { fillColor: [0, 86, 210], textColor: 255, fontStyle: 'bold' },
+            margin: { left: 14, right: 14 }
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+
+        // ── Bảng 3: Nhân sự ──────────────────────────────────────────────────
+        if (y > 150) { doc.addPage(); y = 15; }
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('3. Danh sach nhan su', 14, y);
+        y += 4;
+
+        const workloadMap = buildWorkloadMap();
+        const empRows = _employees.slice(0, 20).map(e => {
+            const activeOrg = (e.employee_organizations || []).find(o => o.status === 'active')
+                           || e.employee_organizations?.[0];
+            return [
+                e.employee_code || '',
+                vi(e.full_name || '').substring(0, 25),
+                vi(e.positions?.position_name || '—'),
+                vi(activeOrg?.teams?.team_name || activeOrg?.groups?.group_name || '—'),
+                Math.round(workloadMap[e.employee_id] || 0) + '%'
+            ];
+        });
+
+        doc.autoTable({
+            startY: y,
+            head: [['MA NV', 'HO TEN', 'CHUC DANH', 'TEAM', 'WORKLOAD']],
+            body: empRows,
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [0, 21, 61], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [245, 247, 250] },
+            margin: { left: 14, right: 14 }
+        });
+
+        doc.save(`${fileName}.pdf`);
+        showToast('Thanh cong', `Da xuat file ${fileName}.pdf`);
+    }
+
+    // ── EXPORT EXCEL ──────────────────────────────────────────────────────────
+    function exportExcel(fileName) {
+        const XLSX = window.XLSX;
+        const wb   = XLSX.utils.book_new();
+
+        // Sheet 1: Dự án
+        const projData = [
+            ['Mã dự án', 'Tên dự án', 'Khách hàng', 'Tiến độ (%)', 'Ưu tiên', 'Ngân sách (VND)', 'Doanh thu (VND)', 'Ngày bắt đầu', 'Ngày kết thúc'],
+            ..._projects.map(p => [
+                p.project_code || '',
+                p.project_name || '',
+                p.customers?.company_name || '—',
+                parseFloat(p.progress_percent) || 0,
+                p.priority || '—',
+                parseFloat(p.budget) || 0,
+                parseFloat(p.revenue_amount) || 0,
+                p.start_date || '',
+                p.end_date || ''
+            ])
+        ];
+        const ws1 = XLSX.utils.aoa_to_sheet(projData);
+        ws1['!cols'] = [12,30,25,12,10,18,18,12,12].map(w => ({ wch: w }));
+        XLSX.utils.book_append_sheet(wb, ws1, 'Du an');
+
+        // Sheet 2: Doanh thu theo tháng × dự án
+        const projectRevMap = {};
+        _effortData.forEach(e => {
+            const prj   = e.project_assignments?.project_resource_requests?.projects;
+            const pName = prj?.project_name || 'Khong xac dinh';
+            const val   = Math.round((parseFloat(e.revenue_amount) || 0) / 1_000_000);
+            const m     = e.effort_month || 1;
+            if (!projectRevMap[pName]) projectRevMap[pName] = new Array(12).fill(0);
+            projectRevMap[pName][m - 1] += val;
+        });
+
+        const revenueData = [
+            ['Du an', 'T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12','Tong cong'],
+            ...Object.entries(projectRevMap).map(([name, months]) => [
+                name, ...months, months.reduce((a, b) => a + b, 0)
+            ])
+        ];
+        const ws2 = XLSX.utils.aoa_to_sheet(revenueData);
+        ws2['!cols'] = [{ wch: 30 }, ...new Array(13).fill({ wch: 10 })];
+        XLSX.utils.book_append_sheet(wb, ws2, 'Doanh thu');
+
+        // Sheet 3: Nhân sự
+        const workloadMap = buildWorkloadMap();
+        const empData = [
+            ['Mã NV', 'Họ tên', 'Chức danh', 'Cấp độ', 'Team', 'Workload (%)', 'Ngày vào làm', 'Trạng thái'],
+            ..._employees.map(e => {
+                const activeOrg = (e.employee_organizations || []).find(o => o.status === 'active')
+                               || e.employee_organizations?.[0];
+                return [
+                    e.employee_code || '',
+                    e.full_name || '',
+                    e.positions?.position_name || '—',
+                    e.job_levels?.level_name || '—',
+                    activeOrg?.teams?.team_name || activeOrg?.groups?.group_name || '—',
+                    Math.round(workloadMap[e.employee_id] || 0),
+                    e.hire_date || '',
+                    e.status || ''
+                ];
+            })
+        ];
+        const ws3 = XLSX.utils.aoa_to_sheet(empData);
+        ws3['!cols'] = [10,25,20,12,18,14,12,12].map(w => ({ wch: w }));
+        XLSX.utils.book_append_sheet(wb, ws3, 'Nhan su');
+
+        XLSX.writeFile(wb, `${fileName}.xlsx`);
+        showToast('Thành công', `Đã xuất file ${fileName}.xlsx`);
+    }
 
     modals.projectList?.querySelector('.btn-save-red')?.addEventListener('click', () => {
         showToast('Thành công', 'Đã lưu danh sách dự án trọng điểm.');
@@ -80,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     modals.hrSel?.querySelector('.btn-save-red')?.addEventListener('click', () => {
         showToast('Thành công', 'Đã lưu bộ lọc nhân sự cho heatmap.');
-        closeMdl(modals.hrSel);
         renderHeatmap();
         closeMdl(modals.hrSel);
     });
@@ -96,27 +316,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Tabs
+    // ── Tabs ──────────────────────────────────────────────────────────────────
     document.querySelectorAll('.bosch-tab').forEach((btn) => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.bosch-tab').forEach((b) => b.classList.remove('active'));
             btn.classList.add('active');
             const tab = btn.dataset.tab;
-            revenueView.style.display = tab === 'revenue' ? 'block' : 'none';
-            hrView.style.display = tab === 'hr' ? 'block' : 'none';
+            revenueView.style.display  = tab === 'revenue'  ? 'block' : 'none';
+            hrView.style.display       = tab === 'hr'       ? 'block' : 'none';
             projectsView.style.display = tab === 'projects' ? 'block' : 'none';
-            
             const dateFilters = document.querySelector('.date-filters');
-            if (dateFilters) {
-                dateFilters.style.display = tab === 'revenue' ? 'flex' : 'none';
-            }
-
-            if (tab === 'hr') renderHeatmap();
-            if (tab === 'projects') renderProjectsTab();
+            if (dateFilters) dateFilters.style.display = tab === 'revenue' ? 'flex' : 'none';
+            if (tab === 'hr')       renderHeatmap();
+            if (tab === 'projects') { renderProjectsTab(); renderProjectBarChart(); }
         });
     });
 
-    // Period
+    // ── Period buttons ────────────────────────────────────────────────────────
     const monthlyChart   = document.getElementById('revenueChartMonthly');
     const yearlyChart    = document.getElementById('revenueChartYearly');
     const quarterlyChart = document.getElementById('revenueChartQuarterly');
@@ -132,25 +348,23 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
             btn.classList.add('active');
             period = btn.textContent.trim();
-            MockStore.updateSettings({ period });
             switchChartView();
             renderRevenueChart();
             refreshStats();
         });
     });
 
-    // Distribution toggle
+    // ── Distribution toggle ───────────────────────────────────────────────────
     document.querySelectorAll('.toggle-btn-modern').forEach((btn) => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.toggle-btn-modern').forEach((b) => b.classList.remove('active'));
             btn.classList.add('active');
             distMode = btn.textContent.includes('Dự án') ? 'project' : 'service';
-            MockStore.updateSettings({ distributionMode: distMode });
             renderDistribution();
         });
     });
 
-    // HR pills
+    // ── HR pills ──────────────────────────────────────────────────────────────
     const pillMap = { 'Vị trí': 'position', 'Mảng dịch vụ': 'service', 'Dự án': 'project' };
     document.querySelectorAll('.pill').forEach((pill) => {
         pill.addEventListener('click', () => {
@@ -161,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Delivery week/month
+    // ── Delivery week/month ───────────────────────────────────────────────────
     document.querySelectorAll('.toggle-btn-sm').forEach((btn, i, arr) => {
         btn.addEventListener('click', () => {
             arr.forEach((b) => b.classList.remove('active'));
@@ -170,9 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Date picker
+    // ── Date picker ───────────────────────────────────────────────────────────
     const datePicker = document.getElementById('dashboardDatePicker');
-    const dateMenu = document.getElementById('dateDropdownMenu');
+    const dateMenu   = document.getElementById('dateDropdownMenu');
     if (datePicker && dateMenu) {
         datePicker.addEventListener('click', (e) => {
             if (e.target.closest('#dateDropdownMenu')) return;
@@ -187,61 +401,183 @@ document.addEventListener('DOMContentLoaded', () => {
     window.applyCustomDateRange = function (event) {
         if (event) event.stopPropagation();
         const start = document.getElementById('startDateInput')?.value;
-        const end = document.getElementById('endDateInput')?.value;
+        const end   = document.getElementById('endDateInput')?.value;
         if (!start || !end) return;
         const fmt = (s) => s.split('-').reverse().join('/');
-        const rangeText = `${fmt(start)} - ${fmt(end)}`;
-        document.getElementById('datePickerText').textContent = rangeText;
+        document.getElementById('datePickerText').textContent = `${fmt(start)} - ${fmt(end)}`;
         dateMenu.style.display = 'none';
-        MockStore.updateSettings({ dateRange: { start, end } });
         refreshAll();
-        showToast('Đã cập nhật', `Dữ liệu cho khoảng ${rangeText}`);
+        showToast('Đã cập nhật', `Dữ liệu cho khoảng ${fmt(start)} - ${fmt(end)}`);
     };
 
+    // ── DATA LOADING ──────────────────────────────────────────────────────────
+    async function loadAllData() {
+        const [projRes, empRes, assignRes, effortRes, slRes] = await Promise.all([
+            DB.Projects.getAll(),
+            DB.Employees.getAll(),
+            DB.Assignments.getAll(),
+            DB.Effort.getAll(),
+            DB.ServiceLines.getAll()
+        ]);
+        _projects     = projRes.data    || [];
+        _employees    = empRes.data     || [];
+        _assignments  = assignRes.data  || [];
+        _effortData   = effortRes.data  || [];
+        _serviceLines = slRes.data      || [];
+    }
+
+    // ── HELPERS ───────────────────────────────────────────────────────────────
+
+    /**
+     * Tính tổng revenue_amount từ effort_projects theo tháng/quý/năm.
+     * Trả về mảng số (đơn vị: triệu VND) để vẽ biểu đồ.
+     */
+    function buildRevenueTrend() {
+        const byMonth  = new Array(12).fill(0);
+        const byQuarter = new Array(4).fill(0);
+        const byYear   = {};
+
+        _effortData.forEach((e) => {
+            const val = parseFloat(e.revenue_amount) || 0;
+            const m   = e.effort_month; // 1–12
+            const y   = e.effort_year;
+            if (m >= 1 && m <= 12) byMonth[m - 1]  += val;
+            const q = Math.ceil(m / 3) - 1;
+            if (q >= 0 && q < 4)   byQuarter[q]    += val;
+            if (y) byYear[y] = (byYear[y] || 0) + val;
+        });
+
+        // Chuyển sang triệu VND (chia 1_000_000), làm tròn
+        const toM = (arr) => arr.map((v) => Math.round(v / 1_000_000));
+        const yearKeys = Object.keys(byYear).sort();
+        return {
+            Tháng: toM(byMonth),
+            Quý:   toM(byQuarter),
+            Năm:   yearKeys.map((y) => Math.round(byYear[y] / 1_000_000)),
+            _yearKeys: yearKeys
+        };
+    }
+
+    /**
+     * Tính doanh thu theo service line hoặc project từ effort_projects.
+     */
+    function buildRevenueDistribution() {
+        const byService = {};
+        const byProject = {};
+
+        _effortData.forEach((e) => {
+            const val  = parseFloat(e.revenue_amount) || 0;
+            const prj  = e.project_assignments?.project_resource_requests?.projects;
+            const pName = prj?.project_name || 'Không xác định';
+            byProject[pName] = (byProject[pName] || 0) + val;
+        });
+
+        // Service line: lấy từ projects → contracts → service_lines
+        _projects.forEach((p) => {
+            const slName = p.contracts?.service_lines?.service_line_name || 'Không xác định';
+            const rev    = parseFloat(p.revenue_amount) || 0;
+            byService[slName] = (byService[slName] || 0) + rev;
+        });
+
+        const toArr = (obj) =>
+            Object.entries(obj)
+                .map(([name, value]) => ({ name, value }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 6);
+
+        return { byService: toArr(byService), byProject: toArr(byProject) };
+    }
+
+    /**
+     * Tính workload % của nhân viên từ project_assignments.allocation_percent.
+     * Nếu nhân viên có nhiều assignment thì cộng dồn (tối đa 100).
+     */
+    function buildWorkloadMap() {
+        const map = {};
+        _assignments.forEach((a) => {
+            const empId = a.employee_id;
+            const pct   = parseFloat(a.allocation_percent) || 0;
+            map[empId]  = Math.min((map[empId] || 0) + pct, 100);
+        });
+        return map;
+    }
+
+    // ── STATS CARDS ───────────────────────────────────────────────────────────
     function refreshStats() {
-        const m = MockStore.getDashboardMetrics();
+        // --- Revenue tab ---
+        const totalRevenue    = _projects.reduce((s, p) => s + (parseFloat(p.revenue_amount) || 0), 0);
+        // Suy trạng thái từ progress_percent (schema không có cột status)
+        const activeProjects  = _projects.filter((p) => {
+            const pct = parseFloat(p.progress_percent) || 0;
+            return pct > 0 && pct < 100;
+        }).length;
+        const doneProjects    = _projects.filter((p) => parseFloat(p.progress_percent) >= 100).length;
+        const performance     = _projects.length
+            ? Math.round((doneProjects / _projects.length) * 100)
+            : 0;
+
         const cards = document.querySelectorAll('#revenueView .stats-grid .bosch-stat-card');
         if (cards[0]) {
             cards[0].querySelector('.bosch-stat-value').innerHTML =
-                `${UI.formatVnd(m.totalRevenue)} <span class="currency">VND</span>`;
+                `${UI.formatVnd(totalRevenue)} <span class="currency">VND</span>`;
             const trend = cards[0].querySelector('.bosch-stat-trend');
-            if (trend) trend.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +${m.revenueTrendPct}%`;
+            if (trend) trend.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> ${activeProjects} dự án đang chạy`;
         }
-        if (cards[1]) cards[1].querySelector('.bosch-stat-value').textContent = String(m.activeProjects);
-        if (cards[2]) cards[2].querySelector('.bosch-stat-value').textContent = `${m.performance}%`;
+        if (cards[1]) cards[1].querySelector('.bosch-stat-value').textContent = String(activeProjects);
+        if (cards[2]) cards[2].querySelector('.bosch-stat-value').textContent = `${performance}%`;
+
+        // --- HR tab ---
+        const workloadMap  = buildWorkloadMap();
+        const totalEmp     = _employees.length;
+        const trainedCount = _employees.filter((e) => {
+            // Nhân viên có ít nhất 1 employee_study hoàn thành — dùng dữ liệu có sẵn
+            return false; // sẽ cập nhật khi có join employee_study
+        }).length;
+        const unassigned   = _employees.filter((e) => (workloadMap[e.employee_id] || 0) < 30).length;
 
         const hrCards = document.querySelectorAll('#hrView .stats-grid .bosch-stat-card');
-        const staff = MockStore.getStaff();
-        if (hrCards[0]) hrCards[0].querySelector('.bosch-stat-value').textContent = UI.formatNumber(staff.length);
-        if (hrCards[1]) {
-            const trained = MockStore.getRoadmap().filter((r) => r.status === 'Hoàn thành').length;
-            const pct = Math.round((trained / Math.max(MockStore.getRoadmap().length, 1)) * 100);
-            hrCards[1].querySelector('.bosch-stat-value').textContent = pct + '%';
-        }
-        if (hrCards[2]) {
-            const unassigned = staff.filter((s) => s.workload < 30).length;
-            hrCards[2].querySelector('.bosch-stat-value').textContent =
-                Math.round((unassigned / Math.max(staff.length, 1)) * 100) + '%';
-        }
+        if (hrCards[0]) hrCards[0].querySelector('.bosch-stat-value').textContent = UI.formatNumber(totalEmp);
+        if (hrCards[1]) hrCards[1].querySelector('.bosch-stat-value').textContent =
+            totalEmp ? Math.round((unassigned / totalEmp) * 100) + '%' : '0%';
+        if (hrCards[2]) hrCards[2].querySelector('.bosch-stat-value').textContent =
+            totalEmp ? Math.round(((totalEmp - unassigned) / totalEmp) * 100) + '%' : '0%';
 
+        // --- Projects tab ---
+        const late = _projects.filter(
+            (p) => {
+                const pct = parseFloat(p.progress_percent) || 0;
+                return pct < 50 && pct < 100;
+            }
+        ).length;
         const prjCards = document.querySelectorAll('#projectsView .stats-grid .bosch-stat-card');
-        const projects = MockStore.getProjects();
-        const done = projects.filter((p) => p.progress >= 100).length;
-        const late = projects.filter((p) => p.progress < 50 && p.status !== 'Hoàn thành').length;
-        if (prjCards[0]) prjCards[0].querySelector('.bosch-stat-value').textContent = String(projects.length);
+        if (prjCards[0]) prjCards[0].querySelector('.bosch-stat-value').textContent = String(_projects.length);
         if (prjCards[1]) prjCards[1].querySelector('.bosch-stat-value').textContent =
-            Math.round((done / Math.max(projects.length, 1)) * 100) + '%';
+            _projects.length ? Math.round((doneProjects / _projects.length) * 100) + '%' : '0%';
         if (prjCards[2]) prjCards[2].querySelector('.bosch-stat-value').textContent =
             String(late).padStart(2, '0');
-        if (prjCards[3]) prjCards[3].querySelector('.bosch-stat-value').textContent = '92%';
+        if (prjCards[3]) prjCards[3].querySelector('.bosch-stat-value').textContent =
+            activeProjects ? Math.round((activeProjects / _projects.length) * 100) + '%' : '0%';
+
+        // Cập nhật donut chart từ dữ liệu thực
+        const inProgress = _projects.filter(p => { const pct = parseFloat(p.progress_percent)||0; return pct > 0 && pct < 100; }).length;
+        const paused     = _projects.filter(p => parseFloat(p.progress_percent) === 0).length;
+        const total      = _projects.length || 1;
+        const donutNum   = document.querySelector('#projectsView .donut-num');
+        if (donutNum) donutNum.textContent = total;
+        const legendVals = document.querySelectorAll('#projectsView .donut-legend .val');
+        if (legendVals[0]) legendVals[0].textContent = inProgress;
+        if (legendVals[1]) legendVals[1].textContent = doneProjects;
+        if (legendVals[2]) legendVals[2].textContent = paused;
+        if (legendVals[3]) legendVals[3].textContent = late;
     }
 
+    // ── REVENUE CHART ─────────────────────────────────────────────────────────
     function renderRevenueChart() {
-        const data = MockStore.get().dashboard.revenueTrend[period] || [];
-        const max = Math.max(...data, 1);
+        const trend = buildRevenueTrend();
 
-        // ── Line chart (Tháng) ───────────────────────────────────────────────
         if (period === 'Tháng') {
+            const data = trend.Tháng;
+            const max  = Math.max(...data, 1);
             const w = 600, h = 260;
             const pts = data.map((v, i) => {
                 const x = (i / Math.max(data.length - 1, 1)) * w;
@@ -250,75 +586,57 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const line = pts.map((p, i) => (i === 0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`)).join(' ');
             const area = line + ` L${w},300 L0,300 Z`;
-            const svg = monthlyChart?.querySelector('svg');
+            const svg  = monthlyChart?.querySelector('svg');
             if (svg) {
                 const paths = svg.querySelectorAll('path');
                 if (paths[0]) paths[0].setAttribute('d', area);
                 if (paths[1]) paths[1].setAttribute('d', line);
             }
             const axis = monthlyChart?.querySelector('.chart-x-axis');
-            if (axis) {
-                axis.innerHTML = data.map((_, i) => `<span>T${i + 1}</span>`).join('');
-            }
+            if (axis) axis.innerHTML = data.map((_, i) => `<span>T${i + 1}</span>`).join('');
         }
 
-        // ── Bar chart (Quý) ──────────────────────────────────────────────────
         if (period === 'Quý' && quarterlyChart) {
-            const quarters = MockStore.get().dashboard.revenueTrend.Quý;
-            const qmax = Math.max(...quarters);
-            const labels = ['Q1', 'Q2', 'Q3', 'Q4'];
-
+            const quarters = trend.Quý;
+            const qmax     = Math.max(...quarters, 1);
+            const labels   = ['Q1', 'Q2', 'Q3', 'Q4'];
             const barsContainer = document.getElementById('quarterlyBarsContainer');
-            const xAxis = document.getElementById('quarterlyXAxis');
-
+            const xAxis         = document.getElementById('quarterlyXAxis');
             if (barsContainer) {
-                barsContainer.innerHTML = quarters.map((v, i) => {
+                barsContainer.innerHTML = quarters.map((v) => {
                     const pct = Math.round((v / qmax) * 100);
-                    return `<div class="year-bar" style="height:${pct}%;">
-                        <div class="year-bar-top"></div>
-                    </div>`;
+                    return `<div class="year-bar" style="height:${pct}%;"><div class="year-bar-top"></div></div>`;
                 }).join('');
             }
-            if (xAxis) {
-                xAxis.innerHTML = labels.map(l => `<span>${l}</span>`).join('');
-            }
+            if (xAxis) xAxis.innerHTML = labels.map((l) => `<span>${l}</span>`).join('');
         }
 
-        // ── Bar chart (Năm) ──────────────────────────────────────────────────
         if (period === 'Năm' && yearlyChart) {
-            const years = MockStore.get().dashboard.revenueTrend.Năm;
-            const ymax = Math.max(...years);
-            const startYear = 2020;
-
+            const years    = trend.Năm;
+            const ymax     = Math.max(...years, 1);
+            const yearKeys = trend._yearKeys;
             const barsContainer = document.getElementById('yearlyBarsContainer');
-            const xAxis = document.getElementById('yearlyXAxis');
-
+            const xAxis         = document.getElementById('yearlyXAxis');
             if (barsContainer) {
                 barsContainer.innerHTML = years.map((v, i) => {
                     const pct = Math.round((v / ymax) * 100);
-                    const yr = startYear + i;
-                    return `<div class="year-bar" style="height:${pct}%;" data-year="${yr}">
-                        <div class="year-bar-top"></div>
-                    </div>`;
+                    return `<div class="year-bar" style="height:${pct}%;" data-year="${yearKeys[i] || ''}">
+                        <div class="year-bar-top"></div></div>`;
                 }).join('');
             }
-            if (xAxis) {
-                xAxis.innerHTML = years.map((_, i) => `<span>${startYear + i}</span>`).join('');
-            }
+            if (xAxis) xAxis.innerHTML = yearKeys.map((y) => `<span>${y}</span>`).join('');
         }
     }
 
+    // ── DISTRIBUTION ──────────────────────────────────────────────────────────
     function renderDistribution() {
         const list = document.querySelector('.distribution-list');
         if (!list) return;
-        const items = distMode === 'project'
-            ? MockStore.get().dashboard.revenueByProject
-            : MockStore.get().dashboard.revenueByService;
-        const max = Math.max(...items.map((i) => i.value));
-        const colors = ['#00153D', '#0056D2', '#2563EB', '#7FBBE3'];
-        list.innerHTML = items
-            .map(
-                (item, i) => `
+        const dist   = buildRevenueDistribution();
+        const items  = distMode === 'project' ? dist.byProject : dist.byService;
+        const max    = Math.max(...items.map((i) => i.value), 1);
+        const colors = ['#00153D', '#0056D2', '#2563EB', '#7FBBE3', '#93C5FD', '#BFDBFE'];
+        list.innerHTML = items.map((item, i) => `
             <div class="dist-item">
                 <div class="dist-info">
                     <span class="dist-name">${UI.escape(item.name)}</span>
@@ -327,30 +645,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="progress-bar-modern">
                     <div class="progress-fill-modern" style="width:${Math.round((item.value / max) * 100)}%;background:${colors[i % colors.length]};"></div>
                 </div>
-            </div>`
-            )
-            .join('');
+            </div>`).join('');
     }
 
+    // ── HEATMAP (effort % nhân viên × tháng) ─────────────────────────────────
     function renderHeatmap() {
         const grid = document.getElementById('heatmapTable');
         if (!grid) return;
-        const hm = MockStore.get().dashboard.heatmap;
-        const { employees, months, data } = hm;
+
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        // Gom effort theo employee × tháng
+        const empMap = {}; // { empId: { name, data: [12 tháng] } }
+        _effortData.forEach((e) => {
+            const pa      = e.project_assignments;
+            const empId   = pa?.employee_id;
+            const empName = pa?.employees?.full_name || 'N/A';
+            if (!empId) return;
+            const m   = (e.effort_month || 1) - 1; // 0-indexed
+            const pct = parseFloat(e.effort_percent) || 0;
+            if (!empMap[empId]) empMap[empId] = { name: empName, data: new Array(12).fill(0), total: 0 };
+            if (m >= 0 && m < 12) {
+                empMap[empId].data[m] += pct;
+                empMap[empId].total   += pct;
+            }
+        });
+
+        // Sort theo tổng effort giảm dần, lấy top 10
+        const entries = Object.values(empMap)
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 10);
+
+        if (!entries.length) {
+            grid.innerHTML = '<caption style="padding:20px;color:#6b7280;">Chưa có dữ liệu effort</caption>';
+            return;
+        }
+
         let thead = '<thead><tr><th></th>';
         months.forEach((m) => (thead += `<th>${m}</th>`));
         thead += '</tr></thead>';
+
         let tbody = '<tbody>';
-        employees.forEach((emp, i) => {
-            tbody += `<tr><td class="heatmap-emp-name">${UI.escape(emp)}</td>`;
-            data[i].forEach((val) => {
-                let cls = 'level-0';
-                if (val > 0 && val < 50) cls = 'level-1';
-                else if (val < 75) cls = 'level-2';
-                else if (val < 100) cls = 'level-3';
-                else if (val <= 120) cls = 'level-4';
-                else cls = 'level-5';
-                tbody += `<td class="heatmap-cell-table ${cls}">${val || ''}</td>`;
+        entries.forEach(({ name, data }) => {
+            tbody += `<tr><td class="heatmap-emp-name">${UI.escape(name)}</td>`;
+            data.forEach((val) => {
+                const v   = Math.round(val);
+                let cls   = 'level-0';
+                if (v > 0  && v < 50)  cls = 'level-1';
+                else if (v < 75)       cls = 'level-2';
+                else if (v < 100)      cls = 'level-3';
+                else if (v <= 120)     cls = 'level-4';
+                else                   cls = 'level-5';
+                tbody += `<td class="heatmap-cell-table ${cls}">${v || ''}</td>`;
             });
             tbody += '</tr>';
         });
@@ -358,43 +704,230 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.innerHTML = thead + tbody;
     }
 
+    // ── HR BARS (số nhân sự theo vị trí / mảng dịch vụ / dự án) ─────────────
     function renderHrBars() {
-        const vals = MockStore.get().dashboard.hrBarData[hrPill] || [];
-        document.querySelectorAll('.hr-bar-fill').forEach((bar, i) => {
-            const v = vals[i] || 50;
-            bar.style.height = v + '%';
-            const valEl = bar.querySelector('.bar-val');
-            if (valEl) valEl.textContent = Math.floor(v * 4.5);
+        const bars   = document.querySelectorAll('.hr-bar-item');
+        const labels = document.querySelectorAll('.bar-label');
+        if (!bars.length) return;
+
+        let groups = {}; // { label: count }
+
+        if (hrPill === 'position') {
+            // Đếm nhân viên theo position_name
+            _employees.forEach((e) => {
+                const pos = e.positions?.position_name || 'Khác';
+                groups[pos] = (groups[pos] || 0) + 1;
+            });
+        } else if (hrPill === 'service') {
+            // Đếm nhân viên đang được assign vào project theo service line
+            const empServiceMap = {}; // empId → Set<serviceLine>
+            _assignments.forEach((a) => {
+                const empId = a.employee_id;
+                const prj   = _projects.find(
+                    (p) => p.project_id === a.project_resource_requests?.project_id
+                );
+                const sl = prj?.contracts?.service_lines?.service_line_name || 'Khác';
+                if (!empServiceMap[empId]) empServiceMap[empId] = new Set();
+                empServiceMap[empId].add(sl);
+            });
+            // Mỗi nhân viên tính 1 lần cho mỗi service line họ tham gia
+            Object.values(empServiceMap).forEach((slSet) => {
+                slSet.forEach((sl) => { groups[sl] = (groups[sl] || 0) + 1; });
+            });
+            // Nếu không có assignment nào, fallback đếm theo service line của project
+            if (!Object.keys(groups).length) {
+                _serviceLines.forEach((sl) => { groups[sl.service_line_name] = 0; });
+            }
+        } else if (hrPill === 'project') {
+            // Đếm nhân viên đang được assign vào từng project
+            const empPrjMap = {}; // empId → Set<projectName>
+            _assignments.forEach((a) => {
+                const empId = a.employee_id;
+                const prj   = _projects.find(
+                    (p) => p.project_id === a.project_resource_requests?.project_id
+                );
+                const pName = prj?.project_name || 'Khác';
+                if (!empPrjMap[empId]) empPrjMap[empId] = new Set();
+                empPrjMap[empId].add(pName);
+            });
+            Object.values(empPrjMap).forEach((pSet) => {
+                pSet.forEach((pName) => { groups[pName] = (groups[pName] || 0) + 1; });
+            });
+        }
+
+        // Sắp xếp giảm dần, lấy top 5
+        const sorted = Object.entries(groups)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        const MAX_BAR_PX = 200; // chiều cao tối đa của cột cao nhất (px)
+        const maxCount = Math.max(...sorted.map((g) => g.count), 1);
+
+        bars.forEach((barItem, i) => {
+            const fill  = barItem.querySelector('.hr-bar-fill');
+            const valEl = barItem.querySelector('.bar-val');
+            const lblEl = barItem.querySelector('.bar-label');
+            const entry = sorted[i];
+
+            if (!fill) return;
+
+            if (entry) {
+                const heightPx = Math.max(Math.round((entry.count / maxCount) * MAX_BAR_PX), 8);
+                fill.style.height = heightPx + 'px';
+                if (valEl) valEl.textContent = entry.count;
+                if (lblEl) {
+                    // Rút gọn label dài
+                    const short = entry.name
+                        .replace('Software Engineer', 'Dev')
+                        .replace('QA Engineer', 'Tester')
+                        .replace('UI/UX Designer', 'Design')
+                        .replace('Project Manager', 'PM')
+                        .replace('Business Analyst', 'BA')
+                        .replace('DevOps Engineer', 'DevOps')
+                        .replace('Data Engineer', 'Data')
+                        .replace('Embedded Engineer', 'Embedded')
+                        .replace('Product Owner', 'PO')
+                        .replace('Scrum Master', 'SM');
+                    lblEl.textContent = short.length > 10 ? short.slice(0, 9) + '…' : short;
+                }
+            } else {
+                fill.style.height = '8px';
+                if (valEl) valEl.textContent = '0';
+            }
         });
     }
 
-    function renderDeliveryChart(mode) {
-        const bars = document.querySelectorAll('.delivery-chart .delivery-bar');
-        const series = mode === 'week' ? [40, 55, 70, 65, 80, 90, 75] : [60, 72, 68, 85, 78, 92, 88];
-        bars.forEach((bar, i) => {
-            const h = series[i % series.length];
-            bar.style.height = h + '%';
+    // ── PROJECT BAR CHART (số dự án theo tháng) ──────────────────────────────
+    function renderProjectBarChart() {
+        const container = document.getElementById('projectBarChart');
+        const xAxis     = document.getElementById('projectBarXAxis');
+        if (!container || !xAxis) return;
+
+        const currentYear = new Date().getFullYear();
+        const months = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+
+        // Đếm số dự án đang active trong từng tháng
+        // Dự án active trong tháng M nếu start_date <= cuối tháng M VÀ (end_date >= đầu tháng M hoặc null)
+        const counts = months.map((_, i) => {
+            const mStart = new Date(currentYear, i, 1);
+            const mEnd   = new Date(currentYear, i + 1, 0);
+            return _projects.filter(p => {
+                const start = p.start_date ? new Date(p.start_date) : null;
+                const end   = p.end_date   ? new Date(p.end_date)   : null;
+                if (!start) return false;
+                return start <= mEnd && (!end || end >= mStart);
+            }).length;
         });
+
+        const maxCount = Math.max(...counts, 1);
+        const BAR_H    = 180; // px chiều cao tối đa
+
+        // Tháng hiện tại để highlight
+        const currentMonth = new Date().getMonth();
+
+        container.innerHTML = counts.map((count, i) => {
+            const h       = Math.max(Math.round((count / maxCount) * BAR_H), count > 0 ? 8 : 4);
+            const isActive = i === currentMonth;
+            const bg      = isActive ? '#2563EB' : '#CBD5E1';
+            const txtColor = isActive ? '#2563EB' : '#374151';
+            return `
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;justify-content:flex-end;height:${BAR_H}px;position:relative;">
+                ${count > 0 ? `<span style="font-size:11px;font-weight:700;color:${txtColor};">${count}</span>` : ''}
+                <div style="width:28px;height:${h}px;background:${bg};border-radius:4px 4px 0 0;transition:height 0.4s ease;"></div>
+            </div>`;
+        }).join('');
+
+        xAxis.innerHTML = months.map((m, i) => {
+            const isActive = i === currentMonth;
+            return `<span style="flex:1;text-align:center;font-weight:${isActive ? '700' : '500'};color:${isActive ? '#2563EB' : '#6b7280'};">${m}</span>`;
+        }).join('');
     }
 
+    // ── PROJECTS TAB BAR CHART ────────────────────────────────────────────────
+    function renderProjectBarChart() {
+        const container = document.getElementById('projectBarChart');
+        const xAxis     = document.getElementById('projectBarXAxis');
+        if (!container || !xAxis) return;
+
+        const MAX_H = 280; // px — chiều cao cột cao nhất, container 320px
+
+        // Đếm số project unique theo tháng từ effort_projects
+        const projectsByMonth = {};
+        _effortData.forEach(e => {
+            const m   = (e.effort_month || 1) - 1; // 0-indexed
+            const prj = e.project_assignments?.project_resource_requests?.projects;
+            const pid = prj?.project_code || null;
+            if (m >= 0 && m < 12 && pid) {
+                if (!projectsByMonth[m]) projectsByMonth[m] = new Set();
+                projectsByMonth[m].add(pid);
+            }
+        });
+
+        const byMonth = Array.from({ length: 12 }, (_, i) => projectsByMonth[i]?.size || 0);
+
+        // Fallback nếu không có effort data
+        if (!byMonth.some(v => v > 0) && _projects.length > 0) {
+            const total = _projects.length;
+            [0,1,2,3,4].forEach(i => { byMonth[i] = total; });
+        }
+
+        const maxVal   = Math.max(...byMonth, 1);
+        const months   = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+        const nowMonth = new Date().getMonth(); // 0-indexed
+
+        container.innerHTML = byMonth.map((v, i) => {
+            const barH     = v > 0 ? Math.max(Math.round((v / maxVal) * MAX_H), 12) : 0;
+            const isActive = i === nowMonth;
+            const barColor = isActive ? '#93C5FD' : '#E2E8F0';
+            const numColor = isActive ? '#1d4ed8' : '#6b7280';
+
+            return `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:${MAX_H}px;position:relative;">
+                ${v > 0 ? `<span style="font-size:12px;font-weight:700;color:${numColor};margin-bottom:4px;">${v}</span>` : ''}
+                ${isActive && v > 0 ? `
+                <div style="position:absolute;top:${MAX_H - barH - 28}px;background:#1e293b;color:white;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;">
+                    ${v}
+                    <div style="position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid #1e293b;"></div>
+                </div>` : ''}
+                <div style="width:36px;height:${barH}px;background:${barColor};border-radius:4px 4px 0 0;transition:height 0.4s ease;"></div>
+            </div>`;
+        }).join('');
+
+        xAxis.innerHTML = months.map((m, i) => {
+            const isActive = i === nowMonth;
+            return `<span style="flex:1;text-align:center;font-size:12px;font-weight:${isActive ? '700' : '500'};color:${isActive ? '#2563EB' : '#6b7280'};">${m}</span>`;
+        }).join('');
+    }
     function renderProjectsTab() {
         const tbody = document.querySelector('#projectsView .table-container-projects tbody');
         if (!tbody) return;
-        const projects = MockStore.getProjects().slice(0, 5);
-        tbody.innerHTML = projects
-            .map((p) => {
-                const late = p.progress < 50;
-                return `
-            <tr data-id="${p.id}">
-                <td class="bold">${UI.escape(p.id)}</td>
-                <td>${UI.escape(p.name)}</td>
-                <td><div class="assignee"><div class="avatar-circle">${UI.escape(p.leader.charAt(0))}</div><span>${UI.escape(p.leader)}</span></div></td>
-                <td><div class="progress-cell"><div class="progress-dot ${late ? 'red' : ''}"></div><span>${p.progress}%</span></div></td>
-                <td>${UI.badge(p.status)}</td>
-                <td><i class="fa-solid fa-pen action-icon" data-edit="${p.id}"></i></td>
+        const projects = _projects.slice(0, 5);
+        tbody.innerHTML = projects.map((p) => {
+            const progress = parseFloat(p.progress_percent) || 0;
+            const late     = progress < 50 && progress < 100;
+            let statusLabel = 'Đang triển khai';
+            if (progress >= 100) statusLabel = 'Hoàn thành';
+            else if (progress === 0) statusLabel = 'Chưa bắt đầu';
+            else if (progress < 15) statusLabel = 'Tạm dừng';
+            // Leader: lấy nhân viên đầu tiên được assign vào project
+            const leaderAssign = _assignments.find(a =>
+                a.project_resource_requests?.project_id === p.project_id
+            );
+            const leader = leaderAssign?.employees?.full_name
+                        || p.customers?.contact_person
+                        || '—';
+            return `
+            <tr data-id="${p.project_id}">
+                <td class="bold">${UI.escape(p.project_code || '')}</td>
+                <td>${UI.escape(p.project_name || '')}</td>
+                <td><div class="assignee"><div class="avatar-circle">${UI.escape((leader).charAt(0))}</div><span>${UI.escape(leader)}</span></div></td>
+                <td><div class="progress-cell"><div class="progress-dot ${late ? 'red' : ''}"></div><span>${Math.round(progress)}%</span></div></td>
+                <td>${UI.badge(statusLabel)}</td>
+                <td><i class="fa-solid fa-pen action-icon" data-edit="${p.project_id}"></i></td>
             </tr>`;
-            })
-            .join('');
+        }).join('');
+
         tbody.querySelectorAll('[data-edit]').forEach((icon) => {
             icon.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -412,180 +945,201 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ── PROJECT MODAL ─────────────────────────────────────────────────────────
     function renderProjectModal() {
-        const tbody = modals.projectList?.querySelector('tbody');
+        const tbody      = modals.projectList?.querySelector('tbody');
         if (!tbody) return;
-        const all = MockStore.getProjects();
-        const totalPages = Math.ceil(all.length / PAGE_SIZE) || 1;
-        const page = Math.min(projectModalPage, totalPages);
-        const slice = all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-        tbody.innerHTML = slice
-            .map(
-                (p) => `
+        const totalPages = Math.ceil(_projects.length / PAGE_SIZE) || 1;
+        const page       = Math.min(projectModalPage, totalPages);
+        const slice      = _projects.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        tbody.innerHTML = slice.map((p) => {
+            const progress = parseFloat(p.progress_percent) || 0;
+            // Leader: ưu tiên manager của project (qua assignments), fallback contact_person
+            const leaderEmp = _assignments.find(a =>
+                a.project_resource_requests?.project_id === p.project_id
+            );
+            const leader = leaderEmp
+                ? (leaderEmp.employees?.full_name || p.customers?.contact_person || '—')
+                : (p.customers?.contact_person || '—');
+            // Suy trạng thái từ progress_percent
+            let statusLabel = 'Đang triển khai';
+            if (progress >= 100) statusLabel = 'Hoàn thành';
+            else if (progress === 0) statusLabel = 'Chưa bắt đầu';
+            else if (progress < 15) statusLabel = 'Tạm dừng';
+            return `
             <tr>
-                <td class="id-cell">${UI.escape(p.id)}</td>
-                <td class="bold">${UI.escape(p.name)}</td>
-                <td><div class="manager-cell"><span>${UI.escape(p.leader)}</span></div></td>
-                <td><div class="progress-col"><span class="progress-val blue">${p.progress}%</span>
-                    <div class="mini-progress-bar"><div class="mini-progress-fill blue" style="width:${p.progress}%;"></div></div></div></td>
-                <td style="text-align:center;">${UI.badge(p.status)}</td>
-            </tr>`
-            )
-            .join('');
+                <td class="id-cell">${UI.escape(p.project_code || '')}</td>
+                <td class="bold">${UI.escape(p.project_name || '')}</td>
+                <td><div class="manager-cell"><span>${UI.escape(leader)}</span></div></td>
+                <td><div class="progress-col"><span class="progress-val blue">${Math.round(progress)}%</span>
+                    <div class="mini-progress-bar"><div class="mini-progress-fill blue" style="width:${Math.round(progress)}%;"></div></div></div></td>
+                <td style="text-align:center;">${UI.badge(statusLabel)}</td>
+            </tr>`;
+        }).join('');
+
         const pag = modals.projectList?.querySelector('.pagination-controls span');
         if (pag) pag.textContent = `Trang ${page} / ${totalPages}`;
+
         const ctrls = modals.projectList?.querySelectorAll('.pagination-controls i');
         ctrls?.[0]?.replaceWith(ctrls[0].cloneNode(true));
         ctrls?.[1]?.replaceWith(ctrls[1].cloneNode(true));
         const [prev, next] = modals.projectList.querySelectorAll('.pagination-controls i');
-        prev?.addEventListener('click', () => {
-            if (projectModalPage > 1) {
-                projectModalPage--;
-                renderProjectModal();
-            }
-        });
-        next?.addEventListener('click', () => {
-            if (projectModalPage < totalPages) {
-                projectModalPage++;
-                renderProjectModal();
-            }
-        });
+        prev?.addEventListener('click', () => { if (projectModalPage > 1) { projectModalPage--; renderProjectModal(); } });
+        next?.addEventListener('click', () => { if (projectModalPage < totalPages) { projectModalPage++; renderProjectModal(); } });
     }
 
+    // ── HR MODAL ──────────────────────────────────────────────────────────────
     function renderHrModal() {
         const tbody = modals.hrSel?.querySelector('tbody');
         if (!tbody) return;
-        const all = MockStore.getStaff();
-        const totalPages = Math.ceil(all.length / PAGE_SIZE) || 1;
-        const page = Math.min(hrModalPage, totalPages);
+
+        const workloadMap = buildWorkloadMap();
+
+        // Gắn workload vào employees, sort theo workload giảm dần
+        const staffWithLoad = _employees.map((e) => {
+            const activeOrg = (e.employee_organizations || []).find(o => o.status === 'active')
+                           || e.employee_organizations?.[0];
+            return {
+                id:       e.employee_code || e.employee_id,
+                name:     e.full_name || '—',
+                title:    e.positions?.position_name || '—',
+                team:     activeOrg?.teams?.team_name
+                          || activeOrg?.sub_teams?.sub_team_name
+                          || activeOrg?.groups?.group_name
+                          || '—',
+                workload: Math.round(workloadMap[e.employee_id] || 0)
+            };
+        }).sort((a, b) => b.workload - a.workload); // bận nhất lên đầu
 
         function workloadBadge(w) {
-            if (w >= 90) return { cls: 'badge-danger',  text: 'QUÁ TẢI',  color: '#ef4444' };
-            if (w >= 75) return { cls: 'badge-warning', text: 'CAO',      color: '#f59e0b' };
-            if (w >= 50) return { cls: 'badge-success', text: 'ỔN ĐỊNH',  color: '#22c55e' };
-            return             { cls: 'badge-info',     text: 'RẢNH RỖI', color: '#3b82f6' };
+            if (w >= 90) return { cls: 'badge-danger',  text: 'QUÁ TẢI'  };
+            if (w >= 75) return { cls: 'badge-warning', text: 'CAO'       };
+            if (w >= 50) return { cls: 'badge-success', text: 'ỔN ĐỊNH'   };
+            return             { cls: 'badge-info',     text: 'RẢNH RỖI'  };
         }
-
         function progressColor(w) {
             if (w >= 90) return '#ef4444';
             if (w >= 75) return '#f59e0b';
             return '#22c55e';
         }
 
-        tbody.innerHTML = all
-            .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-            .map((s) => {
-                const b = workloadBadge(s.workload);
-                const barColor = progressColor(s.workload);
-                const rowBg = s.workload >= 90 ? 'background:#fff5f5;' : '';
-                return `
-                <tr style="${rowBg}">
-                    <td class="code-col">${UI.escape(s.id)}</td>
-                    <td class="name-col">${UI.escape(s.name)}</td>
-                    <td>${UI.escape(s.title)}</td>
-                    <td>${UI.escape(s.team)}</td>
-                    <td style="min-width:200px;">
-                        <div style="display:flex;flex-direction:column;gap:6px;">
-                            <div style="background:#e5e7eb;border-radius:999px;height:6px;overflow:hidden;">
-                                <div style="width:${s.workload}%;height:100%;background:${barColor};border-radius:999px;"></div>
-                            </div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;">
-                                <span class="badge ${b.cls}" style="font-size:11px;">${b.text}</span>
-                                <span style="font-size:13px;font-weight:600;color:#374151;">${s.workload}%</span>
-                            </div>
+        tbody.innerHTML = staffWithLoad.map((s) => {
+            const b        = workloadBadge(s.workload);
+            const barColor = progressColor(s.workload);
+            const rowBg    = s.workload >= 90 ? 'background:#fff5f5;' : '';
+            return `
+            <tr style="${rowBg}">
+                <td class="code-col">${UI.escape(s.id)}</td>
+                <td class="name-col">${UI.escape(s.name)}</td>
+                <td>${UI.escape(s.title)}</td>
+                <td>${UI.escape(s.team)}</td>
+                <td style="min-width:200px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <div style="background:#e5e7eb;border-radius:999px;height:6px;overflow:hidden;">
+                            <div style="width:${s.workload}%;height:100%;background:${barColor};border-radius:999px;"></div>
                         </div>
-                    </td>
-                </tr>`;
-            })
-            .join('');
-
-        const pag = modals.hrSel?.querySelector('.pagination-controls span');
-        if (pag) pag.textContent = `Trang ${page} / ${totalPages}`;
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <span class="badge ${b.cls}" style="font-size:11px;">${b.text}</span>
+                            <span style="font-size:13px;font-weight:600;color:#374151;">${s.workload}%</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
     }
 
+    // ── REVENUE DETAIL MODAL ──────────────────────────────────────────────────
     function renderRevenueDetailModal() {
         const thead = document.getElementById('revenueDetailThead');
         const tbody = document.getElementById('revenueDetailTbody');
         const title = document.getElementById('revenueDetailTitle');
         if (!thead || !tbody) return;
 
-        // ── Mock data chi tiết doanh thu ─────────────────────────────────────
-        const DETAIL_DATA = {
-            Tháng: {
-                label: 'tháng 2025',
-                cols: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
-                rows: [
-                    { name: 'Precision Sensor Module - V2', vals: [180,195,210,220,185,200,215,230,210,195,205,255], status: 'Đang triển khai' },
-                    { name: 'Cloud Infra Platform',         vals: [75, 80, 85, 90, 95, 100,105,110,95, 85, 90, 90 ], status: 'Đang triển khai' },
-                    { name: 'Smart Factory IoT',            vals: [60, 65, 70, 68, 72, 75, 80, 78, 70, 65, 68, 69 ], status: 'Đang triển khai' },
-                    { name: 'Gas Monitoring System',        vals: [90, 92, 95, 98, 100,102,105,108,100,95, 98, 117], status: 'Hoàn thành'      },
-                    { name: 'ERP Migration Wave 2',         vals: [45, 48, 50, 52, 55, 58, 60, 62, 55, 50, 52, 63 ], status: 'Đang triển khai' },
-                    { name: 'Dairy Farm IoT Sensors',       vals: [65, 68, 70, 72, 75, 78, 80, 82, 75, 70, 72, 83 ], status: 'Đang triển khai' },
-                    { name: 'Automotive ECU Testing',       vals: [110,115,120,125,130,135,140,145,130,120,125,105], status: 'Đang triển khai' },
-                ]
-            },
-            Quý: {
-                label: 'quý 2025',
-                cols: ['Q1','Q2','Q3','Q4'],
-                rows: [
-                    { name: 'Precision Sensor Module - V2', vals: [585, 605, 655, 655], status: 'Đang triển khai' },
-                    { name: 'Cloud Infra Platform',         vals: [240, 285, 310, 265], status: 'Đang triển khai' },
-                    { name: 'Smart Factory IoT',            vals: [195, 215, 228, 212], status: 'Đang triển khai' },
-                    { name: 'Gas Monitoring System',        vals: [277, 300, 313, 310], status: 'Hoàn thành'      },
-                    { name: 'ERP Migration Wave 2',         vals: [143, 165, 177, 175], status: 'Đang triển khai' },
-                    { name: 'Dairy Farm IoT Sensors',       vals: [203, 225, 237, 235], status: 'Đang triển khai' },
-                    { name: 'Automotive ECU Testing',       vals: [345, 390, 415, 250], status: 'Đang triển khai' },
-                ]
-            },
-            Năm: {
-                label: 'các năm',
-                cols: ['2020','2021','2022','2023','2024','2025'],
-                rows: [
-                    { name: 'Precision Sensor Module - V2', vals: [1200, 1450, 1680, 1850, 2000, 2500], status: 'Đang triển khai' },
-                    { name: 'Cloud Infra Platform',         vals: [500,  620,  750,  880,  950,  1100], status: 'Đang triển khai' },
-                    { name: 'Smart Factory IoT',            vals: [300,  380,  450,  580,  700,  850 ], status: 'Đang triển khai' },
-                    { name: 'Gas Monitoring System',        vals: [800,  900,  980,  1050, 1100, 1200], status: 'Hoàn thành'      },
-                    { name: 'ERP Migration Wave 2',         vals: [200,  280,  350,  420,  520,  660 ], status: 'Đang triển khai' },
-                    { name: 'Dairy Farm IoT Sensors',       vals: [350,  420,  510,  620,  750,  900 ], status: 'Đang triển khai' },
-                    { name: 'Automotive ECU Testing',       vals: [900,  1100, 1300, 1500, 1700, 1400], status: 'Đang triển khai' },
-                ]
+        // Gom effort_projects theo project × tháng/quý/năm
+        const projectRevMap = {}; // { projectName: { months: [], status } }
+
+        _effortData.forEach((e) => {
+            const prj   = e.project_assignments?.project_resource_requests?.projects;
+            const pName = prj?.project_name || 'Không xác định';
+            const val   = Math.round((parseFloat(e.revenue_amount) || 0) / 1_000_000); // triệu VND
+            const m     = e.effort_month || 1;
+            const y     = e.effort_year  || new Date().getFullYear();
+
+            if (!projectRevMap[pName]) {
+                projectRevMap[pName] = {
+                    months:  new Array(12).fill(0),
+                    quarters: new Array(4).fill(0),
+                    years:   {},
+                    status:  _projects.find((p) => p.project_name === pName)?.status || '—'
+                };
             }
-        };
+            projectRevMap[pName].months[m - 1]                  += val;
+            projectRevMap[pName].quarters[Math.ceil(m / 3) - 1] += val;
+            projectRevMap[pName].years[y] = (projectRevMap[pName].years[y] || 0) + val;
+        });
 
-        const config = DETAIL_DATA[period] || DETAIL_DATA['Tháng'];
+        const rows = Object.entries(projectRevMap);
 
-        // Cập nhật tiêu đề
-        if (title) title.textContent = `Chi tiết doanh thu theo dự án - ${config.label}`;
+        let cols, label, getVals;
+        if (period === 'Tháng') {
+            cols    = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+            label   = 'tháng ' + new Date().getFullYear();
+            getVals = (r) => r.months;
+        } else if (period === 'Quý') {
+            cols    = ['Q1','Q2','Q3','Q4'];
+            label   = 'quý ' + new Date().getFullYear();
+            getVals = (r) => r.quarters;
+        } else {
+            const allYears = [...new Set(_effortData.map((e) => e.effort_year).filter(Boolean))].sort();
+            cols    = allYears.map(String);
+            label   = 'các năm';
+            getVals = (r) => allYears.map((y) => r.years[y] || 0);
+        }
 
-        // Cập nhật thead
+        if (title) title.textContent = `Chi tiết doanh thu theo dự án - ${label}`;
+
         thead.innerHTML = `<tr>
             <th>TÊN DỰ ÁN</th>
-            ${config.cols.map(c => `<th>${c}</th>`).join('')}
+            ${cols.map((c) => `<th>${c}</th>`).join('')}
             <th style="color:#dc2626;">TỔNG CỘNG</th>
             <th>TRẠNG THÁI</th>
         </tr>`;
 
-        // Helper format số
         function fmtM(val) {
             if (val >= 1000) return (val / 1000).toFixed(2).replace(/\.?0+$/, '') + 'B';
             return val + 'M';
         }
 
-        // Render tbody
-        tbody.innerHTML = config.rows.map(row => {
-            const total = row.vals.reduce((a, b) => a + b, 0);
-            const badgeCls = row.status === 'Hoàn thành' ? 'badge-success'
-                           : row.status === 'Tạm hoãn'   ? 'badge-warning'
+        if (!rows.length) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length + 3}" style="text-align:center;padding:20px;color:#6b7280;">Chưa có dữ liệu doanh thu</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(([name, r]) => {
+            const vals  = getVals(r);
+            const total = vals.reduce((a, b) => a + b, 0);
+            // Suy trạng thái từ progress_percent của project tương ứng
+            const prjData = _projects.find(p => p.project_name === name);
+            const pct = parseFloat(prjData?.progress_percent) || 0;
+            let statusLabel = 'Đang triển khai';
+            if (pct >= 100)      statusLabel = 'Hoàn thành';
+            else if (pct === 0)  statusLabel = 'Chưa bắt đầu';
+            else if (pct < 15)   statusLabel = 'Tạm dừng';
+            const badgeCls = statusLabel === 'Hoàn thành'    ? 'badge-success'
+                           : statusLabel === 'Tạm dừng'      ? 'badge-warning'
+                           : statusLabel === 'Chưa bắt đầu'  ? 'badge-secondary'
                            : 'badge-info';
             return `<tr>
-                <td class="name-col">${UI.escape(row.name)}</td>
-                ${row.vals.map(v => `<td>${fmtM(v)}</td>`).join('')}
+                <td class="name-col">${UI.escape(name)}</td>
+                ${vals.map((v) => `<td>${fmtM(v)}</td>`).join('')}
                 <td style="font-weight:700;color:#dc2626;">${fmtM(total)}</td>
-                <td><span class="badge ${badgeCls}">${UI.escape(row.status)}</span></td>
+                <td><span class="badge ${badgeCls}">${UI.escape(statusLabel)}</span></td>
             </tr>`;
         }).join('');
     }
 
+    // ── REFRESH ALL ───────────────────────────────────────────────────────────
     function refreshAll() {
         refreshStats();
         renderRevenueChart();
@@ -593,12 +1147,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderHeatmap();
         renderHrBars();
         renderProjectsTab();
-        renderDeliveryChart('month');
+        renderProjectBarChart();
     }
 
-    refreshAll();
-
-    // ── Email tag input cho modal báo cáo ────────────────────────────────────
+    // ── EMAIL TAG INPUT ───────────────────────────────────────────────────────
     function initEmailTags() {
         const emailContainer = document.getElementById('emailTagContainer');
         const emailInput     = document.getElementById('emailTagInput');
@@ -616,8 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             emailInput.value = '';
         }
 
-        // Xóa các tag mặc định đã có sẵn khi click X
-        emailContainer.querySelectorAll('.email-tag i').forEach(icon => {
+        emailContainer.querySelectorAll('.email-tag i').forEach((icon) => {
             icon.addEventListener('click', () => icon.closest('.email-tag').remove());
         });
 
@@ -627,17 +1178,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 addEmailTag(emailInput.value);
             }
         });
-
-        // Mất focus thì cũng tạo tag
         emailInput.addEventListener('blur', () => {
             if (emailInput.value.trim()) addEmailTag(emailInput.value);
         });
-
         emailContainer.addEventListener('click', () => emailInput.focus());
     }
 
-    // Bind khi mở modal
     document.querySelector('.btn-report-auto')?.addEventListener('click', () => {
         setTimeout(initEmailTags, 50);
     });
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    try {
+        await loadAllData();
+    } catch (err) {
+        console.error('[Dashboard] Lỗi tải dữ liệu:', err);
+        showToast('Lỗi', 'Không thể tải dữ liệu từ server. Vui lòng thử lại.', 'error');
+    }
+
+    switchChartView();
+    refreshAll();
 });

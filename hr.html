@@ -129,11 +129,11 @@
                                 style="background-color: white; color: #0078d4; border: 1px solid #0078d4; padding: 8px 20px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                                 <i class="fa-solid fa-link"></i> Gán dự án
                             </button>
-                            <button class="btn-action"
+                            <button class="btn-action" id="editStaffBtn"
                                 style="background-color: white; color: #f58220; border: 1px solid #f58220; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                                 Sửa
                             </button>
-                            <button class="btn-action"
+                            <button class="btn-action" id="deleteStaffBtn"
                                 style="background-color: #dc3545; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-weight: 700; cursor: pointer;">
                                 Xóa
                             </button>
@@ -188,18 +188,7 @@
                                     style="font-size: 13px;">
                             </div>
                             <div class="hr-filters" style="display: flex; gap: 16px;">
-                                <select class="hr-select" id="filterCourseCategory">
-                                    <option value="">Tất cả danh mục</option>
-                                    <option value="Kỹ thuật">Kỹ thuật</option>
-                                    <option value="Quản lý">Quản lý</option>
-                                    <option value="Kỹ năng mềm">Kỹ năng mềm</option>
-                                </select>
-                                <select class="hr-select" id="filterCourseStatus">
-                                    <option value="">Tất cả trạng thái</option>
-                                    <option value="Đang mở">Đang mở</option>
-                                    <option value="Sắp khai giảng">Sắp khai giảng</option>
-                                    <option value="Đã kết thúc">Đã kết thúc</option>
-                                </select>
+                                <!-- DB courses không có cột category/status, chỉ dùng search -->
                             </div>
                         </div>
                         <div class="op-box-actions" style="margin-bottom: 0; margin-top: 12px;">
@@ -224,20 +213,11 @@
                                 style="font-size: 13px;">
                         </div>
                         <div class="hr-filters" style="display: flex; gap: 16px;">
-                            <select class="hr-select" id="filterDmTeam">
-                                <option value="">Tất cả Team</option>
-                                <option value="Team X-Engine">Team X-Engine</option>
-                                <option value="Team UI">Team UI</option>
-                                <option value="Team Cloud">Team Cloud</option>
-                                <option value="Team BA">Team BA</option>
-                                <option value="Team PM">Team PM</option>
+                            <select class="hr-select" id="filterDmProject">
+                                <option value="">Tất cả Dự án</option>
                             </select>
-                            <select class="hr-select" id="filterDmStatus">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="Chờ phê duyệt">Chờ phê duyệt</option>
-                                <option value="Đang tuyển dụng">Đang tuyển dụng</option>
-                                <option value="Bị từ chối">Bị từ chối</option>
-                                <option value="Cần làm rõ">Cần làm rõ</option>
+                            <select class="hr-select" id="filterDmPosition">
+                                <option value="">Tất cả vị trí</option>
                             </select>
                         </div>
                     </div>
@@ -481,13 +461,11 @@
                             style="display: none; min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">MÃ KHOÁ</th>
                                     <th style="white-space:nowrap; vertical-align:middle;">TÊN KHOÁ HỌC</th>
-                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">DANH MỤC</th>
-                                    <th style="white-space:nowrap; vertical-align:middle;">NHÀ CUNG CẤP</th>
+                                    <th style="white-space:nowrap; vertical-align:middle;">MÔ TẢ</th>
                                     <th style="text-align:center; white-space:nowrap; vertical-align:middle;">THỜI LƯỢNG</th>
-                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">SỐ HV ĐĂNG KÝ</th>
-                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">TRẠNG THÁI</th>
+                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">CHỨNG CHỈ</th>
+                                    <th style="text-align:center; white-space:nowrap; vertical-align:middle;">NGÀY TẠO</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -717,20 +695,16 @@
                     </select>
                 </div>
 
-                <div class="form-row mb-15">
-                    <div class="form-group flex-1">
-                        <label for="assignDateFrom">Từ ngày <span class="required-asterisk">*</span></label>
-                        <input type="date" id="assignDateFrom" class="hr-form-input" value="2025-01-01">
-                    </div>
-                    <div class="form-group flex-1">
-                        <label for="assignDateTo">Đến ngày <span class="required-asterisk">*</span></label>
-                        <input type="date" id="assignDateTo" class="hr-form-input" value="2025-12-31">
-                    </div>
+                <div class="form-group mb-15">
+                    <label for="assignRequest">Yêu cầu nguồn lực <span class="required-asterisk">*</span></label>
+                    <select id="assignRequest" class="hr-form-select custom-select" disabled>
+                        <option value="">-- Chọn dự án trước --</option>
+                    </select>
                 </div>
 
-                <div class="project-info-card">
-                    <p><span>Team Leader dự án:</span> John Doe</p>
-                    <p><span>Group:</span> Industrial AI</p>
+                <div class="form-group mb-15">
+                    <label for="assignAllocation">Tỷ lệ phân bổ (%) <span class="required-asterisk">*</span></label>
+                    <input type="number" id="assignAllocation" class="hr-form-input" min="1" max="100" placeholder="VD: 50">
                 </div>
             </div>
             <div class="bosch-modal-footer">
@@ -991,9 +965,11 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/router.js"></script>
     <script src="js/common.js"></script>
-    <script src="js/mock-store.js"></script>
     <script src="js/ui-helpers.js"></script>
     <script src="js/page-common.js"></script>
     <script src="js/global.js"></script>

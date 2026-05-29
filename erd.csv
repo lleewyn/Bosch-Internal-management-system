@@ -1,0 +1,312 @@
+Thực thể	Thuộc tính	Kiểu dữ liệu	Độ dài	Khóa	Null	Unique
+users	user_id	UUID		PK	NO	YES
+	employee_id	UUID		FK	NO	YES
+	role_id	UUID		FK	NO	NO
+	username	VARCHAR	50		NO	YES
+	company_email	VARCHAR	255		NO	YES
+	password_hash	TEXT			NO	NO
+	is_locked	BOOLEAN			NO	NO
+	locked_until	TIMESTAMPTZ			YES	NO
+	avatar	TEXT			YES	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+roles	role_id	UUID		PK	NO	YES
+	role_code	VARCHAR	10		NO	YES
+	role_name	VARCHAR	100		NO	YES
+	description	TEXT			YES	NO
+	is_active	BOOLEAN			NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+permissions	permission_id	UUID		PK	NO	YES
+	permission_code	VARCHAR	50		NO	YES
+	permission_name	VARCHAR	100		NO	YES
+	description	TEXT			YES	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+role_permissions	role_permissions_id	UUID		PK	NO	YES
+	role_id	UUID		FK	NO	NO
+	permission_id	UUID		FK	NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+login_logs	login_logs_id	UUID		PK	NO	YES
+	user_id	UUID		FK	NO	NO
+	user_sessions_id	UUID		FK	YES	NO
+	login_time	TIMESTAMPTZ			NO	NO
+	logout_time	TIMESTAMPTZ			YES	NO
+	ip_address	VARCHAR	50		YES	NO
+	device	TEXT			YES	NO
+	location	TEXT			YES	NO
+	result_login	VARCHAR	20		NO	NO
+	failure_reason	TEXT			YES	NO
+	created_at	TIMESTAMPTZ			NO	NO
+audit_logs	audit_id	UUID		PK	NO	YES
+	user_id	UUID		FK	NO	NO
+	action_type	VARCHAR	50		NO	NO
+	table_name	VARCHAR	100		NO	NO
+	record_id	UUID			YES	NO
+	old_value	JSONB			YES	NO
+	new_value	JSONB			YES	NO
+	action_time	TIMESTAMPTZ			NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+password_requests	pr_id	UUID		PK	NO	YES
+	user_id	UUID		FK	NO	NO
+	reason	TEXT			YES	NO
+	ip_address	VARCHAR	50		YES	NO
+	device	TEXT			YES	NO
+	status	VARCHAR	30		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+user_sessions	user_sessions_id	UUID		PK	NO	YES
+	user_id	UUID		FK	NO	NO
+	session_token	TEXT			NO	YES
+	ip_address	VARCHAR	50		YES	NO
+	device	TEXT			YES	NO
+	last_activity_at	TIMESTAMPTZ			YES	NO
+	expired_at	TIMESTAMPTZ			NO	NO
+	warning_shown_at	TIMESTAMPTZ			YES	NO
+	extended_count	INTEGER			NO	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+positions	position_id	UUID		PK	NO	YES
+	position_name	VARCHAR	100		NO	YES
+	description	TEXT			YES	NO
+	is_active	BOOLEAN			NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+job_levels	jl_id	UUID		PK	NO	YES
+	level_name	VARCHAR	50		NO	YES
+	level_order	INTEGER			NO	YES
+	description	TEXT			YES	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+employee_organizations	employee_organizations_id	UUID		PK	NO	YES
+	employee_id	UUID		FK	NO	NO
+	group_id	UUID		FK	YES	NO
+	team_id	UUID		FK	YES	NO
+	sub_team_id	UUID		FK	YES	NO
+	assigned_from	DATE			NO	NO
+	assigned_to	DATE			YES	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+employees	employee_id	UUID		PK	NO	YES
+	position_id	UUID		FK	NO	NO
+	jl_id	UUID		FK	NO	NO
+	manager_id	UUID		FK	YES	NO
+	employee_code	VARCHAR	30		NO	YES
+	full_name	VARCHAR	255		NO	NO
+	day_of_birth	DATE			YES	NO
+	gender	VARCHAR	20		YES	NO
+	cccd	VARCHAR	20		YES	YES
+	phone_number	VARCHAR	20		YES	YES
+	address	TEXT			YES	NO
+	personal_email	VARCHAR	255		YES	YES
+	hire_date	DATE			NO	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+groups	group_id	UUID		PK	NO	YES
+	group_name	VARCHAR	100		NO	YES
+	manager_id	UUID		FK	YES	NO
+	description	TEXT			YES	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+teams	team_id	UUID		PK	NO	YES
+	group_id	UUID		FK	NO	NO
+	team_name	VARCHAR	100		NO	NO
+	manager_id	UUID		FK	YES	NO
+	description	TEXT			YES	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+sub_teams	sub_team_id	UUID		PK	NO	YES
+	team_id	UUID		FK	NO	NO
+	sub_team_name	VARCHAR	100		NO	NO
+	manager_id	UUID		FK	YES	NO
+	description	TEXT			YES	NO
+	status	VARCHAR	20		NO	NO
+	created_at	TIMESTAMPTZ			NO	NO
+	updated_at	TIMESTAMPTZ			NO	NO
+courses	course_id	UUID		PK	No	Yes
+	course_name	VARCHAR	255		No	Yes
+	description	TEXT			Yes	No
+	learning_outcomes	TEXT			Yes	No
+	duration	INTEGER			No	No
+	certificate	VARCHAR	255		Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+course_skills	course_skill_id	UUID		PK	No	Yes
+	course_id	UUID		FK	No	No
+	skill_id	UUID		FK	No	No
+	created_at	TIMESTAMPTZ			No	No
+skills	skill_id	UUID		PK	No	Yes
+	skill_name	VARCHAR	150		No	Yes
+	description	TEXT			Yes	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+training_plans	tp_id	UUID		PK	No	Yes
+	title	VARCHAR	255		No	No
+	year	INTEGER			No	No
+	period	VARCHAR	50		No	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+training_plan_details	tpd_id	UUID		PK	No	Yes
+	tp_id	UUID		FK	No	No
+	course_id	UUID		FK	No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+employee_study	employee_study_id	UUID		PK	No	Yes
+	employee_id	UUID		FK	No	No
+	tpd_id	UUID		FK	No	No
+	priority	VARCHAR	30		No	No
+	start_at	DATE			Yes	No
+	completed_at	DATE			Yes	No
+	approved_at	TIMESTAMPTZ			Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+customers	customer_id	UUID		PK	No	Yes
+	company_name	VARCHAR	255		No	Yes
+	contact_person	VARCHAR	255		No	No
+	country	VARCHAR	100		No	No
+	country_code	VARCHAR	10		No	No
+	contact_email	VARCHAR	255		No	Yes
+	phone	VARCHAR	20		Yes	No
+	industry	VARCHAR	150		Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+contracts	contract_id	UUID		PK	No	Yes
+	customer_id	UUID		FK	No	No
+	service_line_id	UUID		FK	No	No
+	contract_code	VARCHAR	100		No	Yes
+	contract_name	VARCHAR	255		No	No
+	signed_date	DATE			No	No
+	start_date	DATE			No	No
+	end_date	DATE			Yes	No
+	contract_value	NUMERIC	15,2		No	No
+	contract_status	VARCHAR	50		No	No
+	renewal_status	VARCHAR	50		No	No
+	file_url	TEXT			Yes	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+service_lines	service_line_id	UUID		PK	No	Yes
+	service_line_name	VARCHAR	255		No	Yes
+	description	TEXT			Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+service_line_rates	service_line_rate_id	UUID		PK	No	Yes
+	service_line_id	UUID		FK	No	No
+	hourly_rate	NUMERIC	12,2		No	No
+	effective_from	DATE			No	No
+	effective_to	DATE			Yes	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+projects	project_id	UUID		PK	No	Yes
+	customer_id	UUID		FK	No	No
+	contract_id	UUID		FK	No	No
+	project_code	VARCHAR	100		No	Yes
+	project_name	VARCHAR	255		No	No
+	description	TEXT			Yes	No
+	start_date	DATE			No	No
+	end_date	DATE			Yes	No
+	actual_end_date	DATE			Yes	No
+	priority	VARCHAR	30		No	No
+	progress_percent	NUMERIC	5,2		Yes	No
+	budget	NUMERIC	15,2		Yes	No
+	revenue_amount	NUMERIC	15,2		Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+project_resource_requests	project_resource_request_id	UUID		PK	No	Yes
+	project_id	UUID		FK	No	No
+	position_id	UUID		FK	No	No
+	quantity	INTEGER			No	No
+	is_ot	BOOLEAN			No	No
+	description	TEXT			Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+project_assignments	assignment_id	UUID		PK	No	Yes
+	project_resource_request_id	UUID		FK	No	No
+	sub_team_id	UUID		FK	Yes	No
+	employee_id	UUID		FK	No	No
+	allocation_percent	NUMERIC	5,2		No	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+effort_projects	effort_id	UUID		PK	No	Yes
+	assignment_id	UUID		FK	No	No
+	actual_hours	NUMERIC	8,2		No	No
+	effort_percent	NUMERIC	5,2		No	No
+	revenue_amount	NUMERIC	15,2		Yes	No
+	effort_month	INTEGER			No	No
+	effort_year	INTEGER			No	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+budgets	budget_id	UUID		PK	No	Yes
+	period	VARCHAR	50		No	No
+	total_amount	NUMERIC	15,2		No	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+budget_allocations	ba_id	UUID		PK	No	Yes
+	budget_id	UUID		FK	No	No
+	project_id	UUID		FK	No	No
+	planned_amount	NUMERIC	15,2		No	No
+	actual_amount	NUMERIC	15,2		Yes	No
+	status	VARCHAR	50		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+report_requests	report_id	UUID		PK	No	Yes
+	user_id	UUID		FK	No	No
+	report_name	VARCHAR	255		No	No
+	report_type	VARCHAR	100		No	No
+	time_range	VARCHAR	50		Yes	No
+	from_date	DATE			Yes	No
+	to_date	DATE			Yes	No
+	status	VARCHAR	30		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+report_results	result_id	UUID		PK	No	Yes
+	report_id	UUID		FK	No	No
+	file_url	TEXT			Yes	No
+	summary_data	JSONB			Yes	No
+	status	VARCHAR	30		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+report_schedules	schedule_id	UUID		PK	No	Yes
+	report_id	UUID		FK	No	No
+	frequency	VARCHAR	50		No	No
+	status	VARCHAR	30		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+report_schedule_recipients	recipient_id	UUID		PK	No	Yes
+	schedule_id	UUID		FK	No	No
+	user_id	UUID		FK	Yes	No
+	recipient_email	VARCHAR	255		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+notifications	notification_id	UUID		PK	No	Yes
+	user_id	UUID		FK	No	No
+	type	VARCHAR	50		No	No
+	title	VARCHAR	255		No	No
+	content	TEXT		No	No	No
+	is_read	BOOLEAN			No	No
+	read_at	TIMESTAMPTZ			Yes	No
+	status	VARCHAR	30		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No
+alert_configurations	config_id	UUID		PK	No	Yes
+	alert_type	VARCHAR	100		No	No
+	threshold	NUMERIC	10,2		Yes	No
+	description	TEXT		Yes	No	No
+	status	VARCHAR	30		No	No
+	created_at	TIMESTAMPTZ			No	No
+	updated_at	TIMESTAMPTZ			No	No

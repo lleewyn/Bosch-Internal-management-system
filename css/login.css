@@ -34,7 +34,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 2rem 2rem 80px 2rem; /* padding-bottom đủ để tránh footer fixed */
 }
 
 .login-card {

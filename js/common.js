@@ -35,19 +35,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateSidebar(user) {
-    const sidebarName = document.getElementById('sidebarName');
+    const sidebarName     = document.getElementById('sidebarName');
     const sidebarPosition = document.getElementById('sidebarPosition');
-    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    const sidebarAvatar   = document.getElementById('sidebarAvatar');
 
-    const name = user.full_name || user.FullName || user.Username || 'User';
-    const role = user.role || user.Role || 'Nhân viên';
-    const avatar =
-        user.avatar ||
+    const name     = user.full_name  || user.username || user.email || 'User';
+    const position = user.position   || user.role_name || user.role || 'Nhân viên';
+    const avatar   = user.avatar     ||
         `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=BC0004&color=fff&rounded=true`;
 
-    if (sidebarName) sidebarName.textContent = name;
-    if (sidebarPosition) sidebarPosition.textContent = role;
-    if (sidebarAvatar) sidebarAvatar.src = avatar;
+    if (sidebarName)     sidebarName.textContent = name;
+    if (sidebarPosition) sidebarPosition.textContent = position;
+    if (sidebarAvatar)   sidebarAvatar.src = avatar;
 }
 
 function logout() {

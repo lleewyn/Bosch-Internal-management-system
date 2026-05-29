@@ -292,6 +292,49 @@
         .org-node:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .org-node.edit-selected {
+            border: 2px solid #2563EB;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Employee autocomplete dropdown */
+        .emp-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0; right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+        .emp-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.15s;
+        }
+        .emp-dropdown-item:hover { background: #f0f7ff; }
+        .emp-dropdown-item .emp-code {
+            font-size: 11px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .emp-dropdown-empty {
+            padding: 14px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+        }
             border-color: #cbd5e1;
         }
 
@@ -532,6 +575,13 @@
                         </button>
                         <button class="btn-primary" id="openAddTeamBtn">
                             <i class="fa-solid fa-plus"></i> Thêm Team
+                        </button>
+                        <button class="btn-primary" id="openAddSubTeamBtn">
+                            <i class="fa-solid fa-plus"></i> Thêm Sub-team
+                        </button>
+                        <button class="btn-action" id="openEditOrgBtn"
+                            style="background:white;color:#f58220;border:1px solid #f58220;padding:8px 20px;border-radius:6px;font-weight:700;cursor:pointer;">
+                            <i class="fa-solid fa-pen"></i> Sửa
                         </button>
                     </div>
                 </div>
@@ -881,13 +931,15 @@
             <div class="bosch-modal-body">
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Tên Group chiến lược <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="VD: Group A" style="width: 100%; height: 40px; padding: 0 12px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
+                    <input type="text" id="groupNameInput" placeholder="VD: Group A" style="width: 100%; height: 40px; padding: 0 12px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Chỉ định Group Manager <span class="required-asterisk">*</span></label>
                     <div style="position: relative;">
                         <i class="fa-solid fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
-                        <input type="text" placeholder="Tìm kiếm theo tên,mã nhân viên..." style="width: 100%; height: 40px; padding: 0 12px 0 36px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
+                        <input type="text" id="groupManagerSearch" placeholder="Tìm kiếm theo tên, mã nhân viên..." style="width: 100%; height: 40px; padding: 0 12px 0 36px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;" autocomplete="off">
+                        <input type="hidden" id="groupManagerId">
+                        <div id="groupManagerDropdown" class="emp-dropdown" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -922,13 +974,15 @@
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Tên Team <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="VD: Machine Learning" style="width: 100%; height: 40px; padding: 0 12px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
+                    <input type="text" id="teamNameInput" placeholder="VD: Machine Learning" style="width: 100%; height: 40px; padding: 0 12px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Chỉ định Delivery Manager <span class="required-asterisk">*</span></label>
                     <div style="position: relative;">
                         <i class="fa-solid fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
-                        <input type="text" placeholder="Tìm kiếm theo tên,mã nhân viên..." style="width: 100%; height: 40px; padding: 0 12px 0 36px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;">
+                        <input type="text" id="teamManagerSearch" placeholder="Tìm kiếm theo tên, mã nhân viên..." style="width: 100%; height: 40px; padding: 0 12px 0 36px; background: var(--bg-body); border: 1px solid #f1f3f5; border-radius: 6px; font-size: 13px;" autocomplete="off">
+                        <input type="hidden" id="teamManagerId">
+                        <div id="teamManagerDropdown" class="emp-dropdown" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -948,9 +1002,59 @@
         </div>
     </div>
 
+    <!-- MODAL THÊM SUB-TEAM -->
+    <div class="bosch-modal-overlay" id="addSubTeamModal">
+        <div class="bosch-modal-content">
+            <div class="bosch-modal-header">
+                <h3 style="font-size:16px;font-weight:800;color:var(--text-main);">Tạo Sub-team mới</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeSubTeamModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:var(--text-main);margin-bottom:8px;">Thuộc Team <span class="required-asterisk">*</span></label>
+                    <select id="subTeamTeamSelect" style="width:100%;height:40px;padding:0 12px;background:var(--bg-body);border:1px solid #f1f3f5;border-radius:6px;font-size:13px;color:var(--text-main);">
+                        <option value="">-- Chọn Team --</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:var(--text-main);margin-bottom:8px;">Tên Sub-team <span class="required-asterisk">*</span></label>
+                    <input type="text" id="subTeamNameInput" placeholder="VD: Sub-team Frontend" style="width:100%;height:40px;padding:0 12px;background:var(--bg-body);border:1px solid #f1f3f5;border-radius:6px;font-size:13px;">
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button class="btn-secondary" id="cancelSubTeamBtn">Hủy</button>
+                <button class="btn-primary" id="saveSubTeamBtn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA (Group / Team / Sub-team) -->
+    <div class="bosch-modal-overlay" id="editOrgModal">
+        <div class="bosch-modal-content">
+            <div class="bosch-modal-header">
+                <h3 id="editOrgTitle" style="font-size:16px;font-weight:800;color:var(--text-main);">Sửa</h3>
+                <i class="fa-solid fa-xmark bosch-modal-close" id="closeEditOrgModal"></i>
+            </div>
+            <div class="bosch-modal-body">
+                <input type="hidden" id="editOrgType">
+                <input type="hidden" id="editOrgId">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:var(--text-main);margin-bottom:8px;">Tên <span class="required-asterisk">*</span></label>
+                    <input type="text" id="editOrgNameInput" style="width:100%;height:40px;padding:0 12px;background:var(--bg-body);border:1px solid #f1f3f5;border-radius:6px;font-size:13px;">
+                </div>
+            </div>
+            <div class="bosch-modal-footer">
+                <button class="btn-secondary" id="cancelEditOrgBtn">Hủy</button>
+                <button class="btn-primary" id="saveEditOrgBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/router.js"></script>
     <script src="js/common.js"></script>
-    <script src="js/mock-store.js"></script>
     <script src="js/ui-helpers.js"></script>
     <script src="js/page-common.js"></script>
     <script src="js/global.js"></script>

@@ -97,7 +97,11 @@
                         </select>
                         <select class="hr-select" id="filterCustomerStatus" style="background-color: #f4f5f7; border: none; padding: 8px 32px 8px 14px; border-radius: 4px; font-weight: 600; color: #333;">
                             <option value="">Tất cả trạng thái hợp tác</option>
-                            <option value="ĐANG ĐÀM PHÁN">Đang đàm phán</option>
+                            <option value="potential">Tiềm năng</option>
+                            <option value="active">Hoạt động</option>
+                            <option value="active_project">Có dự án</option>
+                            <option value="suspended">Tạm dừng</option>
+                            <option value="terminated">Kết thúc</option>
                             <option value="ĐÃ DEAL HỢP ĐỒNG">Đã deal hợp đồng</option>
                             <option value="ĐÃ CÓ DỰ ÁN">Đã có dự án</option>
                         </select>
@@ -309,23 +313,35 @@
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
                     <label>TÊN CÔNG TY <span class="required-asterisk">*</span></label>
-                    <input type="text" value="Samsung Electronics HCMC" class="bg-white-input">
+                    <input type="text" id="opCustCompany" placeholder="Nhập tên công ty" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
                     <label style="color: var(--text-secondary);">NGƯỜI LIÊN HỆ <span class="required-asterisk">*</span></label>
-                    <input type="text" value="Mr. Park Ji-Sung" class="bg-white-input">
+                    <input type="text" id="opCustContact" placeholder="Nhập tên người liên hệ" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
                     <label>EMAIL <span class="required-asterisk">*</span></label>
-                    <input type="text" value="jisung.park@samsung.com" class="bg-white-input">
+                    <input type="text" id="opCustEmail" placeholder="email@company.com" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
                     <label>SỐ ĐIỆN THOẠI <span class="required-asterisk">*</span></label>
-                    <input type="text" value="02839151111" class="bg-white-input">
+                    <input type="text" id="opCustPhone" placeholder="Nhập số điện thoại" class="bg-white-input">
                 </div>
                 <div class="form-group mb-15">
                     <label style="color: var(--text-secondary);">QUỐC GIA <span class="required-asterisk">*</span></label>
-                    <p style="font-size: 13px; margin-top: 8px; color: var(--text-main); font-weight: 500;">Hàn Quốc</p>
+                    <select id="opCustCountry" class="bg-white-input" style="width:100%;border:1px solid #ddd;padding:10px 12px;border-radius:6px;font-size:13px;color:var(--text-main);">
+                        <option value="">-- Chọn quốc gia --</option>
+                        <option value="Việt Nam">Việt Nam</option>
+                        <option value="Hàn Quốc">Hàn Quốc</option>
+                        <option value="Đức">Đức</option>
+                        <option value="Nhật Bản">Nhật Bản</option>
+                        <option value="Mỹ">Mỹ</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="Trung Quốc">Trung Quốc</option>
+                        <option value="Anh">Anh</option>
+                        <option value="Pháp">Pháp</option>
+                        <option value="Úc">Úc</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer-centered" style="justify-content: flex-end; border-top: none; padding: 20px;">
@@ -345,24 +361,18 @@
             <div class="modal-body" style="padding: 20px;">
                 <div class="form-group mb-15">
                     <label>Khách hàng <span class="required-asterisk">*</span></label>
-                    <select class="custom-select bg-white-input">
-                        <option>--- Chọn khách hàng ---</option>
+                    <select id="opContractCustomer" class="custom-select bg-white-input">
+                        <option value="">--- Chọn khách hàng ---</option>
                     </select>
                 </div>
                 <div class="form-row mb-15">
                     <div class="form-group flex-1">
                         <label>Ngày hiệu lực <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar"></i>
-                        </div>
+                        <input type="date" id="opContractStart" class="bg-white-input" style="width:100%;border:1px solid #ddd;padding:10px 12px;border-radius:6px;font-size:13px;box-sizing:border-box;background:white;">
                     </div>
                     <div class="form-group flex-1">
                         <label>Ngày hết hạn <span class="required-asterisk">*</span></label>
-                        <div class="input-with-icon">
-                            <input type="text" placeholder="dd/mm/yyyy" class="bg-white-input">
-                            <i class="fa-regular fa-calendar"></i>
-                        </div>
+                        <input type="date" id="opContractEnd" class="bg-white-input" style="width:100%;border:1px solid #ddd;padding:10px 12px;border-radius:6px;font-size:13px;box-sizing:border-box;background:white;">
                     </div>
                 </div>
                 <div class="form-group mb-15">
@@ -373,7 +383,7 @@
                 </div>
                 <div class="form-group mb-15">
                     <label>Giá trị hợp đồng (VND) <span class="required-asterisk">*</span></label>
-                    <input type="text" placeholder="Nhập số tiền > 250,000,000" class="bg-white-input">
+                    <input type="text" id="opContractValue" placeholder="Nhập số tiền > 250,000,000" class="bg-white-input">
                 </div>
                 
                 <div class="form-group mb-15" style="flex-direction: row; align-items: center; gap: 8px;">
@@ -402,6 +412,7 @@
         <div class="modal-content hr-modal" style="width: 400px;">
             <div class="modal-header" style="border-bottom: none; padding: 24px 24px 10px 24px;">
                 <h3 style="font-size: 13px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-rotate-right" style="color: #4f46e5; margin-right: 8px;"></i> GIA HẠN HỢP ĐỒNG</h3>
+                <i class="fa-solid fa-xmark close-modal" id="closeRenewModal" style="cursor:pointer;font-size:16px;color:var(--text-muted);"></i>
             </div>
             <div class="modal-body" style="padding: 10px 24px 24px 24px;">
                 <div style="background-color: #f3f4ff; color: #4f46e5; font-weight: 700; font-size: 14px; text-align: center; padding: 12px; border-radius: 6px; margin-bottom: 20px;" id="renewContractIdDisplay">
@@ -557,9 +568,11 @@
 
 
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/router.js"></script>
     <script src="js/common.js"></script>
-    <script src="js/mock-store.js"></script>
     <script src="js/ui-helpers.js"></script>
     <script src="js/page-common.js"></script>
     <script src="js/global.js"></script>

@@ -18,8 +18,20 @@ window.PageCommon = {
                 font-weight: 700; font-size: 13px;
             }
             .op-badge-selection.visible { display: block; }
+            /* Tooltip khi hover vào element bị ẩn quyền */
+            [data-perm-readonly="1"] { pointer-events: none !important; }
         `;
         document.head.appendChild(s);
+    },
+
+    /**
+     * Gọi sau khi trang render xong để re-apply permission
+     * cho các element được tạo động bởi JS
+     */
+    applyDynamicPermissions() {
+        if (window.AppRouter) {
+            window.AppRouter.applyPagePermissions?.();
+        }
     },
 
     bindTabs(tabSelector, viewMap, onChange) {

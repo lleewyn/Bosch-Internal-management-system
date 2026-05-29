@@ -1,0 +1,12 @@
+Bảng phân quyền chi tiết			
+Module	Mục chi tiết	Role	Mô tả chi tiết
+All		DH	Tắt chỉnh sửa tất cả mọi thứ chỉ có quyền xem, trừ trang Tài khoản cá nhân 
+Nhân sự	Cơ cấu tổ chức	GM	Chỉ GM mới được chỉnh sửa Thêm Group, Thêm Team, Operations ko thấy
+Trang Phê duyệt nguồn lực	DM	Chỉ GM, DM thao tác, DH chỉ thấy, Operations ko thấy
+Nhân sự	Lộ trình phát triển	GM, DM	Chỉ  GM, DM thao tác
+Nhân sự	Danh sách nhân sự - Nút Thêm nhân sự, Gán dự án, Sửa	GM, DM	Chỉ GM, DM nhìn thấy và thao tác
+Dự án	Vận hành	GM, DM	Chỉ GM, DM thao tác, còn lại chỉ được xem
+Dự án	Ngân sách	GM, Operation	Chỉ GM, Operation thao tác, còn lại chỉ được xem
+Dashboard	Xuất báo cáo, thiết lập gửi tự động	GM	Chỉ GM được thao tác, còn lại chỉ được xem
+Setting		All	
+History log		GM	Chỉ GM được thao tác, còn lại chỉ được xem

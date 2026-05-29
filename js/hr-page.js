@@ -1,270 +1,310 @@
 /**
- * HR — CRUD nhân sự & lộ trình từ MockStore
+ * HR — 3 tab: Danh sách nhân sự | Lộ trình phát triển | Phê duyệt nguồn lực
+ * Kết nối Supabase qua DB service
  */
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.MockStore) {
-        console.error('[HR] MockStore chưa tải');
-        return;
-    }
-
-    const dirTable = document.getElementById('directoryTable');
-    const roadTable = document.getElementById('roadmapTable');
-    const coursesTable = document.getElementById('coursesTable');
-    const dirControls = document.getElementById('directoryControls');
-    const roadControls = document.getElementById('roadmapControls');
-    const addModal = document.getElementById('addStaffModal');
-    const assignModal = document.getElementById('assignProjectModal');
-    const drawer = document.getElementById('hrDrawer');
-    const drawerOverlay = document.getElementById('hrDrawerOverlay');
-
-    // Sub-tab elements
-    const subtabProgress = document.getElementById('subtabProgress');
-    const subtabCourses  = document.getElementById('subtabCourses');
-    const progressControls = document.getElementById('progressControls');
-    const coursesControls  = document.getElementById('coursesControls');
-
-    let activeRoadmapSubtab = 'progress'; // 'progress' | 'courses'
-    let selectedCourseId = null;
-
-    // DM Approval
-    const dmTable    = document.getElementById('dmTable');
-    const dmControls = document.getElementById('dmControls');
-    let selectedDmId = null;
-
-    // Mock data yêu cầu nguồn lực chờ phê duyệt
-    const DM_REQUESTS = [
-        { id: 'REQ-001', project: 'Precision Sensor Module - V2', projectId: 'PRJ-101', team: 'Team X-Engine', position: 'Senior Embedded Dev', qty: 2, ot: true,  from: '2025-04-01', to: '2025-08-31', status: 'Chờ phê duyệt', note: '' },
-        { id: 'REQ-002', project: 'Cloud Infra Platform',          projectId: 'PRJ-102', team: 'Team Cloud',    position: 'DevOps Engineer',      qty: 1, ot: false, from: '2025-05-01', to: '2025-09-30', status: 'Chờ phê duyệt', note: '' },
-        { id: 'REQ-003', project: 'Smart Factory IoT',             projectId: 'PRJ-103', team: 'Team BA',       position: 'IoT Engineer',          qty: 2, ot: false, from: '2025-03-01', to: '2025-10-31', status: 'Đang tuyển dụng', note: '' },
-        { id: 'REQ-004', project: 'ERP Migration Wave 2',          projectId: 'PRJ-105', team: 'Team BA',       position: 'SAP Consultant',        qty: 3, ot: true,  from: '2025-04-15', to: '2026-01-31', status: 'Chờ phê duyệt', note: '' },
-        { id: 'REQ-005', project: 'Automotive ECU Testing',        projectId: 'PRJ-107', team: 'Team X-Engine', position: 'HIL Test Engineer',     qty: 2, ot: true,  from: '2025-02-01', to: '2026-05-31', status: 'Bị từ chối',    note: 'Ngân sách chưa được phê duyệt' },
-        { id: 'REQ-006', project: 'Dairy Farm IoT Sensors',        projectId: 'PRJ-106', team: 'Team Cloud',    position: 'Embedded Firmware Dev', qty: 1, ot: false, from: '2025-01-01', to: '2025-09-30', status: 'Cần làm rõ',    note: 'Cần bổ sung mô tả kỹ năng cụ thể' },
-    ];
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!window.PageCommon) return;
+    PageCommon.injectFormStyles();
 
     const $ = (id) => document.getElementById(id);
 
-    let editingId = null;
-    let selectedId = null;
+    // DOM elements
+    const dirTable    = $('directoryTable');
+    const roadTable   = $('roadmapTable');
+    const dirControls = $('directoryControls');
+    const roadControls= $('roadmapControls');
+    const dmControls  = $('dmControls');
 
-    const TEAMS = {
-        A: ['Team X-Engine', 'Team UI', 'Team Cloud'],
-        B: ['Team X-Engine', 'Team Cloud', 'Team BA'],
-        C: ['Team UI', 'Team BA', 'Team PM'],
-        D: ['Team PM', 'Team BA']
-    };
-
-    const MANAGERS = ['Jackson Nguyen', 'Maria Schmidt', 'David Chen', 'Frank Miller'];
-
-    PageCommon.injectFormStyles();
-    const style = document.createElement('style');
-    style.textContent = `
-        #addStaffModal .bosch-modal-content { width: 560px; max-width: 95vw; }
-        #addStaffModal .bosch-modal-body { max-height: 70vh; overflow-y: auto; }
-    `;
-    document.head.appendChild(style);
-
-    const roadmapModal = document.getElementById('roadmapModal');
     let activeHrTab = 'directory';
+    let selectedId  = null;
+    let selectedRoadId = null;
+    let selectedDmId   = null;
 
-    function populateGroupOptions() {
-        const groupSel = $('staffGroup');
-        if (!groupSel) return;
-        const groups = MockStore.getOrgGroups();
-        groupSel.innerHTML =
-            '<option value="">-- Chọn Group --</option>' +
-            groups.map((g) => `<option value="${UI.escape(g.id)}">${UI.escape(g.name)}</option>`).join('');
-        if (groups.length === 0) {
-            ['A', 'B', 'C', 'D'].forEach((g) => {
-                groupSel.innerHTML += `<option value="${g}">Group ${g}</option>`;
+    // Data cache
+    let _employees  = [];
+    let _positions  = [];
+    let _groups     = [];
+    let _teams      = [];
+    let _studyList  = [];   // employee_study + courses
+    let _dmRequests = [];   // project_resource_requests + projects
+
+    function esc(v) {
+        return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── Load data ─────────────────────────────────────────────────────────────
+    let _assignments = []; // cache project assignments
+    let _empOrgs     = []; // cache employee_organizations
+
+    async function loadAll() {
+        showLoading('directory');
+        const [empRes, posRes, grpRes, teamRes, assignRes, orgRes] = await Promise.all([
+            DB.Employees.getAll(),
+            DB.Meta.getPositions(),
+            DB.Org.getGroups(),
+            DB.Org.getTeams(),
+            window.supabaseClient
+                .from('project_assignments')
+                .select(`
+                    assignment_id, employee_id, allocation_percent,
+                    project_resource_requests (
+                        project_resource_request_id,
+                        projects ( project_id, project_name, project_code )
+                    )
+                `),
+            window.supabaseClient
+                .from('employee_organizations')
+                .select('employee_id, group_id, team_id, status')
+        ]);
+        if (empRes.data)    _employees   = empRes.data;
+        if (posRes.data)    _positions   = posRes.data;
+        if (grpRes.data)    _groups      = grpRes.data;
+        if (teamRes.data)   _teams       = teamRes.data;
+        if (assignRes.data) _assignments = assignRes.data;
+        if (orgRes.data)    _empOrgs     = orgRes.data;
+
+        if (empRes.error)    console.error('[HR] employees:', empRes.error);
+        if (assignRes.error) console.error('[HR] assignments:', assignRes.error);
+        if (orgRes.error)    console.error('[HR] empOrgs:', orgRes.error);
+
+        renderDirectory();
+        populateFilters();
+    }
+
+    async function loadRoadmap() {
+        showLoading('roadmap');
+        const res = await window.supabaseClient
+            .from('employee_study')
+            .select(`
+                employee_study_id, status, start_at, completed_at,
+                employees ( employee_code, full_name, position_id ),
+                training_plan_details (
+                    courses ( course_name, duration, certificate )
+                )
+            `)
+            .order('start_at', { ascending: false });
+
+        if (res.error) {
+            console.error('[HR] roadmap:', res.error);
+            _studyList = [];
+        } else {
+            _studyList = res.data || [];
+        }
+        renderRoadmap();
+    }
+
+    async function loadDmApproval() {
+        showLoading('dm');
+        const res = await window.supabaseClient
+            .from('project_resource_requests')
+            .select(`
+                project_resource_request_id, quantity, is_ot, description, created_at,
+                projects ( project_id, project_code, project_name ),
+                positions ( position_id, position_name )
+            `)
+            .order('created_at', { ascending: false });
+
+        if (res.error) {
+            console.error('[HR] dm-approval:', res.error);
+            _dmRequests = [];
+        } else {
+            _dmRequests = res.data || [];
+        }
+
+        // Populate filter dự án
+        const projSel = $('filterDmProject');
+        if (projSel && projSel.options.length <= 1) {
+            const seen = new Set();
+            _dmRequests.forEach(r => {
+                const p = r.projects;
+                if (p && !seen.has(p.project_id)) {
+                    seen.add(p.project_id);
+                    const o = document.createElement('option');
+                    o.value = p.project_id; o.textContent = p.project_name;
+                    projSel.appendChild(o);
+                }
             });
+        }
+
+        // Populate filter vị trí
+        const posSel = $('filterDmPosition');
+        if (posSel && posSel.options.length <= 1) {
+            const seen = new Set();
+            _dmRequests.forEach(r => {
+                const p = r.positions;
+                if (p && !seen.has(p.position_id)) {
+                    seen.add(p.position_id);
+                    const o = document.createElement('option');
+                    o.value = p.position_id; o.textContent = p.position_name;
+                    posSel.appendChild(o);
+                }
+            });
+        }
+
+        renderDmApproval();
+    }
+
+    function showLoading(tab) {
+        const map = {
+            directory: dirTable,
+            roadmap:   roadTable,
+            dm:        $('dmTable')
+        };
+        const t = map[tab];
+        const tbody = t?.querySelector('tbody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#888;">
+            <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Đang tải dữ liệu...</td></tr>`;
+    }
+
+    // ── Populate filters ──────────────────────────────────────────────────────
+    async function populateFilters() {
+        const grpSel = $('filterStaffGroup');
+        if (grpSel && grpSel.options.length <= 1) {
+            _groups.forEach(g => {
+                const o = document.createElement('option');
+                o.value = g.group_id; o.textContent = g.group_name;
+                grpSel.appendChild(o);
+            });
+        }
+        const teamSel = $('filterStaffTeam');
+        if (teamSel && teamSel.options.length <= 1) {
+            _teams.forEach(t => {
+                const o = document.createElement('option');
+                o.value = t.team_id; o.textContent = t.team_name;
+                teamSel.appendChild(o);
+            });
+        }
+        // Populate dự án filter — load tất cả projects từ DB
+        const projSel = $('filterStaffProject');
+        if (projSel && projSel.options.length <= 1) {
+            const { data: projData } = await window.supabaseClient
+                .from('projects')
+                .select('project_id, project_name')
+                .order('project_name');
+            if (projData) {
+                projData.forEach(p => {
+                    const o = document.createElement('option');
+                    o.value = p.project_id; o.textContent = p.project_name;
+                    projSel.appendChild(o);
+                });
+            }
         }
     }
 
-    function groupLetter(groupKey) {
-        const raw = String(groupKey || '').trim();
-        if (/^[A-D]$/i.test(raw)) return raw.toUpperCase();
-        const m = raw.match(/([A-D])$/i) || raw.match(/group\s*([A-D])/i);
-        return m ? m[1].toUpperCase() : 'A';
-    }
-
-    function populateTeamOptions(groupKey) {
-        const teamSel = $('staffTeam');
-        if (!teamSel) return;
-        const letter = groupLetter(groupKey);
-        const catalog = MockStore.get().teamsCatalog || TEAMS;
-        const teams = catalog[letter] || TEAMS[letter] || TEAMS.A;
-        teamSel.innerHTML =
-            '<option value="">-- Chọn Team --</option>' +
-            teams.map((t) => `<option value="${UI.escape(t)}">${UI.escape(t)}</option>`).join('');
-    }
-
-    function populateManagerOptions() {
-        const mgrSel = $('staffManager');
-        if (!mgrSel) return;
-        const leads = [...new Set([...MANAGERS, ...MockStore.getStaff().map((s) => s.manager).filter(Boolean)])];
-        mgrSel.innerHTML =
-            '<option value="">-- Chọn Sub-team --</option>' +
-            leads.map((m) => `<option value="${UI.escape(m)}">${UI.escape(m)}</option>`).join('');
-    }
-
-    function populateAssignProjects() {
-        const sel = $('assignProject');
-        if (!sel) return;
-        sel.innerHTML =
-            '<option value="">-- Chọn dự án --</option>' +
-            MockStore.getProjects()
-                .map((p) => `<option value="${UI.escape(p.name)}">${UI.escape(p.name)}</option>`)
-                .join('');
-    }
-
-    function resetStaffForm() {
-        $('staffFullName').value = '';
-        $('staffBirthDate').value = '';
-        $('staffTitle').value = '';
-        $('staffGroup').value = '';
-        populateTeamOptions('');
-        $('staffTeam').value = '';
-        $('staffManager').value = '';
-        addModal.querySelectorAll('.hr-form-input, .hr-form-select').forEach((el) => {
-            el.style.borderColor = '';
-        });
-    }
-
-    function fillStaffForm(s) {
-        $('staffFullName').value = s.name || '';
-        $('staffBirthDate').value = s.birthDate || '';
-        $('staffTitle').value = s.title || '';
-        const letter = groupLetter(s.group);
-        const groupOpt = $(`staffGroup option[value="g-${letter.toLowerCase()}"]`);
-        $('staffGroup').value = groupOpt ? `g-${letter.toLowerCase()}` : $('staffGroup').value;
-        populateTeamOptions(letter);
-        $('staffTeam').value = s.team || '';
-        $('staffManager').value = s.manager || '';
-    }
-
-    function readStaffForm() {
-        const groupVal = $('staffGroup').value;
-        const letter = groupLetter(groupVal || $('staffGroup').selectedOptions[0]?.textContent);
-        return {
-            name: $('staffFullName').value.trim(),
-            birthDate: $('staffBirthDate').value,
-            title: $('staffTitle').value,
-            group: letter,
-            team: $('staffTeam').value,
-            manager: $('staffManager').value,
-            project: 'Chưa gán dự án',
-            workload: 0
-        };
-    }
-
-    function openAddModal(isEdit = false) {
-        populateGroupOptions();
-        populateManagerOptions();
-        populateTeamOptions();
-        if (!isEdit) resetStaffForm();
-        addModal.querySelector('h3').textContent = isEdit
-            ? 'Sửa thông tin nhân sự'
-            : 'Tiếp nhận nhân sự mới';
-        $('saveAddModalBtn').textContent = isEdit ? 'Cập nhật' : 'Lưu';
-        addModal.classList.add('show');
-    }
-
-    function closeAddModal() {
-        addModal.classList.remove('show');
-        editingId = null;
-    }
-
-    $('staffGroup')?.addEventListener('change', (e) => {
-        populateTeamOptions(e.target.value || e.target.selectedOptions[0]?.textContent);
-        $('staffTeam').value = '';
-    });
-
-    document.querySelectorAll('.bosch-tab').forEach((tab) => {
-        tab.addEventListener('click', (e) => {
-            document.querySelectorAll('.bosch-tab').forEach((t) => t.classList.remove('active'));
-            e.target.classList.add('active');
-            activeHrTab = e.target.dataset.tab;
-            dirControls.style.display  = activeHrTab === 'directory'   ? 'flex' : 'none';
-            roadControls.style.display = activeHrTab === 'roadmap'     ? 'flex' : 'none';
-            dmControls.style.display   = activeHrTab === 'dm-approval' ? 'flex' : 'none';
-            dirTable.style.display     = activeHrTab === 'directory'   ? 'table' : 'none';
-            // Khi vào roadmap: hiển thị theo sub-tab hiện tại
-            if (activeHrTab === 'roadmap') {
-                switchRoadmapSubtab(activeRoadmapSubtab);
-            } else {
-                roadTable.style.display    = 'none';
-                coursesTable.style.display = 'none';
-            }
-            dmTable.style.display = activeHrTab === 'dm-approval' ? 'table' : 'none';
-            selectedId = null;
-            applyFilters();
-            if (activeHrTab === 'roadmap') applyRoadmapFilters();
-            if (activeHrTab === 'dm-approval') renderDmTable();
-        });
-    });
-
-    function workloadRow(s) {
-        const b = UI.workloadBadge(s.workload);
-        const col = UI.progressColor(s.workload);
+    // ── TAB 1: Danh sách nhân sự ──────────────────────────────────────────────
+    function workloadBar(pct) {
+        const v = Math.min(120, Math.max(0, pct || 0));
+        let cls = 'green', badgeCls = 'badge-success', badgeText = 'ỔN ĐỊNH';
+        if (v > 100)     { cls = 'red';    badgeCls = 'badge-danger';  badgeText = 'QUÁ MỨC'; }
+        else if (v > 90) { cls = 'green';  badgeCls = 'badge-success'; badgeText = 'ỔN ĐỊNH'; }
+        else if (v < 31) { cls = 'yellow'; badgeCls = 'badge-warning'; badgeText = 'RẢNH RỖI'; }
         return `<div class="workload-col">
-            <div class="progress-bar-container"><div class="progress-fill ${col}" style="width:${s.workload}%;"></div></div>
-            <div class="workload-info"><span class="badge ${b.cls}">${b.text}</span><span class="percent-text">${s.workload}%</span></div>
+            <div class="progress-bar-container">
+                <div class="progress-fill ${cls}" style="width:${Math.min(v,100)}%;"></div>
+            </div>
+            <div class="workload-info">
+                <span class="badge ${badgeCls}">${badgeText}</span>
+                <span class="percent-text${v>100?' red-text':''}">${v}%</span>
+            </div>
         </div>`;
     }
 
-    // ── Sub-tab switching (Lộ trình) ─────────────────────────────────────────
-    const COURSES_DATA = [
-        { id: 'CRS-001', name: 'Cloud Architecture Fundamentals', category: 'Kỹ thuật', provider: 'AWS Training', duration: '40 giờ', enrolled: 12, status: 'Đang mở' },
-        { id: 'CRS-002', name: 'Agile Leadership & Scrum Master', category: 'Quản lý', provider: 'Bosch Academy', duration: '24 giờ', enrolled: 8, status: 'Đang mở' },
-        { id: 'CRS-003', name: 'MLOps Fundamentals', category: 'Kỹ thuật', provider: 'Coursera', duration: '60 giờ', enrolled: 5, status: 'Sắp khai giảng' },
-        { id: 'CRS-004', name: 'Advanced UI/UX Systems', category: 'Kỹ thuật', provider: 'Interaction Design', duration: '32 giờ', enrolled: 7, status: 'Đang mở' },
-        { id: 'CRS-005', name: 'Kubernetes & DevOps Pro', category: 'Kỹ thuật', provider: 'Linux Foundation', duration: '48 giờ', enrolled: 6, status: 'Đang mở' },
-        { id: 'CRS-006', name: 'Kỹ năng thuyết trình & giao tiếp', category: 'Kỹ năng mềm', provider: 'Bosch Academy', duration: '16 giờ', enrolled: 15, status: 'Đã kết thúc' },
-        { id: 'CRS-007', name: 'React Advanced Patterns', category: 'Kỹ thuật', provider: 'Frontend Masters', duration: '28 giờ', enrolled: 4, status: 'Sắp khai giảng' },
-        { id: 'CRS-008', name: 'Project Management Professional', category: 'Quản lý', provider: 'PMI', duration: '36 giờ', enrolled: 9, status: 'Đang mở' },
-    ];
+    function renderDirectory() {
+        const tbody = dirTable?.querySelector('tbody');
+        if (!tbody) return;
 
-    function renderCourses() {
-        const tbody = coursesTable.querySelector('tbody');
-        const term     = (document.getElementById('courseSearch')?.value || '').toLowerCase();
-        const category = document.getElementById('filterCourseCategory')?.value || '';
-        const status   = document.getElementById('filterCourseStatus')?.value || '';
+        const search      = (dirControls?.querySelector('.search-box input')?.value || '').toLowerCase();
+        const grpVal      = $('filterStaffGroup')?.value    || '';
+        const teamVal     = $('filterStaffTeam')?.value     || '';
+        const projVal     = $('filterStaffProject')?.value  || '';
+        const workloadVal = $('filterStaffWorkload')?.value || '';
 
-        const filtered = COURSES_DATA.filter(c => {
-            const matchSearch   = !term     || c.name.toLowerCase().includes(term) || c.provider.toLowerCase().includes(term);
-            const matchCategory = !category || c.category === category;
-            const matchStatus   = !status   || c.status === status;
-            return matchSearch && matchCategory && matchStatus;
+        let data = _employees.slice();
+
+        // Filter search
+        if (search) data = data.filter(e =>
+            (e.full_name||'').toLowerCase().includes(search) ||
+            (e.employee_code||'').toLowerCase().includes(search)
+        );
+
+        // Filter Group
+        if (grpVal) data = data.filter(e =>
+            _empOrgs.some(o => o.employee_id === e.employee_id && o.group_id === grpVal)
+        );
+
+        // Filter Team
+        if (teamVal) data = data.filter(e =>
+            _empOrgs.some(o => o.employee_id === e.employee_id && o.team_id === teamVal)
+        );
+
+        // Filter Dự án
+        if (projVal) data = data.filter(e =>
+            _assignments.some(a =>
+                a.employee_id === e.employee_id &&
+                a.project_resource_requests?.projects?.project_id === projVal
+            )
+        );
+
+        // Filter Workload
+        if (workloadVal) data = data.filter(e => {
+            const totalPct = _assignments
+                .filter(a => a.employee_id === e.employee_id)
+                .reduce((sum, a) => sum + (parseFloat(a.allocation_percent) || 0), 0);
+            if (workloadVal === 'low')        return totalPct >= 0  && totalPct <= 30;
+            if (workloadVal === 'stable')     return totalPct >= 31 && totalPct <= 70;
+            if (workloadVal === 'high')       return totalPct >= 71 && totalPct <= 90;
+            if (workloadVal === 'overloaded') return totalPct > 90;
+            return true;
         });
 
-        tbody.innerHTML = filtered.map(c => `
-            <tr data-id="${c.id}" style="cursor:pointer;" class="${selectedCourseId === c.id ? 'selected-row' : ''}">
-                <td class="code-col">${UI.escape(c.id)}</td>
-                <td class="name-col">${UI.escape(c.name)}</td>
-                <td>${UI.escape(c.category)}</td>
-                <td>${UI.escape(c.provider)}</td>
-                <td>${UI.escape(c.duration)}</td>
-                <td style="font-weight:700;color:var(--bosch-blue);">${c.enrolled}</td>
-                <td style="text-align:center;">${UI.badge(c.status)}</td>
-            </tr>`).join('');
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">Không có nhân sự phù hợp</td></tr>`;
+            return;
+        }
 
-        // Row click — toggle selection
-        const selBadge = document.getElementById('courseSelectionBadge');
-        tbody.querySelectorAll('tr').forEach(tr => {
+        tbody.innerHTML = data.map(e => {
+            const posName = e.positions?.position_name
+                || _positions.find(p => p.position_id === e.position_id)?.position_name || '—';
+            const lvlName = e.job_levels?.level_name || '';
+
+            // Lấy assignments của nhân viên này
+            const empAssignments = _assignments.filter(a => a.employee_id === e.employee_id);
+            const totalPct = empAssignments.reduce((sum, a) => sum + (parseFloat(a.allocation_percent) || 0), 0);
+
+            // Render cột team dự án
+            let projectCol = '—';
+            if (empAssignments.length > 0) {
+                projectCol = empAssignments.map(a => {
+                    const proj = a.project_resource_requests?.projects;
+                    return proj ? `<div style="margin-bottom:2px;">${esc(proj.project_name)}</div>` : '';
+                }).join('');
+            }
+
+            return `<tr data-id="${e.employee_id}" style="cursor:pointer;" class="${selectedId===e.employee_id?'selected-row':''}">
+                <td class="code-col" style="text-align:center;">${esc(e.employee_code)}</td>
+                <td class="name-col">${esc(e.full_name)}</td>
+                <td class="role-col">${esc(posName)}${lvlName?` <span style="font-size:10px;color:#9ca3af;">(${esc(lvlName)})</span>`:''}
+                </td>
+                <td class="project-col">${projectCol}</td>
+                <td>${workloadBar(totalPct)}</td>
+            </tr>`;
+        }).join('');
+
+        const selBadge = $('staffSelectionBadge');
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
             tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
-                if (selectedCourseId === id) {
-                    // Bỏ chọn
-                    selectedCourseId = null;
+                if (selectedId === id) {
+                    selectedId = null;
                     tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                     if (selBadge) selBadge.style.display = 'none';
                 } else {
                     tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                     tr.classList.add('selected-row');
-                    selectedCourseId = id;
-                    const c = COURSES_DATA.find(x => x.id === id);
-                    if (selBadge && c) {
-                        selBadge.textContent = `Đang chọn: ${c.name}`;
+                    selectedId = id;
+                    const emp = _employees.find(x => x.employee_id === id);
+                    if (selBadge && emp) {
+                        selBadge.textContent = `Đang chọn: ${emp.full_name}`;
                         selBadge.style.display = 'block';
                     }
                 }
@@ -272,751 +312,663 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── Modal sửa khoá học ───────────────────────────────────────────────────
-    const editCourseModal = document.getElementById('editCourseModal');
-
-    function openEditCourseModal() {
-        if (!selectedCourseId) {
-            showToast('Lỗi', 'Chọn một khoá học trước.', 'error');
-            return;
-        }
-        const c = COURSES_DATA.find(x => x.id === selectedCourseId);
-        if (!c) return;
-        $('editCourseName').value     = c.name;
-        $('editCourseCategory').value = c.category;
-        $('editCourseStatus').value   = c.status;
-        $('editCourseProvider').value = c.provider;
-        $('editCourseDuration').value = c.duration;
-        $('editCourseEnrolled').value = c.enrolled;
-        editCourseModal?.classList.add('show');
-    }
-
-    document.getElementById('editCourseBtn')?.addEventListener('click', openEditCourseModal);
-    document.getElementById('closeEditCourseModal')?.addEventListener('click', () => editCourseModal?.classList.remove('show'));
-    document.getElementById('cancelEditCourseBtn')?.addEventListener('click', () => editCourseModal?.classList.remove('show'));
-    editCourseModal?.addEventListener('click', e => { if (e.target === editCourseModal) editCourseModal.classList.remove('show'); });
-
-    document.getElementById('saveEditCourseBtn')?.addEventListener('click', () => {
-        if (!selectedCourseId) return;
-        const c = COURSES_DATA.find(x => x.id === selectedCourseId);
-        if (!c) return;
-        c.name     = $('editCourseName').value.trim() || c.name;
-        c.category = $('editCourseCategory').value;
-        c.status   = $('editCourseStatus').value;
-        c.provider = $('editCourseProvider').value.trim() || c.provider;
-        c.duration = $('editCourseDuration').value.trim() || c.duration;
-        c.enrolled = parseInt($('editCourseEnrolled').value) || c.enrolled;
-        editCourseModal?.classList.remove('show');
-        showToast('Thành công', `Đã cập nhật khoá học "${c.name}".`);
-        renderCourses();
-        // Cập nhật lại selection badge
-        const selBadge = document.getElementById('courseSelectionBadge');
-        if (selBadge) selBadge.textContent = `Đang chọn: ${c.name}`;
-    });
-
-    function switchRoadmapSubtab(tab) {
-        activeRoadmapSubtab = tab;
-        const isProgress = tab === 'progress';
-
-        subtabProgress?.classList.toggle('active', isProgress);
-        subtabCourses?.classList.toggle('active', !isProgress);
-
-        progressControls.style.display = isProgress ? 'block' : 'none';
-        coursesControls.style.display  = isProgress ? 'none'  : 'block';
-
-        roadTable.style.display    = isProgress ? 'table' : 'none';
-        coursesTable.style.display = isProgress ? 'none'  : 'table';
-
-        if (!isProgress) renderCourses();
-    }
-
-    subtabProgress?.addEventListener('click', () => switchRoadmapSubtab('progress'));
-    subtabCourses?.addEventListener('click',  () => switchRoadmapSubtab('courses'));
-
-    document.getElementById('courseSearch')?.addEventListener('input', renderCourses);
-    document.getElementById('filterCourseCategory')?.addEventListener('change', renderCourses);
-    document.getElementById('filterCourseStatus')?.addEventListener('change', renderCourses);
-
-    document.getElementById('addCourseBtn')?.addEventListener('click', () => {
-        // Reset form
-        document.getElementById('newCourseName').value = '';
-        document.getElementById('newCourseCategory').value = 'Kỹ thuật';
-        document.getElementById('newCourseStatus').value = 'Đang mở';
-        document.getElementById('newCourseProvider').value = '';
-        document.getElementById('newCourseDuration').value = '';
-        document.getElementById('addCourseModal').classList.add('show');
-    });
-
-    document.getElementById('closeAddCourseModal')?.addEventListener('click', () =>
-        document.getElementById('addCourseModal').classList.remove('show'));
-    document.getElementById('cancelAddCourseBtn')?.addEventListener('click', () =>
-        document.getElementById('addCourseModal').classList.remove('show'));
-    document.getElementById('addCourseModal')?.addEventListener('click', e => {
-        if (e.target === document.getElementById('addCourseModal'))
-            document.getElementById('addCourseModal').classList.remove('show');
-    });
-
-    document.getElementById('saveAddCourseBtn')?.addEventListener('click', () => {
-        const name     = document.getElementById('newCourseName').value.trim();
-        const category = document.getElementById('newCourseCategory').value;
-        const status   = document.getElementById('newCourseStatus').value;
-        const provider = document.getElementById('newCourseProvider').value.trim();
-        const duration = document.getElementById('newCourseDuration').value.trim();
-
-        if (!name)     { showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error'); return; }
-        if (!provider) { showToast('Lỗi', 'Vui lòng nhập nhà cung cấp.', 'error'); return; }
-
-        const newCourse = {
-            id: 'CRS-' + String(COURSES_DATA.length + 1).padStart(3, '0'),
-            name, category, provider,
-            duration: duration || '—',
-            enrolled: 0,
-            status
+    // ── TAB 2: Lộ trình phát triển ────────────────────────────────────────────
+    function studyStatusBadge(status) {
+        const map = {
+            not_started: ['badge-muted',   'Chưa bắt đầu'],
+            in_progress: ['badge-info',    'Đang học'],
+            completed:   ['badge-success', 'Hoàn thành'],
+            cancelled:   ['badge-danger',  'Đã hủy']
         };
-        COURSES_DATA.push(newCourse);
-        document.getElementById('addCourseModal').classList.remove('show');
-        showToast('Thành công', `Đã thêm khoá học "${name}".`);
-        renderCourses();
-    });
-
-    // ── DM Approval ──────────────────────────────────────────────────────────
-
-    // Helper: badge HTML theo status — dùng UI.badge() chuẩn toàn app
-    function dmStatusBadge(status) {
-        return UI.badge(status);
-    }
-
-    function renderDmTable() {
-        const tbody = dmTable.querySelector('tbody');
-        const term   = (document.getElementById('dmSearch')?.value || '').toLowerCase();
-        const team   = document.getElementById('filterDmTeam')?.value || '';
-        const status = document.getElementById('filterDmStatus')?.value || '';
-
-        const filtered = DM_REQUESTS.filter(r => {
-            const matchSearch = !term   || r.id.toLowerCase().includes(term)
-                                        || r.project.toLowerCase().includes(term)
-                                        || r.position.toLowerCase().includes(term);
-            const matchTeam   = !team   || r.team === team;
-            const matchStatus = !status || r.status === status;
-            return matchSearch && matchTeam && matchStatus;
-        });
-
-        tbody.innerHTML = filtered.map(r => {
-            const alertCls = r.status === 'Bị từ chối' ? ' row-alert' : '';
-            return `<tr data-id="${r.id}" style="cursor:pointer;" class="${alertCls}">
-                <td class="code-col" style="text-align:center;">${UI.escape(r.id)}</td>
-                <td><strong>${UI.escape(r.project)}</strong><br><small style="color:#9ca3af;">${UI.escape(r.projectId)}</small></td>
-                <td style="text-align:center;">${UI.escape(r.team)}</td>
-                <td>${UI.escape(r.position)}</td>
-                <td style="font-weight:700;color:var(--bosch-blue);text-align:center;">${r.qty}</td>
-                <td style="text-align:center;">${r.ot ? '<span class="badge badge-info">Có OT</span>' : '<span class="badge badge-muted">Không OT</span>'}</td>
-                <td style="font-size:12px;text-align:center;">${r.from}<br>${r.to}</td>
-                <td style="text-align:center;">${dmStatusBadge(r.status)}${r.note ? `<br><small style="color:#9ca3af;font-size:10px;">${UI.escape(r.note)}</small>` : ''}</td>
-            </tr>`;
-        }).join('');
-
-        tbody.querySelectorAll('tr').forEach(tr => {
-            tr.addEventListener('click', () => {
-                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
-                tr.classList.add('selected-row');
-                openDmDetail(tr.dataset.id);
-            });
-        });
-    }
-
-    // Bind filter/search cho DM
-    document.getElementById('dmSearch')?.addEventListener('input', renderDmTable);
-    document.getElementById('filterDmTeam')?.addEventListener('change', renderDmTable);
-    document.getElementById('filterDmStatus')?.addEventListener('change', renderDmTable);
-
-    // ── Modal chi tiết yêu cầu ───────────────────────────────────────────────
-    const dmDetailModal  = document.getElementById('dmDetailModal');
-    const dmRejectModal  = document.getElementById('dmRejectModal');
-    const dmClarifyModal = document.getElementById('dmClarifyModal');
-
-    function openDmDetail(id) {
-        const req = DM_REQUESTS.find(x => x.id === id);
-        if (!req) return;
-        selectedDmId = id;
-
-        document.getElementById('dmDetailReqId').textContent  = `Chi tiết yêu cầu — ${req.id}`;
-        document.getElementById('dmDetailStatusRow').innerHTML = dmStatusBadge(req.status);
-        document.getElementById('dmDetailProject').value   = `${req.project} (${req.projectId})`;
-        document.getElementById('dmDetailTeam').value      = req.team;
-        document.getElementById('dmDetailPosition').value  = req.position;
-        document.getElementById('dmDetailQty').value       = `${req.qty} người`;
-        document.getElementById('dmDetailDate').value      = `${req.from} → ${req.to}`;
-        document.getElementById('dmDetailOt').innerHTML    = req.ot
-            ? '<span class="badge badge-info">Có OT</span>'
-            : '<span class="badge badge-muted">Không OT</span>';
-
-        const noteRow  = document.getElementById('dmDetailNoteRow');
-        const noteArea = document.getElementById('dmDetailNote');
-        if (req.note) {
-            noteRow.style.display  = 'block';
-            noteArea.value = req.note;
-        } else {
-            noteRow.style.display = 'none';
-        }
-
-        // Render action buttons dựa theo trạng thái
-        const actionsEl = document.getElementById('dmDetailActions');
-        const approvable = ['Chờ phê duyệt', 'Bị từ chối', 'Cần làm rõ'];
-        const canReject  = ['Chờ phê duyệt', 'Cần làm rõ'];
-        const canClarify = ['Chờ phê duyệt', 'Bị từ chối'];
-
-        let btns = '';
-        if (approvable.includes(req.status)) {
-            btns += `<button class="btn-action" id="dmDetailApproveBtn"
-                style="background:#16a34a;color:#fff;border:none;">
-                <i class="fa-solid fa-check"></i> Phê duyệt
-            </button>`;
-        }
-        if (canClarify.includes(req.status)) {
-            btns += `<button class="btn-action outline-yellow-btn" id="dmDetailClarifyBtn"
-                style="border-color:#0078d4;color:#0078d4;">
-                <i class="fa-solid fa-circle-question"></i> Yêu cầu làm rõ
-            </button>`;
-        }
-        if (canReject.includes(req.status)) {
-            btns += `<button class="btn-action" id="dmDetailRejectBtn"
-                style="background:#fff;color:#c0152a;border:1px solid #fca5a5;">
-                <i class="fa-solid fa-xmark"></i> Từ chối
-            </button>`;
-        }
-        btns += `<button class="btn-secondary" id="dmDetailCloseBtn" style="margin-left:auto;">Đóng</button>`;
-        actionsEl.innerHTML = btns;
-
-        // Bind nút trong modal chi tiết
-        document.getElementById('dmDetailApproveBtn')?.addEventListener('click', () => {
-            req.status = 'Đang tuyển dụng';
-            req.note = '';
-            dmDetailModal.classList.remove('show');
-            showToast('Thành công', `Đã phê duyệt ${req.id}. Trạng thái: Đang tuyển dụng.`);
-            renderDmTable();
-        });
-
-        document.getElementById('dmDetailClarifyBtn')?.addEventListener('click', () => {
-            dmDetailModal.classList.remove('show');
-            document.getElementById('dmClarifyReqId').textContent = req.id;
-            document.getElementById('dmClarifyNote').value = '';
-            updateClarifyBtn();
-            dmClarifyModal.classList.add('show');
-        });
-
-        document.getElementById('dmDetailRejectBtn')?.addEventListener('click', () => {
-            dmDetailModal.classList.remove('show');
-            document.getElementById('dmRejectReqId').textContent = req.id;
-            document.getElementById('dmRejectReason').value = '';
-            updateRejectBtn();
-            dmRejectModal.classList.add('show');
-        });
-
-        document.getElementById('dmDetailCloseBtn')?.addEventListener('click', () => {
-            dmDetailModal.classList.remove('show');
-        });
-
-        dmDetailModal.classList.add('show');
-    }
-
-    document.getElementById('closeDmDetailModal')?.addEventListener('click', () => dmDetailModal?.classList.remove('show'));
-    dmDetailModal?.addEventListener('click', e => { if (e.target === dmDetailModal) dmDetailModal.classList.remove('show'); });
-
-    // ── Modal Từ chối — validation 10 ký tự ─────────────────────────────────
-    function updateRejectBtn() {
-        const val = document.getElementById('dmRejectReason')?.value || '';
-        const btn = document.getElementById('saveDmRejectBtn');
-        const counter = document.getElementById('dmRejectCharCount');
-        const len = val.trim().length;
-        if (counter) counter.textContent = `${len} / 10 ký tự tối thiểu`;
-        if (btn) {
-            const ok = len >= 10;
-            btn.disabled = !ok;
-            btn.style.opacity = ok ? '1' : '.5';
-            btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
-        }
-    }
-
-    document.getElementById('dmRejectReason')?.addEventListener('input', updateRejectBtn);
-    document.getElementById('closeDmRejectModal')?.addEventListener('click', () => dmRejectModal?.classList.remove('show'));
-    document.getElementById('cancelDmRejectBtn')?.addEventListener('click', () => dmRejectModal?.classList.remove('show'));
-    dmRejectModal?.addEventListener('click', e => { if (e.target === dmRejectModal) dmRejectModal.classList.remove('show'); });
-
-    document.getElementById('saveDmRejectBtn')?.addEventListener('click', () => {
-        const reason = document.getElementById('dmRejectReason').value.trim();
-        if (reason.length < 10) { showToast('Lỗi', 'Lý do từ chối phải có ít nhất 10 ký tự.', 'error'); return; }
-        const req = DM_REQUESTS.find(x => x.id === selectedDmId);
-        if (!req) return;
-        req.status = 'Bị từ chối';
-        req.note = reason;
-        dmRejectModal.classList.remove('show');
-        showToast('Đã từ chối', `Yêu cầu ${req.id} bị từ chối.`);
-        renderDmTable();
-    });
-
-    // ── Modal Làm rõ — validation 10 ký tự ──────────────────────────────────
-    function updateClarifyBtn() {
-        const val = document.getElementById('dmClarifyNote')?.value || '';
-        const btn = document.getElementById('saveDmClarifyBtn');
-        const counter = document.getElementById('dmClarifyCharCount');
-        const len = val.trim().length;
-        if (counter) counter.textContent = `${len} / 10 ký tự tối thiểu`;
-        if (btn) {
-            const ok = len >= 10;
-            btn.disabled = !ok;
-            btn.style.opacity = ok ? '1' : '.5';
-            btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
-        }
-    }
-
-    document.getElementById('dmClarifyNote')?.addEventListener('input', updateClarifyBtn);
-    document.getElementById('closeDmClarifyModal')?.addEventListener('click', () => dmClarifyModal?.classList.remove('show'));
-    document.getElementById('cancelDmClarifyBtn')?.addEventListener('click', () => dmClarifyModal?.classList.remove('show'));
-    dmClarifyModal?.addEventListener('click', e => { if (e.target === dmClarifyModal) dmClarifyModal.classList.remove('show'); });
-
-    document.getElementById('saveDmClarifyBtn')?.addEventListener('click', () => {
-        const note = document.getElementById('dmClarifyNote').value.trim();
-        if (note.length < 10) { showToast('Lỗi', 'Nội dung làm rõ phải có ít nhất 10 ký tự.', 'error'); return; }
-        const req = DM_REQUESTS.find(x => x.id === selectedDmId);
-        if (!req) return;
-        req.status = 'Cần làm rõ';
-        req.note = note;
-        dmClarifyModal.classList.remove('show');
-        showToast('Đã gửi', `Yêu cầu ${req.id} trả về Leader để làm rõ.`);
-        renderDmTable();
-    });
-
-    function renderDirectory() {
-        const tbody = dirTable.querySelector('tbody');
-        const all = MockStore.getStaff();
-
-        // Populate dynamic filters
-        const groupSel = document.getElementById('filterStaffGroup');
-        const teamSel = document.getElementById('filterStaffTeam');
-        const projSel = document.getElementById('filterStaffProject');
-        
-        if (groupSel && groupSel.options.length <= 1) {
-            const groups = [...new Set(all.map(s => s.group).filter(Boolean))].sort();
-            groups.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g;
-                opt.textContent = `Group ${g}`;
-                groupSel.appendChild(opt);
-            });
-        }
-        if (teamSel && teamSel.options.length <= 1) {
-            const teams = [...new Set(all.map(s => s.team).filter(Boolean))].sort();
-            teams.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.textContent = t;
-                teamSel.appendChild(opt);
-            });
-        }
-        if (projSel && projSel.options.length <= 1) {
-            const projs = [...new Set(all.map(s => s.project).filter(Boolean))].sort();
-            projs.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.textContent = p;
-                projSel.appendChild(opt);
-            });
-        }
-
-        tbody.innerHTML = all
-            .map(
-                (s) => {
-                    const alert = s.workload >= 90 ? ' row-alert' : '';
-                    return `
-            <tr data-id="${s.id}" class="${selectedId === s.id ? 'selected' : ''}${alert}" style="cursor:pointer;">
-                <td class="code-col" style="text-align:center;">${UI.escape(s.id)}</td>
-                <td class="name-col">${UI.escape(s.name)}</td>
-                <td class="role-col">${UI.escape(s.title)}</td>
-                <td class="project-col">${UI.escape(s.project)}</td>
-                <td>${workloadRow(s)}</td>
-            </tr>`;
-                }
-            )
-            .join('');
-
-        tbody.querySelectorAll('tr').forEach((tr) => {
-            // Single click: chọn nhân viên, hiện badge
-            tr.addEventListener('click', () => {
-                const id = tr.dataset.id;
-                const badge = document.getElementById('staffSelectionBadge');
-                if (selectedId === id) {
-                    // Click lại → bỏ chọn
-                    selectedId = null;
-                    tbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected'));
-                    if (badge) badge.style.display = 'none';
-                } else {
-                    selectedId = id;
-                    tbody.querySelectorAll('tr').forEach((r) => r.classList.remove('selected'));
-                    tr.classList.add('selected');
-                    const s = MockStore.getStaff().find((x) => x.id === id);
-                    if (badge && s) {
-                        badge.textContent = `Đang chọn: ${s.name} (${s.id})`;
-                        badge.style.display = 'block';
-                    }
-                }
-            });
-            // Double click: mở drawer chi tiết
-            tr.addEventListener('dblclick', () => {
-                if (selectedId) openDrawer(selectedId);
-            });
-        });
-    }
-
-    function roadmapStatusBadge(status) {
-        return UI.badge(status);
+        const [cls, label] = map[status] || ['badge-muted', status || '—'];
+        return `<span class="badge ${cls}">${label}</span>`;
     }
 
     function renderRoadmap() {
-        const tbody = roadTable.querySelector('tbody');
-        tbody.innerHTML = MockStore.getRoadmap()
-            .map(
-                (r) => {
-                    // dùng courseId nếu có (entry mới), ngược lại dùng staffId
-                    const rowKey = r.courseId || r.id;
-                    return `
-            <tr data-id="${rowKey}" data-staff-id="${r.id}" style="cursor:pointer;" class="${selectedId === rowKey ? 'selected-row' : ''}">
-                <td class="code-col" style="text-align:center;">${UI.escape(r.id)}</td>
-                <td class="name-col">${UI.escape(r.name)}</td>
-                <td class="role-col">${UI.escape(r.title)}</td>
-                <td>${UI.escape(r.course)}</td>
-                <td style="text-align:center;">${roadmapStatusBadge(r.status)}</td>
+        const tbody = roadTable?.querySelector('tbody');
+        if (!tbody) return;
+
+        const search = ($('roadProgressSearch')?.value || '').toLowerCase();
+        const statusFilter = $('roadFilterStatus')?.value || '';
+
+        // Map label → DB value
+        const statusLabelToDb = { 'Chưa bắt đầu': 'not_started', 'Đang học': 'in_progress', 'Hoàn thành': 'completed' };
+
+        let data = _studyList.slice();
+        if (search) data = data.filter(s =>
+            (s.employees?.full_name||'').toLowerCase().includes(search) ||
+            (s.employees?.employee_code||'').toLowerCase().includes(search)
+        );
+        if (statusFilter) {
+            const dbVal = statusLabelToDb[statusFilter] || statusFilter;
+            data = data.filter(s => s.status === dbVal);
+        }
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">Không có dữ liệu lộ trình</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(s => {
+            const emp     = s.employees || {};
+            const course  = s.training_plan_details?.courses || {};
+            const posName = _positions.find(p => p.position_id === emp.position_id)?.position_name || '—';
+            return `<tr data-id="${s.employee_study_id}" style="cursor:pointer;" class="${selectedRoadId===s.employee_study_id?'selected-row':''}">
+                <td class="code-col" style="text-align:center;">${esc(emp.employee_code)}</td>
+                <td class="name-col">${esc(emp.full_name)}</td>
+                <td class="role-col">${esc(posName)}</td>
+                <td class="course-col">
+                    <div style="font-weight:600;">${esc(course.course_name || '—')}</div>
+                    ${course.duration ? `<div style="font-size:11px;color:#9ca3af;">${course.duration} giờ${course.certificate ? ' · ' + esc(course.certificate) : ''}</div>` : ''}
+                </td>
+                <td style="text-align:center;">${studyStatusBadge(s.status)}</td>
             </tr>`;
-                }
-            )
-            .join('');
-        // Bind row click với toggle (click lại để bỏ chọn)
-        tbody.querySelectorAll('tr').forEach(tr => {
+        }).join('');
+
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
             tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
-                const badge = document.getElementById('roadmapSelectionBadge');
-                if (selectedId === id) {
-                    selectedId = null;
-                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
-                    if (badge) { badge.classList.remove('visible'); badge.style.display = 'none'; }
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                if (selectedRoadId === id) {
+                    selectedRoadId = null;
                 } else {
-                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
                     tr.classList.add('selected-row');
-                    selectedId = id;
-                    // Tìm entry theo courseId hoặc staffId
-                    const staffId = tr.dataset.staffId;
-                    const r = MockStore.getRoadmap().find(x => (x.courseId || x.id) === id) ||
-                              MockStore.getRoadmap().find(x => x.id === staffId);
-                    if (badge && r) {
-                        badge.classList.add('visible');
-                        badge.style.display = 'block';
-                        badge.textContent = `Đang chọn: ${r.name} — ${r.course}`;
-                    }
+                    selectedRoadId = id;
                 }
             });
         });
-        applyRoadmapFilters();
     }
 
-    function applyRoadmapFilters() {
-        const status = document.getElementById('roadFilterStatus')?.value || '';
-        const term = (roadControls?.querySelector('.search-box input')?.value || '').toLowerCase();
-        roadTable.querySelectorAll('tbody tr').forEach((tr) => {
-            const text = tr.textContent.toLowerCase();
-            const matchSearch = !term || text.includes(term);
-            const cells = tr.querySelectorAll('td');
-            const rowStatus = cells[4]?.textContent || '';
-            const matchStatus = !status || rowStatus.includes(status);
-            tr.style.display = matchSearch && matchStatus ? '' : 'none';
-        });
+    // ── TAB 3: Phê duyệt nguồn lực ───────────────────────────────────────────
+    function dmStatusBadge(hasOt) {
+        return hasOt
+            ? '<span class="badge badge-info">Có OT</span>'
+            : '<span class="badge badge-muted">Không OT</span>';
     }
 
-    function applyFilters() {
-        const active = dirTable.style.display !== 'none' ? dirTable : roadTable;
-        const controls = active === dirTable ? dirControls : roadControls;
-        const term = (controls?.querySelector('.search-box input')?.value || '').toLowerCase();
-        
-        if (active === dirTable) {
-            const group = document.getElementById('filterStaffGroup')?.value || '';
-            const team = document.getElementById('filterStaffTeam')?.value || '';
-            const project = document.getElementById('filterStaffProject')?.value || '';
-            const workloadVal = document.getElementById('filterStaffWorkload')?.value || '';
-            
-            const staffList = MockStore.getStaff();
-            
-            active.querySelectorAll('tbody tr').forEach((tr) => {
+    function renderDmApproval() {
+        // Dùng bảng đã có sẵn trong HTML
+        const dmTable = $('dmTable');
+        const tbody = dmTable?.querySelector('tbody');
+        if (!tbody) return;
+
+        const search      = ($('dmSearch')?.value      || '').toLowerCase();
+        const projFilter  = $('filterDmProject')?.value  || '';
+        const posFilter   = $('filterDmPosition')?.value || '';
+
+        let data = _dmRequests.slice();
+        if (search) data = data.filter(r =>
+            (r.projects?.project_name||'').toLowerCase().includes(search) ||
+            (r.projects?.project_code||'').toLowerCase().includes(search) ||
+            (r.positions?.position_name||'').toLowerCase().includes(search)
+        );
+        if (projFilter) data = data.filter(r => r.projects?.project_id === projFilter);
+        if (posFilter)  data = data.filter(r => r.positions?.position_id === posFilter);
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#888;">Không có yêu cầu nguồn lực</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(r => {
+            const proj = r.projects  || {};
+            const pos  = r.positions || {};
+            const date = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN') : '—';
+            return `<tr data-id="${r.project_resource_request_id}" style="cursor:pointer;" class="${selectedDmId===r.project_resource_request_id?'selected-row':''}">
+                <td class="code-col" style="text-align:center;" title="${esc(r.project_resource_request_id)}">YC-${esc(r.project_resource_request_id?.slice(-6).toUpperCase())}</td>
+                <td>
+                    <div style="font-weight:700;">${esc(proj.project_name || '—')}</div>
+                    <div style="font-size:11px;color:#9ca3af;">${esc(proj.project_code || '')}</div>
+                </td>
+                <td style="text-align:center;">—</td>
+                <td>${esc(pos.position_name || '—')}</td>
+                <td style="text-align:center;font-weight:700;color:var(--bosch-blue);">${r.quantity}</td>
+                <td style="text-align:center;">${dmStatusBadge(r.is_ot)}</td>
+                <td style="text-align:center;font-size:12px;">${date}</td>
+                <td style="text-align:center;"><span class="badge ${r.status === 'Đã duyệt' ? 'badge-success' : r.status === 'Từ chối' ? 'badge-danger' : 'badge-warning'}">${esc(r.status || 'Chờ phê duyệt')}</span></td>
+            </tr>`;
+        }).join('');
+
+        tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+            tr.addEventListener('click', () => {
                 const id = tr.dataset.id;
-                const s = staffList.find(x => x.id === id);
-                if (!s) {
-                    tr.style.display = 'none';
-                    return;
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                selectedDmId = selectedDmId === id ? null : id;
+                if (selectedDmId) {
+                    tr.classList.add('selected-row');
+                    openDmDetail(id);
                 }
-                
-                const matchSearch = !term || s.id.toLowerCase().includes(term) || s.name.toLowerCase().includes(term) || s.title.toLowerCase().includes(term) || s.project.toLowerCase().includes(term);
-                const matchGroup = !group || s.group === group;
-                const matchTeam = !team || s.team === team;
-                const matchProject = !project || s.project === project;
-                
-                let matchWorkload = true;
-                if (workloadVal === 'low') matchWorkload = s.workload <= 30;
-                else if (workloadVal === 'stable') matchWorkload = s.workload >= 31 && s.workload <= 70;
-                else if (workloadVal === 'high') matchWorkload = s.workload >= 71 && s.workload <= 90;
-                else if (workloadVal === 'overloaded') matchWorkload = s.workload > 90;
-                
-                tr.style.display = (matchSearch && matchGroup && matchTeam && matchProject && matchWorkload) ? '' : 'none';
             });
-        } else {
-            active.querySelectorAll('tbody tr').forEach((tr) => {
-                tr.style.display = tr.textContent.toLowerCase().includes(term) ? '' : 'none';
-            });
-        }
+        });
     }
 
-    dirControls?.querySelector('.search-box input')?.addEventListener('input', applyFilters);
-    roadControls?.querySelector('.search-box input')?.addEventListener('input', applyRoadmapFilters);
-    document.getElementById('roadFilterStatus')?.addEventListener('change', applyRoadmapFilters);
-    dirControls?.querySelectorAll('.hr-select').forEach((sel) =>
-        sel.addEventListener('change', applyFilters)
-    );
-
-    function openRoadmapModal() {
-        if (!selectedId) {
-            showToast('Lỗi', 'Chọn một dòng lộ trình trong bảng.', 'error');
-            return;
-        }
-        // Tìm entry theo courseId hoặc staffId
-        const r = MockStore.getRoadmap().find(x => (x.courseId || x.id) === selectedId) ||
-                  MockStore.getRoadmap().find(x => x.id === selectedId);
+    function openDmDetail(id) {
+        const r = _dmRequests.find(x => x.project_resource_request_id === id);
         if (!r) return;
-        $('roadmapStaffId').value = r.id;
-        $('roadmapName').value = r.name;
-        $('roadmapTitle').value = r.title;
-        $('roadmapCourse').value = r.course || '';
-        $('roadmapStatus').value = r.status || 'Đang học';
-        roadmapModal.classList.add('show');
-    }
 
-    document.getElementById('editRoadmapBtn')?.addEventListener('click', openRoadmapModal);
+        const proj = r.projects  || {};
+        const pos  = r.positions || {};
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN') : '—';
 
-    // ── Thêm khoá học mới ────────────────────────────────────────────────────
-    const addRoadmapModal = document.getElementById('addRoadmapModal');
+        // Điền thông tin vào modal
+        const titleEl = $('dmDetailReqId');
+        if (titleEl) titleEl.textContent = `Chi tiết yêu cầu — YC-${r.project_resource_request_id?.slice(-6).toUpperCase()}`;
 
-    function openAddRoadmapModal() {
-        // Populate staff dropdown
-        const staffSel = document.getElementById('newRoadmapStaff');
-        if (staffSel) {
-            staffSel.innerHTML = '<option value="">-- Chọn nhân viên --</option>' +
-                MockStore.getStaff().map(s => `<option value="${s.id}">${UI.escape(s.name)} (${s.id})</option>`).join('');
-        }
-        document.getElementById('newRoadmapCourse').value = '';
-        document.getElementById('newRoadmapStatus').value = 'Chưa bắt đầu';
-        addRoadmapModal?.classList.add('show');
-    }
+        if ($('dmDetailProject'))  $('dmDetailProject').value  = proj.project_name || '—';
+        if ($('dmDetailTeam'))     $('dmDetailTeam').value     = '—';
+        if ($('dmDetailPosition')) $('dmDetailPosition').value = pos.position_name || '—';
+        if ($('dmDetailQty'))      $('dmDetailQty').value      = r.quantity || '—';
+        if ($('dmDetailDate'))     $('dmDetailDate').value     = date;
 
-    document.getElementById('addRoadmapBtn')?.addEventListener('click', openAddRoadmapModal);
-    document.getElementById('closeAddRoadmapModal')?.addEventListener('click', () => addRoadmapModal?.classList.remove('show'));
-    document.getElementById('cancelAddRoadmapBtn')?.addEventListener('click', () => addRoadmapModal?.classList.remove('show'));
-    addRoadmapModal?.addEventListener('click', e => { if (e.target === addRoadmapModal) addRoadmapModal.classList.remove('show'); });
+        const otEl = $('dmDetailOt');
+        if (otEl) otEl.innerHTML = r.is_ot
+            ? '<span class="badge badge-info">Có OT</span>'
+            : '<span class="badge badge-muted">Không OT</span>';
 
-    document.getElementById('saveAddRoadmapBtn')?.addEventListener('click', () => {
-        const staffId = document.getElementById('newRoadmapStaff').value;
-        const course = document.getElementById('newRoadmapCourse').value.trim();
-        const status = document.getElementById('newRoadmapStatus').value;
-        if (!staffId) { showToast('Lỗi', 'Vui lòng chọn nhân viên.', 'error'); return; }
-        if (!course) { showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error'); return; }
-        const staff = MockStore.getStaff().find(s => s.id === staffId);
-        MockStore.addRoadmap({ id: staffId, courseId: 'c_' + Date.now(), name: staff?.name || '', title: staff?.title || '', course, status });
-        addRoadmapModal?.classList.remove('show');
-        showToast('Thành công', `Đã thêm khoá học "${course}".`);
-        renderRoadmap();
-    });
-
-    document.getElementById('updateRoadmapStatusBtn')?.addEventListener('click', () => {
-        if (!selectedId) {
-            showToast('Lỗi', 'Chọn một dòng lộ trình.', 'error');
-            return;
-        }
-        const r = MockStore.getRoadmap().find(x => (x.courseId || x.id) === selectedId) ||
-                  MockStore.getRoadmap().find(x => x.id === selectedId);
-        if (!r) return;
-        const order = ['Chưa bắt đầu', 'Đang học', 'Hoàn thành'];
-        const next = order[(order.indexOf(r.status) + 1) % order.length];
-        MockStore.updateRoadmap(r.id, { status: next });
-        showToast('Thành công', `Trạng thái: ${next}`);
-        renderRoadmap();
-    });
-
-    document.getElementById('closeRoadmapModal')?.addEventListener('click', () => roadmapModal.classList.remove('show'));
-    document.getElementById('cancelRoadmapBtn')?.addEventListener('click', () => roadmapModal.classList.remove('show'));
-    roadmapModal?.addEventListener('click', (e) => {
-        if (e.target === roadmapModal) roadmapModal.classList.remove('show');
-    });
-
-    document.getElementById('saveRoadmapBtn')?.addEventListener('click', () => {
-        if (!validateForm(document.getElementById('roadmapForm'))) return;
-        const id = $('roadmapStaffId').value;
-        const patch = {
-            name: $('roadmapName').value.trim(),
-            title: $('roadmapTitle').value.trim(),
-            course: $('roadmapCourse').value.trim(),
-            status: $('roadmapStatus').value
-        };
-        MockStore.updateRoadmap(id, patch);
-        MockStore.updateStaff(id, { name: patch.name, title: patch.title });
-        roadmapModal.classList.remove('show');
-        showToast('Thành công', 'Đã lưu lộ trình đào tạo.');
-        renderRoadmap();
-        renderDirectory();
-    });
-
-    function openDrawer(staffId) {
-        const s = MockStore.getStaff().find((x) => x.id === staffId);
-        if (!s) return;
-        const h4 = drawer?.querySelector('.drawer-user-info h4');
-        const p = drawer?.querySelector('.drawer-user-info p');
-        if (h4) h4.textContent = s.name;
-        if (p) p.textContent = `${s.id} · ${s.title}`;
-        const timeline = drawer?.querySelector('.timeline-container');
-        if (timeline) {
-            const assigns = (MockStore.get().assignments || []).filter((a) => a.staffId === staffId);
-            timeline.innerHTML =
-                assigns
-                    .map(
-                        (a) => `
-                <div class="timeline-item"><div class="timeline-dot"></div>
-                <div class="timeline-content"><div class="tl-header"><h6>${UI.escape(a.project)}</h6></div>
-                <p class="tl-meta">${a.from} → ${a.to} · ${a.percent}% công suất</p>
-                <div class="tl-progress-bar"><div class="tl-progress-fill gray" style="width:${a.percent}%;"></div></div>
-                </div></div>`
-                    )
-                    .join('') || '<p style="padding:16px;color:#666;">Chưa có dự án. Nhấn «Gán dự án mới».</p>';
-        }
-        const assignee = assignModal?.querySelector('.a-name');
-        if (assignee) assignee.textContent = s.name;
-        drawer?.classList.add('show');
-        drawerOverlay?.classList.add('show');
-    }
-
-    drawerOverlay?.addEventListener('click', () => {
-        drawer?.classList.remove('show');
-        drawerOverlay?.classList.remove('show');
-    });
-
-    document.getElementById('openAddModalBtn')?.addEventListener('click', () => {
-        editingId = null;
-        openAddModal(false);
-    });
-
-    document.getElementById('closeAddModal')?.addEventListener('click', closeAddModal);
-    document.getElementById('cancelAddBtn')?.addEventListener('click', closeAddModal);
-    addModal?.addEventListener('click', (e) => {
-        if (e.target === addModal) closeAddModal();
-    });
-
-    document.getElementById('saveAddModalBtn')?.addEventListener('click', () => {
-        if (!validateForm(document.getElementById('addStaffForm') || addModal)) return;
-
-        const payload = readStaffForm();
-        if (editingId) {
-            MockStore.updateStaff(editingId, payload);
-            MockStore.updateRoadmap(editingId, { name: payload.name, title: payload.title });
-            showToast('Thành công', `Đã cập nhật ${payload.name}.`);
-            selectedId = editingId;
+        // Ghi chú
+        const noteRow = $('dmDetailNoteRow');
+        const noteEl  = $('dmDetailNote');
+        if (r.description) {
+            if (noteRow) noteRow.style.display = 'block';
+            if (noteEl)  noteEl.value = r.description;
         } else {
-            const created = MockStore.addStaff(payload);
-            // Tự thêm vào participation với giá trị mặc định
-            if (MockStore.get().participation) {
-                MockStore.get().participation.push({
-                    staffId: created.id,
-                    name: created.name,
-                    title: created.title || '',
-                    project: created.project || 'Chưa gán',
-                    planned: 0,
-                    otHours: 0,
-                    actual: 0
-                });
-                MockStore.save();
-            }
-            showToast('Thành công', `Đã thêm ${created.name} (${created.id}).`);
-            selectedId = created.id;
+            if (noteRow) noteRow.style.display = 'none';
         }
-        closeAddModal();
-        renderDirectory();
-        renderRoadmap();
-        if (selectedId) openDrawer(selectedId);
-    });
 
-    document.querySelectorAll('#directoryControls .btn-action').forEach((btn) => {
-        if (btn.id === 'openAddModalBtn') return;
-        const text = btn.textContent.trim();
-        if (text.includes('Sửa')) {
-            btn.addEventListener('click', () => {
-                if (!selectedId) {
-                    showToast('Lỗi', 'Chọn một dòng trong bảng trước.', 'error');
-                    return;
-                }
-                const s = MockStore.getStaff().find((x) => x.id === selectedId);
-                if (!s) return;
-                editingId = s.id;
-                openAddModal(true);
-                fillStaffForm(s);
+        // Badge trạng thái
+        const statusRow = $('dmDetailStatusRow');
+        if (statusRow) statusRow.innerHTML = '<span class="badge badge-warning" style="font-size:13px;padding:6px 14px;">Chờ phê duyệt</span>';
+
+        // Nút hành động — GM và DM mới thao tác được, DH chỉ xem
+        const role = window.AppRouter?.getCurrentRole();
+        const canEdit = role === 'DM' || role === 'GM';
+        const actionsEl = $('dmDetailActions');
+        if (actionsEl) {
+            actionsEl.innerHTML = `
+                <button type="button" class="btn-secondary" id="dmDetailCloseBtn">Đóng</button>
+                ${canEdit ? `
+                <button type="button" class="btn-action" id="dmDetailClarifyBtn"
+                    style="background:white;color:#0078d4;border:1px solid #0078d4;padding:8px 16px;border-radius:4px;font-weight:700;cursor:pointer;">
+                    <i class="fa-solid fa-circle-question" style="margin-right:6px;"></i>Yêu cầu làm rõ
+                </button>
+                <button type="button" class="btn-action red-btn" id="dmDetailRejectBtn"
+                    style="border:none;padding:8px 16px;border-radius:4px;font-weight:700;cursor:pointer;">
+                    <i class="fa-solid fa-xmark" style="margin-right:6px;"></i>Từ chối
+                </button>
+                <button type="button" class="btn-primary" id="dmDetailApproveBtn">
+                    <i class="fa-solid fa-check" style="margin-right:6px;"></i>Phê duyệt
+                </button>` : ''}`;
+
+            $('dmDetailCloseBtn')?.addEventListener('click', () => $('dmDetailModal')?.classList.remove('show'));
+
+            $('dmDetailApproveBtn')?.addEventListener('click', async () => {
+                showToast('Thành công', 'Đã phê duyệt yêu cầu nguồn lực.');
+                $('dmDetailModal')?.classList.remove('show');
+            });
+
+            $('dmDetailRejectBtn')?.addEventListener('click', () => {
+                $('dmDetailModal')?.classList.remove('show');
+                const reqIdEl = $('dmRejectReqId');
+                if (reqIdEl) reqIdEl.textContent = `YC-${r.project_resource_request_id?.slice(-6).toUpperCase()}`;
+                $('dmRejectModal')?.classList.add('show');
+            });
+
+            $('dmDetailClarifyBtn')?.addEventListener('click', () => {
+                $('dmDetailModal')?.classList.remove('show');
+                const reqIdEl = $('dmClarifyReqId');
+                if (reqIdEl) reqIdEl.textContent = `YC-${r.project_resource_request_id?.slice(-6).toUpperCase()}`;
+                $('dmClarifyModal')?.classList.add('show');
             });
         }
-        if (text.includes('Xóa')) {
-            btn.addEventListener('click', () => {
-                if (!selectedId) {
-                    showToast('Lỗi', 'Chọn nhân sự cần xóa.', 'error');
-                    return;
-                }
-                if (confirm('Xóa nhân sự đã chọn?')) {
-                    MockStore.deleteStaff([selectedId]);
-                    selectedId = null;
-                    drawer?.classList.remove('show');
-                    drawerOverlay?.classList.remove('show');
-                    showToast('Thành công', 'Đã xóa nhân sự.');
-                    renderDirectory();
-                    renderRoadmap();
-                }
-            });
-        }
+
+        $('dmDetailModal')?.classList.add('show');
+    }
+
+    // ── Tab switching ─────────────────────────────────────────────────────────
+    document.querySelectorAll('.bosch-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.bosch-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activeHrTab = tab.dataset.tab;
+
+            // Hiện/ẩn controls
+            if (dirControls)  dirControls.style.display  = activeHrTab === 'directory'   ? 'flex' : 'none';
+            if (roadControls) roadControls.style.display = activeHrTab === 'roadmap'     ? 'flex' : 'none';
+            if (dmControls)   dmControls.style.display   = activeHrTab === 'dm-approval' ? 'flex' : 'none';
+
+            // Hiện/ẩn tables — dmTable đã có sẵn trong HTML
+            const dmTable = $('dmTable');
+            if (dirTable)          dirTable.style.display          = activeHrTab === 'directory'   ? 'table' : 'none';
+            if (roadTable)         roadTable.style.display         = activeHrTab === 'roadmap'     ? 'table' : 'none';
+            if (dmTable)           dmTable.style.display           = activeHrTab === 'dm-approval' ? 'table' : 'none';
+            // Luôn ẩn coursesTable khi không ở roadmap
+            const coursesTable = $('coursesTable');
+            if (coursesTable)      coursesTable.style.display      = 'none';
+
+            // Load data theo tab
+            if (activeHrTab === 'directory')   renderDirectory();
+            if (activeHrTab === 'roadmap')     loadRoadmap();
+            if (activeHrTab === 'dm-approval') loadDmApproval();
+        });
     });
 
-    document.getElementById('openAssignModalBtn')?.addEventListener('click', () => {
-        if (!selectedId) {
-            showToast('Lỗi', 'Chọn nhân sự trước khi gán dự án.', 'error');
+    // ── Search & Filter events ────────────────────────────────────────────────
+    dirControls?.querySelector('.search-box input')?.addEventListener('input', renderDirectory);
+    $('filterStaffGroup')?.addEventListener('change', renderDirectory);
+    $('filterStaffTeam')?.addEventListener('change', renderDirectory);
+    $('filterStaffProject')?.addEventListener('change', renderDirectory);
+    $('filterStaffWorkload')?.addEventListener('change', renderDirectory);
+
+    $('roadProgressSearch')?.addEventListener('input', renderRoadmap);
+    $('roadFilterStatus')?.addEventListener('change', renderRoadmap);
+
+    $('dmSearch')?.addEventListener('input', renderDmApproval);
+    $('filterDmProject')?.addEventListener('change', renderDmApproval);
+    $('filterDmPosition')?.addEventListener('change', renderDmApproval);
+
+    // Close DM modals
+    $('closeDmDetailModal')?.addEventListener('click',  () => $('dmDetailModal')?.classList.remove('show'));
+    $('closeDmRejectModal')?.addEventListener('click',  () => $('dmRejectModal')?.classList.remove('show'));
+    $('closeDmClarifyModal')?.addEventListener('click', () => $('dmClarifyModal')?.classList.remove('show'));
+    $('cancelDmRejectBtn')?.addEventListener('click',   () => $('dmRejectModal')?.classList.remove('show'));
+    $('cancelDmClarifyBtn')?.addEventListener('click',  () => $('dmClarifyModal')?.classList.remove('show'));
+
+    // Reject char count
+    $('dmRejectReason')?.addEventListener('input', function() {
+        const len = this.value.trim().length;
+        const el = $('dmRejectCharCount');
+        if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
+        const btn = $('saveDmRejectBtn');
+        if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+    });
+
+    // Clarify char count
+    $('dmClarifyNote')?.addEventListener('input', function() {
+        const len = this.value.trim().length;
+        const el = $('dmClarifyCharCount');
+        if (el) el.textContent = `${len} / 10 ký tự tối thiểu`;
+        const btn = $('saveDmClarifyBtn');
+        if (btn) { btn.disabled = len < 10; btn.style.opacity = len < 10 ? '.5' : '1'; btn.style.cursor = len < 10 ? 'not-allowed' : 'pointer'; }
+    });
+
+    // ── Sub-tab: Lộ trình phát triển ─────────────────────────────────────────
+    let _courses    = [];
+    let _courseTable = null;
+
+    async function loadCourses() {
+        // Lazy-init course table
+        const tbody = $('coursesTable')?.querySelector('tbody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">
+            <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Đang tải...</td></tr>`;
+
+        const { data, error } = await window.supabaseClient
+            .from('courses')
+            .select('course_id, course_name, description, duration, certificate, learning_outcomes, created_at')
+            .order('course_name');
+
+        if (error) { console.error('[HR] courses:', error); _courses = []; }
+        else _courses = data || [];
+
+        renderCourses();
+    }
+
+    function renderCourses() {
+        const tbl = $('coursesTable');
+        if (!tbl) return;
+        const tbody = tbl.querySelector('tbody');
+        if (!tbody) return;
+
+        const search   = ($('courseSearch')?.value || '').toLowerCase();
+
+        let data = _courses.slice();
+        if (search) data = data.filter(c =>
+            (c.course_name||'').toLowerCase().includes(search) ||
+            (c.description||'').toLowerCase().includes(search)
+        );
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:#888;">Không có khoá học</td></tr>`;
             return;
         }
-        populateAssignProjects();
-        assignModal?.classList.add('show');
+
+        tbody.innerHTML = data.map(c => `
+            <tr data-id="${c.course_id}" style="cursor:pointer;">
+                <td style="font-weight:600;">${esc(c.course_name)}</td>
+                <td style="color:#6b7280;font-size:13px;">${esc(c.description || '—')}</td>
+                <td style="text-align:center;">${c.duration ? c.duration + ' giờ' : '—'}</td>
+                <td style="text-align:center;">${c.certificate ? `<span class="badge badge-success">${esc(c.certificate)}</span>` : '<span style="color:#9ca3af;">—</span>'}</td>
+                <td style="font-size:12px;color:#9ca3af;">${c.created_at ? new Date(c.created_at).toLocaleDateString('vi-VN') : '—'}</td>
+            </tr>`).join('');
+    }
+
+    // Sub-tab switching (Theo dõi tiến độ / Danh sách khoá học)
+    $('subtabProgress')?.addEventListener('click', () => {
+        $('subtabProgress')?.classList.add('active');
+        $('subtabCourses')?.classList.remove('active');
+        if ($('progressControls')) $('progressControls').style.display = 'block';
+        if ($('coursesControls'))  $('coursesControls').style.display  = 'none';
+        if (roadTable) roadTable.style.display = 'table';
+        if ($('coursesTable')) $('coursesTable').style.display = 'none';
     });
-    document.getElementById('closeAssignModal')?.addEventListener('click', () => assignModal?.classList.remove('show'));
-    document.getElementById('cancelAssignBtn')?.addEventListener('click', () => assignModal?.classList.remove('show'));
 
-    document.getElementById('saveAssignBtn')?.addEventListener('click', () => {
-        if (!selectedId) return;
-        if (!validateForm(assignModal)) return;
+    $('subtabCourses')?.addEventListener('click', () => {
+        $('subtabCourses')?.classList.add('active');
+        $('subtabProgress')?.classList.remove('active');
+        if ($('coursesControls'))  $('coursesControls').style.display  = 'block';
+        if ($('progressControls')) $('progressControls').style.display = 'none';
+        if (roadTable) roadTable.style.display = 'none';
+        if ($('coursesTable')) $('coursesTable').style.display = 'table';
+        if (_courses.length === 0) loadCourses();
+        else renderCourses();
+    });
 
-        const project = $('assignProject').value;
-        const from = $('assignDateFrom').value;
-        const to = $('assignDateTo').value;
+    $('courseSearch')?.addEventListener('input', renderCourses);
+    $('filterCourseCategory')?.addEventListener('change', renderCourses);
+    $('filterCourseStatus')?.addEventListener('change', renderCourses);
 
-        if (!MockStore.get().assignments) MockStore.get().assignments = [];
-        MockStore.get().assignments.push({ staffId: selectedId, project, from, to });
-        MockStore.save();
-        MockStore.logActivity('Nhân sự', `Gán ${project} cho ${selectedId}`);
+    // ── Nút Cập nhật lộ trình (editRoadmapBtn) ───────────────────────────────
+    $('editRoadmapBtn')?.addEventListener('click', () => {
+        if (!selectedRoadId) return showToast('Thông báo', 'Vui lòng chọn một dòng trước.', 'error');
+        const study = _studyList.find(s => s.employee_study_id === selectedRoadId);
+        if (!study) return;
 
-        const s = MockStore.getStaff().find((x) => x.id === selectedId);
-        if (s) {
-            MockStore.updateStaff(selectedId, { project });
+        const emp    = study.employees || {};
+        const course = study.training_plan_details?.courses || {};
+        const posName = _positions.find(p => p.position_id === emp.position_id)?.position_name || '—';
+
+        if ($('roadmapStaffId')) $('roadmapStaffId').value = emp.employee_code || '';
+        if ($('roadmapName'))    $('roadmapName').value    = emp.full_name     || '';
+        if ($('roadmapTitle'))   $('roadmapTitle').value   = posName;
+        if ($('roadmapCourse'))  $('roadmapCourse').value  = course.course_name || '';
+
+        // Map status từ DB sang giá trị select
+        const statusMap = { not_started: 'Chưa bắt đầu', in_progress: 'Đang học', completed: 'Hoàn thành', cancelled: 'Đã hủy' };
+        const sel = $('roadmapStatus');
+        if (sel) sel.value = statusMap[study.status] || 'Chưa bắt đầu';
+
+        $('roadmapModal')?.classList.add('show');
+    });
+
+    $('saveRoadmapBtn')?.addEventListener('click', async () => {
+        const statusMap = { 'Chưa bắt đầu': 'not_started', 'Đang học': 'in_progress', 'Hoàn thành': 'completed' };
+        const newStatus = statusMap[$('roadmapStatus')?.value] || 'not_started';
+
+        const { error } = await window.supabaseClient
+            .from('employee_study')
+            .update({ status: newStatus, updated_at: new Date().toISOString() })
+            .eq('employee_study_id', selectedRoadId);
+
+        if (error) return showToast('Lỗi', error.message, 'error');
+        showToast('Thành công', 'Đã cập nhật trạng thái học.');
+        $('roadmapModal')?.classList.remove('show');
+        await loadRoadmap();
+    });
+
+    $('cancelRoadmapBtn')?.addEventListener('click', () => $('roadmapModal')?.classList.remove('show'));
+    $('closeRoadmapModal')?.addEventListener('click', () => $('roadmapModal')?.classList.remove('show'));
+
+    // ── Nút Thêm khoá học (addCourseBtn) ─────────────────────────────────────
+    $('addCourseBtn')?.addEventListener('click', () => {
+        // Reset form
+        ['newCourseName', 'newCourseProvider', 'newCourseDuration'].forEach(id => {
+            const el = $(id); if (el) el.value = '';
+        });
+        $('addCourseModal')?.classList.add('show');
+    });
+
+    $('saveAddCourseBtn')?.addEventListener('click', async () => {
+        const name     = $('newCourseName')?.value.trim();
+        const duration = parseInt($('newCourseDuration')?.value) || null;
+        const cert     = $('newCourseProvider')?.value.trim() || null;
+
+        if (!name) return showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error');
+
+        const { error } = await window.supabaseClient
+            .from('courses')
+            .insert({ course_name: name, duration, certificate: cert });
+
+        if (error) return showToast('Lỗi', error.message, 'error');
+        showToast('Thành công', 'Đã thêm khoá học.');
+        $('addCourseModal')?.classList.remove('show');
+        _courses = []; // reset cache
+        await loadCourses();
+    });
+
+    $('cancelAddCourseBtn')?.addEventListener('click', () => $('addCourseModal')?.classList.remove('show'));
+    $('closeAddCourseModal')?.addEventListener('click', () => $('addCourseModal')?.classList.remove('show'));
+
+    // ── Nút Sửa khoá học (editCourseBtn) ─────────────────────────────────────
+    let selectedCourseId = null;
+
+    $('coursesTable')?.addEventListener('click', e => {
+        const tr = e.target.closest('tr[data-id]');
+        if (!tr) return;
+        $('coursesTable').querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+        if (selectedCourseId === tr.dataset.id) {
+            selectedCourseId = null;
+        } else {
+            tr.classList.add('selected-row');
+            selectedCourseId = tr.dataset.id;
         }
-        assignModal.classList.remove('show');
-        showToast('Thành công', 'Đã gán dự án.');
-        renderDirectory();
-        openDrawer(selectedId);
     });
 
-    populateGroupOptions();
-    populateManagerOptions();
-    populateAssignProjects();
-    renderDirectory();
-    renderRoadmap();
+    $('editCourseBtn')?.addEventListener('click', () => {
+        if (!selectedCourseId) return showToast('Thông báo', 'Vui lòng chọn một khoá học trước.', 'error');
+        const course = _courses.find(c => c.course_id === selectedCourseId);
+        if (!course) return;
+
+        if ($('editCourseName'))     $('editCourseName').value     = course.course_name || '';
+        if ($('editCourseDuration')) $('editCourseDuration').value = course.duration    || '';
+        if ($('editCourseProvider')) $('editCourseProvider').value = course.certificate || '';
+
+        $('editCourseModal')?.classList.add('show');
+    });
+
+    $('saveEditCourseBtn')?.addEventListener('click', async () => {
+        const name     = $('editCourseName')?.value.trim();
+        const duration = parseInt($('editCourseDuration')?.value) || null;
+        const cert     = $('editCourseProvider')?.value.trim() || null;
+
+        if (!name) return showToast('Lỗi', 'Vui lòng nhập tên khoá học.', 'error');
+
+        const { error } = await window.supabaseClient
+            .from('courses')
+            .update({ course_name: name, duration, certificate: cert, updated_at: new Date().toISOString() })
+            .eq('course_id', selectedCourseId);
+
+        if (error) return showToast('Lỗi', error.message, 'error');
+        showToast('Thành công', 'Đã cập nhật khoá học.');
+        $('editCourseModal')?.classList.remove('show');
+        _courses = [];
+        await loadCourses();
+    });
+
+    $('cancelEditCourseBtn')?.addEventListener('click', () => $('editCourseModal')?.classList.remove('show'));
+
+    // ── CRUD: Thêm/Sửa nhân sự ───────────────────────────────────────────────
+    $('openAddModalBtn')?.addEventListener('click', () => openStaffModal(null));
+
+    $('editStaffBtn')?.addEventListener('click', () => {
+        if (!selectedId) {
+            showToast('Thông báo', 'Vui lòng chọn một nhân sự trước.', 'error');
+            return;
+        }
+        const emp = _employees.find(e => e.employee_id === selectedId);
+        if (emp) openStaffModal(emp);
+    });
+
+    $('deleteStaffBtn')?.addEventListener('click', async () => {
+        if (!selectedId) {
+            showToast('Thông báo', 'Vui lòng chọn một nhân sự trước.', 'error');
+            return;
+        }
+        const emp = _employees.find(e => e.employee_id === selectedId);
+        if (!emp) return;
+        if (!confirm(`Xác nhận xóa nhân sự "${emp.full_name}"?`)) return;
+        const { error } = await DB.Employees.delete(selectedId);
+        if (error) { showToast('Lỗi', error.message, 'error'); return; }
+        showToast('Thành công', `Đã xóa nhân sự ${emp.full_name}.`);
+        selectedId = null;
+        await loadAll();
+    });
+
+    function openStaffModal(emp) {
+        const modal = $('addStaffModal');
+        if (!modal) return;
+        const isEdit = !!emp;
+        const h3 = modal.querySelector('h3');
+        if (h3) h3.textContent = isEdit ? 'Sửa thông tin nhân sự' : 'Tiếp nhận nhân sự mới';
+
+        const posSel = $('staffTitle');
+        if (posSel && _positions.length) {
+            posSel.innerHTML = '<option value="">-- Chọn chức danh --</option>' +
+                _positions.map(p => `<option value="${p.position_id}" ${emp?.position_id===p.position_id?'selected':''}>${esc(p.position_name)}</option>`).join('');
+        }
+        if (isEdit) {
+            if ($('staffFullName'))  $('staffFullName').value  = emp.full_name || '';
+            if ($('staffBirthDate')) $('staffBirthDate').value = emp.day_of_birth?.slice(0,10) || '';
+        } else {
+            modal.querySelectorAll('input[type="text"],input[type="date"]').forEach(i => i.value = '');
+        }
+        modal.classList.add('show');
+
+        const saveBtn = $('saveAddModalBtn');
+        if (saveBtn) {
+            saveBtn.onclick = async () => {
+                const payload = {
+                    full_name:    $('staffFullName')?.value.trim(),
+                    day_of_birth: $('staffBirthDate')?.value || null,
+                    position_id:  $('staffTitle')?.value || null,
+                    status:       'probation',
+                    hire_date:    new Date().toISOString().slice(0,10)
+                };
+                if (!payload.full_name) return showToast('Lỗi', 'Vui lòng nhập họ tên.', 'error');
+                const { error } = isEdit
+                    ? await DB.Employees.update(emp.employee_id, payload)
+                    : await DB.Employees.create(payload);
+                if (error) return showToast('Lỗi', error.message, 'error');
+                showToast('Thành công', isEdit ? 'Đã cập nhật nhân sự.' : 'Đã thêm nhân sự.');
+                modal.classList.remove('show');
+                await loadAll();
+            };
+        }
+    }
+
+    // Close modals
+    document.querySelectorAll('.bosch-modal-close, .close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.bosch-modal-overlay, .modal-overlay')?.classList.remove('show');
+        });
+    });
+
+    // ── CRUD: Gán dự án ───────────────────────────────────────────────────────
+    let _projects = [];
+
+    async function openAssignModal() {
+        if (!selectedId) {
+            showToast('Thông báo', 'Vui lòng chọn một nhân sự trước.', 'error');
+            return;
+        }
+        const modal = $('assignProjectModal');
+        if (!modal) return;
+
+        const emp = _employees.find(e => e.employee_id === selectedId);
+
+        // Cập nhật thông tin nhân viên trong modal
+        const aName = modal.querySelector('.a-name');
+        const aRole = modal.querySelector('.a-role');
+        if (aName) aName.textContent = emp?.full_name || '—';
+        if (aRole) {
+            const posName = _positions.find(p => p.position_id === emp?.position_id)?.position_name || '';
+            aRole.textContent = posName;
+        }
+
+        // Reset fields
+        if ($('assignAllocation')) $('assignAllocation').value = '';
+        const reqSel = $('assignRequest');
+        if (reqSel) { reqSel.innerHTML = '<option value="">-- Chọn dự án trước --</option>'; reqSel.disabled = true; }
+
+        // Load projects nếu chưa có
+        if (_projects.length === 0) {
+            const { data, error } = await window.supabaseClient
+                .from('projects')
+                .select('project_id, project_code, project_name')
+                .order('project_name');
+            if (!error && data) _projects = data;
+        }
+
+        const projSel = $('assignProject');
+        if (projSel) {
+            projSel.innerHTML = '<option value="">-- Chọn dự án --</option>' +
+                _projects.map(p => `<option value="${p.project_id}">[${p.project_code}] ${p.project_name}</option>`).join('');
+        }
+
+        modal.classList.add('show');
+    }
+
+    // Khi chọn dự án → load resource requests
+    $('assignProject')?.addEventListener('change', async function () {
+        const projectId = this.value;
+        const reqSel = $('assignRequest');
+        if (!reqSel) return;
+
+        if (!projectId) {
+            reqSel.innerHTML = '<option value="">-- Chọn dự án trước --</option>';
+            reqSel.disabled = true;
+            return;
+        }
+
+        reqSel.innerHTML = '<option value="">Đang tải...</option>';
+        reqSel.disabled = true;
+
+        const { data, error } = await window.supabaseClient
+            .from('project_resource_requests')
+            .select('project_resource_request_id, quantity, positions(position_name)')
+            .eq('project_id', projectId);
+
+        if (error || !data || data.length === 0) {
+            reqSel.innerHTML = '<option value="">Không có yêu cầu nguồn lực</option>';
+            return;
+        }
+
+        reqSel.innerHTML = '<option value="">-- Chọn yêu cầu --</option>' +
+            data.map(r => `<option value="${r.project_resource_request_id}">${r.positions?.position_name || 'N/A'} (SL: ${r.quantity})</option>`).join('');
+        reqSel.disabled = false;
+    });
+
+    $('openAssignModalBtn')?.addEventListener('click', openAssignModal);
+
+    $('saveAssignBtn')?.addEventListener('click', async () => {
+        const requestId  = $('assignRequest')?.value;
+        const allocation = parseFloat($('assignAllocation')?.value);
+
+        if (!requestId) return showToast('Lỗi', 'Vui lòng chọn yêu cầu nguồn lực.', 'error');
+        if (!allocation || allocation < 1 || allocation > 100) return showToast('Lỗi', 'Tỷ lệ phân bổ phải từ 1% đến 100%.', 'error');
+
+        const saveBtn = $('saveAssignBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Đang lưu...';
+
+        const { error } = await window.supabaseClient
+            .from('project_assignments')
+            .insert({
+                project_resource_request_id: requestId,
+                employee_id: selectedId,
+                allocation_percent: allocation
+            });
+
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Cập nhật';
+
+        if (error) return showToast('Lỗi', error.message, 'error');
+
+        showToast('Thành công', 'Đã gán dự án thành công.');
+        $('assignProjectModal')?.classList.remove('show');
+        await loadAll();
+    });
+
+    $('closeAssignModal')?.addEventListener('click', () => $('assignProjectModal')?.classList.remove('show'));
+    $('cancelAssignBtn')?.addEventListener('click', () => $('assignProjectModal')?.classList.remove('show'));
+
+    // ── Khởi động ─────────────────────────────────────────────────────────────
+    await loadAll();
 });
