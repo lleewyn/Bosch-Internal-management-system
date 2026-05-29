@@ -194,17 +194,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── TAB 1: Danh sách nhân sự ──────────────────────────────────────────────
     function workloadBar(pct) {
         const v = Math.min(120, Math.max(0, pct || 0));
-        let cls = 'green', badgeCls = 'badge-success', badgeText = 'ỔN ĐỊNH';
-        if (v > 100)     { cls = 'red';    badgeCls = 'badge-danger';  badgeText = 'QUÁ MỨC'; }
-        else if (v > 90) { cls = 'green';  badgeCls = 'badge-success'; badgeText = 'ỔN ĐỊNH'; }
-        else if (v < 31) { cls = 'yellow'; badgeCls = 'badge-warning'; badgeText = 'RẢNH RỖI'; }
+        let cls, badgeCls, badgeText;
+
+        if (v > 90)      { cls = 'red';    badgeCls = 'badge-danger';  badgeText = 'QUÁ TẢI'; }
+        else if (v > 70) { cls = 'orange'; badgeCls = 'badge-warning'; badgeText = 'CAO'; }
+        else if (v > 30) { cls = 'green';  badgeCls = 'badge-success'; badgeText = 'ỔN ĐỊNH'; }
+        else             { cls = 'yellow'; badgeCls = 'badge-info';    badgeText = 'THẤP'; }
+
         return `<div class="workload-col">
             <div class="progress-bar-container">
                 <div class="progress-fill ${cls}" style="width:${Math.min(v,100)}%;"></div>
             </div>
             <div class="workload-info">
                 <span class="badge ${badgeCls}">${badgeText}</span>
-                <span class="percent-text${v>100?' red-text':''}">${v}%</span>
+                <span class="percent-text${v>90?' red-text':''}">${v}%</span>
             </div>
         </div>`;
     }

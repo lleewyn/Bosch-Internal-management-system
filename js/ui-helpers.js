@@ -17,10 +17,10 @@ window.UI = {
     },
 
     workloadBadge(pct) {
-        if (pct >= 90) return { cls: 'badge-danger', text: 'QUÁ TẢI' };
-        if (pct >= 75) return { cls: 'badge-warning', text: 'CAO' };
-        if (pct >= 50) return { cls: 'badge-success', text: 'ỔN ĐỊNH' };
-        return { cls: 'badge-info', text: 'THẤP' };
+        if (pct > 90) return { cls: 'badge-danger',  text: 'QUÁ TẢI' };
+        if (pct > 70) return { cls: 'badge-warning', text: 'CAO' };
+        if (pct > 30) return { cls: 'badge-success', text: 'ỔN ĐỊNH' };
+        return        { cls: 'badge-info',    text: 'THẤP' };
     },
 
     progressColor(pct) {

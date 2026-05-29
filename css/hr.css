@@ -168,6 +168,10 @@
     background: #F59E0B;
 }
 
+.progress-fill.orange {
+    background: #F97316;
+}
+
 .workload-info {
     width: 100%;
     /* Giãn bằng độ rộng với thanh tiến độ phía trên */
