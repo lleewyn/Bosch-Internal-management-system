@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         password_hash,
                         is_locked,
                         locked_until,
+                        failed_attempts,
                         avatar
                     `)
                     .or(`company_email.eq.${emailInput},username.eq.${emailInput}`)
@@ -81,15 +82,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Bước 3: Kiểm tra trạng thái tài khoản (users không có cột status)
-                // Chỉ kiểm tra is_locked
-
                 // Bước 4: Kiểm tra mật khẩu
-                // Hiện tại so sánh plain text — sau này thay bằng bcrypt nếu cần
                 if (user.password_hash !== password) {
-                    showError('Mật khẩu không chính xác.');
+                    const attempts = (user.failed_attempts || 0) + 1;
+                    const remaining = 5 - attempts;
+
+                    if (attempts >= 5) {
+                        // Khóa tài khoản
+                        await window.supabaseClient
+                            .from('users')
+                            .update({
+                                is_locked: true,
+                                locked_until: null,
+                                failed_attempts: attempts
+                            })
+                            .eq('user_id', user.user_id);
+                        showError('Tài khoản đã bị khóa do nhập sai mật khẩu quá 5 lần. Vui lòng liên hệ quản trị viên.');
+                    } else {
+                        // Tăng số lần sai
+                        await window.supabaseClient
+                            .from('users')
+                            .update({ failed_attempts: attempts })
+                            .eq('user_id', user.user_id);
+                        showError(`Mật khẩu không chính xác. Còn ${remaining} lần thử trước khi tài khoản bị khóa.`);
+                    }
                     return;
                 }
+
+                // Đăng nhập thành công — reset failed_attempts
+                await window.supabaseClient
+                    .from('users')
+                    .update({ failed_attempts: 0 })
+                    .eq('user_id', user.user_id);
 
                 // Bước 5: Lấy thêm thông tin role
                 let roleName = 'Nhân viên';

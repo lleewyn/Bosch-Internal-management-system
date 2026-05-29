@@ -64,6 +64,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.querySelector('.btn-save-settings')?.addEventListener('click', async () => {
+        // Validate email tags riêng vì không phải input thông thường
+        const emailContainer = document.getElementById('emailTagContainer');
+        const emailTags = emailContainer ? emailContainer.querySelectorAll('.email-tag') : [];
+        if (emailTags.length === 0) {
+            emailContainer.style.borderColor = '#E20015';
+            showToast('Lỗi nhập liệu', 'Vui lòng thêm ít nhất một email người nhận', 'error');
+            return;
+        }
+        emailContainer.style.borderColor = '';
+
         if (validateForm(modals.report)) {
             const user = DB.Auth.currentUser();
             const cycle  = document.getElementById('reportCycle')?.value || 'Tháng';
@@ -1151,41 +1161,148 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ── EMAIL TAG INPUT ───────────────────────────────────────────────────────
-    function initEmailTags() {
+    async function initEmailTags() {
         const emailContainer = document.getElementById('emailTagContainer');
         const emailInput     = document.getElementById('emailTagInput');
         if (!emailContainer || !emailInput || emailContainer._initialized) return;
         emailContainer._initialized = true;
 
+        // Xóa tag hardcode trong HTML, chỉ giữ input
+        emailContainer.querySelectorAll('.email-tag').forEach(t => t.remove());
+
+        // Lấy danh sách email gợi ý — query từ users (company_email) join employees (full_name)
+        let suggestionList = [];
+        try {
+            const { data } = await window.supabaseClient
+                .from('users')
+                .select('company_email, employees(full_name)')
+                .not('company_email', 'is', null);
+            if (data) {
+                suggestionList = data.map(u => ({
+                    email: u.company_email,
+                    name: u.employees?.full_name || ''
+                })).filter(s => s.email);
+            }
+        } catch(e) {
+            // Fallback dùng _employees nếu có personal_email
+            suggestionList = _employees
+                .filter(e => e.personal_email)
+                .map(e => ({ email: e.personal_email, name: e.full_name || '' }));
+        }
+
+        console.log('[EmailTags] suggestions loaded:', suggestionList.length, suggestionList.slice(0,3));
+
+        // Tạo dropdown gợi ý — dùng fixed để thoát khỏi overflow:hidden của modal
+        const dropdown = document.createElement('div');
+        dropdown.className = 'email-suggestion-dropdown';
+        dropdown.style.cssText = `
+            position: fixed;
+            background: white; border: 1px solid #e2e8f0;
+            border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            max-height: 220px; overflow-y: auto; z-index: 99999;
+            display: none; min-width: 320px;
+        `;
+        document.body.appendChild(dropdown);
+
+        // Cập nhật vị trí dropdown theo input
+        function positionDropdown() {
+            const rect = emailInput.getBoundingClientRect();
+            dropdown.style.top  = (rect.bottom + 4) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = emailContainer.getBoundingClientRect().width + 'px';
+        }
+
         function addEmailTag(email) {
             email = email.trim();
             if (!email || !email.includes('@')) return;
+            const existing = [...emailContainer.querySelectorAll('.email-tag')]
+                .map(t => t.dataset.email);
+            if (existing.includes(email)) { emailInput.value = ''; return; }
+
             const tag = document.createElement('span');
             tag.className = 'email-tag';
+            tag.dataset.email = email;
             tag.innerHTML = `${UI.escape(email)} <i class="fa-solid fa-xmark"></i>`;
             tag.querySelector('i').addEventListener('click', () => tag.remove());
             emailContainer.insertBefore(tag, emailInput);
             emailInput.value = '';
+            hideDropdown();
         }
 
-        emailContainer.querySelectorAll('.email-tag i').forEach((icon) => {
-            icon.addEventListener('click', () => icon.closest('.email-tag').remove());
-        });
+        function showSuggestions(query) {
+            const q = query.toLowerCase().trim();
 
+            // Lọc theo query, nếu rỗng thì hiện tất cả
+            const already = [...emailContainer.querySelectorAll('.email-tag')].map(t => t.dataset.email);
+            const matches = suggestionList
+                .filter(s => !already.includes(s.email)) // ẩn email đã thêm rồi
+                .filter(s => !q || s.email.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
+                .slice(0, 10);
+
+            if (!matches.length) { hideDropdown(); return; }
+
+            dropdown.innerHTML = matches.map(s => `
+                <div class="email-suggestion-item" data-email="${UI.escape(s.email)}"
+                    style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+                           cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#BC0004;
+                                color:white;display:flex;align-items:center;justify-content:center;
+                                font-size:12px;font-weight:700;flex-shrink:0;">
+                        ${UI.escape((s.name || s.email).charAt(0).toUpperCase())}
+                    </div>
+                    <div style="min-width:0;">
+                        <div style="font-weight:600;color:#111827;font-size:13px;">${UI.escape(s.name)}</div>
+                        <div style="font-size:12px;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${UI.escape(s.email)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            dropdown.querySelectorAll('.email-suggestion-item').forEach(item => {
+                item.addEventListener('mouseenter', () => item.style.background = '#f0f7ff');
+                item.addEventListener('mouseleave', () => item.style.background = '');
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    addEmailTag(item.dataset.email);
+                });
+            });
+
+            dropdown.style.display = 'block';
+            positionDropdown();
+        }
+
+        function hideDropdown() {
+            dropdown.style.display = 'none';
+        }
+
+        emailInput.addEventListener('input', () => showSuggestions(emailInput.value));
+        emailInput.addEventListener('focus', () => showSuggestions(emailInput.value || ''));
         emailInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ',') {
                 e.preventDefault();
                 addEmailTag(emailInput.value);
             }
+            if (e.key === 'Escape') hideDropdown();
         });
         emailInput.addEventListener('blur', () => {
-            if (emailInput.value.trim()) addEmailTag(emailInput.value);
+            setTimeout(() => {
+                if (emailInput.value.trim()) addEmailTag(emailInput.value);
+                hideDropdown();
+            }, 150);
         });
-        emailContainer.addEventListener('click', () => emailInput.focus());
+        emailContainer.addEventListener('click', (e) => {
+            if (!e.target.closest('.email-tag')) emailInput.focus();
+        });
+
+        // Cleanup dropdown khi modal đóng
+        document.getElementById('closeReportModal')?.addEventListener('click', () => dropdown.remove(), { once: true });
+        document.getElementById('cancelReportBtn')?.addEventListener('click', () => dropdown.remove(), { once: true });
     }
 
     document.querySelector('.btn-report-auto')?.addEventListener('click', () => {
-        setTimeout(initEmailTags, 50);
+        // Reset để initEmailTags chạy lại mỗi lần mở modal
+        const container = document.getElementById('emailTagContainer');
+        if (container) container._initialized = false;
+        setTimeout(() => initEmailTags(), 50);
     });
 
     // ── INIT ──────────────────────────────────────────────────────────────────

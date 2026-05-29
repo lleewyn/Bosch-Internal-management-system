@@ -579,39 +579,47 @@ body {
 .email-tag-container {
     background: var(--bg-body);
     border: 1px solid var(--border-main);
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 8px;
+    padding: 8px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    min-height: 100px;
+    gap: 6px;
+    min-height: 40px;
+    cursor: text;
 }
 
 .email-tag {
     background: #E8EDF5;
     color: #1E3A8A;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: var(--font-medium);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .email-tag i {
     cursor: pointer;
-    font-size: 10px;
+    font-size: 9px;
     color: #1E3A8A;
+    opacity: 0.7;
+}
+
+.email-tag i:hover {
+    opacity: 1;
 }
 
 .tag-input {
     border: none;
     background: transparent;
     outline: none;
-    font-size: 14px;
+    font-size: 13px;
     flex: 1;
     min-width: 150px;
+    padding: 2px 0;
 }
 
 .modal-textarea {

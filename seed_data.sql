@@ -481,3 +481,9 @@ SELECT table_name, COUNT(*) AS rows FROM (
   SELECT 'notifications' FROM notifications UNION ALL
   SELECT 'alert_configurations' FROM alert_configurations
 ) t GROUP BY table_name ORDER BY table_name;
+
+
+-- gỡ lock
+UPDATE users 
+SET is_locked = false, failed_attempts = 0, locked_until = null
+WHERE company_email = 'email_cần_unlock@bosch.com';
