@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Data cache
     let _employees  = [];
     let _positions  = [];
+    let _jobLevels  = [];
     let _groups     = [];
     let _teams      = [];
     let _subTeams   = [];
@@ -39,9 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadAll() {
         showLoading('directory');
-        const [empRes, posRes, grpRes, teamRes, subTeamRes, assignRes, orgRes] = await Promise.all([
+        const [empRes, posRes, jlRes, grpRes, teamRes, subTeamRes, assignRes, orgRes] = await Promise.all([
             DB.Employees.getAll(),
             DB.Meta.getPositions(),
+            window.supabaseClient.from('job_levels').select('jl_id, level_name, level_order').order('level_order'),
             DB.Org.getGroups(),
             DB.Org.getTeams(),
             DB.Org.getSubTeams(),
@@ -60,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ]);
         if (empRes.data)      _employees   = empRes.data;
         if (posRes.data)      _positions   = posRes.data;
+        if (jlRes.data)       _jobLevels   = jlRes.data;
         if (grpRes.data)      _groups      = grpRes.data;
         if (teamRes.data)     _teams       = teamRes.data;
         if (subTeamRes.data)  _subTeams    = subTeamRes.data;
@@ -521,8 +524,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             $('dmDetailCloseBtn')?.addEventListener('click', () => $('dmDetailModal')?.classList.remove('show'));
 
             $('dmDetailApproveBtn')?.addEventListener('click', async () => {
+                const { error } = await window.supabaseClient
+                    .from('project_resource_requests')
+                    .update({ status: 'approved', updated_at: new Date().toISOString() })
+                    .eq('project_resource_request_id', r.project_resource_request_id);
+
+                if (error) { showToast('Lỗi', error.message, 'error'); return; }
+
+                await DB.Logs.addAuditLog({
+                    action_type: 'UPDATE',
+                    table_name:  'project_resource_requests',
+                    record_id:   r.project_resource_request_id,
+                    new_value:   { status: 'approved' }
+                });
+
                 showToast('Thành công', 'Đã phê duyệt yêu cầu nguồn lực.');
                 $('dmDetailModal')?.classList.remove('show');
+                await loadDmApproval();
             });
 
             $('dmDetailRejectBtn')?.addEventListener('click', () => {
@@ -937,6 +955,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 _positions.map(p => `<option value="${p.position_id}" ${emp?.position_id===p.position_id?'selected':''}>${esc(p.position_name)}</option>`).join('');
         }
 
+        // Load job levels
+        const jlSel = $('staffJobLevel');
+        if (jlSel && _jobLevels.length) {
+            jlSel.innerHTML = '<option value="">-- Chọn cấp độ --</option>' +
+                _jobLevels.map(j => `<option value="${j.jl_id}" ${emp?.jl_id===j.jl_id?'selected':''}>${esc(j.level_name)}</option>`).join('');
+        }
+
         // Load Groups
         const groupSel = $('staffGroup');
         if (groupSel && _groups.length) {
@@ -972,6 +997,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isEdit) {
             if ($('staffFullName'))  $('staffFullName').value  = emp.full_name || '';
             if ($('staffBirthDate')) $('staffBirthDate').value = emp.day_of_birth?.slice(0,10) || '';
+            if ($('staffJobLevel') && emp.jl_id) $('staffJobLevel').value = emp.jl_id;
 
             // Fill Group/Team/Sub-team từ employee_organizations
             const activeOrg = _empOrgs.find(o => o.employee_id === emp.employee_id && o.status === 'active')
@@ -999,14 +1025,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const fullName   = $('staffFullName')?.value.trim();
                 const birthDate  = $('staffBirthDate')?.value || null;
                 const positionId = $('staffTitle')?.value || null;
+                const jlId       = $('staffJobLevel')?.value || null;
                 const subTeamId  = $('staffManager')?.value || null;
 
                 if (!fullName) return showToast('Lỗi', 'Vui lòng nhập họ tên.', 'error');
+                if (!jlId)     return showToast('Lỗi', 'Vui lòng chọn cấp độ.', 'error');
 
                 const payload = {
                     full_name:    fullName,
                     day_of_birth: birthDate,
                     position_id:  positionId,
+                    jl_id:        jlId,
                     status:       isEdit ? (emp.status || 'active') : 'probation',
                     hire_date:    isEdit ? emp.hire_date : new Date().toISOString().slice(0,10)
                 };

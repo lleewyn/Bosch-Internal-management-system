@@ -1,4 +1,4 @@
-import re
+ import re
 
 def remove_checkboxes():
     with open('hr.html', 'r', encoding='utf-8') as f:
