@@ -1,0 +1,45 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam BackgroundColor #ffffff
+
+title Bosch internal management system - Architecture Diagram
+
+package "Client (Browser)" {
+  [HTML5 & CSS3] as UI
+  [Vanilla JS Components] as JS
+  [LocalStorage\n(mock-store.js)] as OfflineStore
+  [router.js\n(Auth Guard)] as Router
+}
+
+package "Integrations / Libraries" {
+  [Chart.js] as ChartJS
+  [jsPDF & SheetJS] as ExportLibs
+}
+
+cloud "Supabase (Backend as a Service)" {
+  [Supabase Auth] as Auth
+  [PostgREST API Gateway] as API
+  
+  package "Database & Security" {
+    [Row-Level Security\n(RLS Engine)] as RLS
+    database "PostgreSQL DB" as DB
+  }
+  
+  [Supabase Storage\n(Buckets)] as Storage
+}
+
+' Relationships
+UI -down-> JS : UI Events
+JS -down-> OfflineStore : Fallback / Mock Data
+JS -down-> Router : Navigation
+JS -down-> ChartJS : Render charts
+JS -down-> ExportLibs : Export PDF/Excel
+
+Router .right.> Auth : JWT Session / Validate
+JS -right-> API : HTTPS / JSON Requests
+API -down-> RLS : Apply Policies
+RLS -down-> DB : Read/Write Data
+JS -right-> Storage : File Upload/Download (Contracts)
+
+@enduml

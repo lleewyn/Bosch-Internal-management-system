@@ -86,23 +86,16 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Fade-in khi trang load xong — không ẩn trang nếu JS lỗi */
-body.page-ready {
-    animation: pageFadeIn 0.25s ease;
+/* Chỉ fade-in phần content, không animate sidebar/header */
+body.page-ready .main-layout > main,
+body.page-ready .content-wrapper,
+body.page-ready .main-content {
+    animation: pageFadeIn 0.2s ease;
 }
 
 @keyframes pageFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Fallback: hiển thị trang sau 1 giây nếu JS không chạy */
-@keyframes fadeInFallback {
-    to { opacity: 1; }
-}
-
-body {
-    animation: fadeInFallback 0.3s ease 1s forwards;
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .main-header {
@@ -255,7 +248,7 @@ body {
 .btn-report-auto,
 .btn-export,
 .budget-container .bosch-table {
-    transition: all 0.24s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
 
 .org-node:hover,
@@ -266,7 +259,7 @@ body {
 .btn-action:hover,
 .btn-report-auto:hover,
 .btn-export:hover {
-    transform: translateY(-1px);
+    /* bỏ transform translateY để tránh layout shift */
 }
 
 .group-item:hover,
