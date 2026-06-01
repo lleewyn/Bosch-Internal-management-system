@@ -19,22 +19,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let activeTab = 'customers';
     const selected = { customers: null, contracts: null, projects: null };
-    let _customers = [], _contracts = [], _projects = [], _serviceLines = [], _employees = [];
+    let _customers = [], _contracts = [], _projects = [], _serviceLines = [], _employees = [], _positions = [];
 
     // ── Load data ─────────────────────────────────────────────────────────────
     async function loadAll() {
         showLoading(true);
-        const [custRes, contRes, projRes, slRes, empRes] = await Promise.all([
+        const [custRes, contRes, projRes, slRes, empRes, posRes] = await Promise.all([
             DB.Customers.getAll(),
             DB.Contracts.getAll(),
             DB.Projects.getAll(),
             DB.ServiceLines.getAll(),
-            DB.Employees.getAll()
+            DB.Employees.getAll(),
+            DB.Meta.getPositions()
         ]);
         if (custRes.data)  _customers    = custRes.data;
         if (contRes.data)  _contracts    = contRes.data;
         if (projRes.data)  _projects     = projRes.data;
         if (slRes.data)    _serviceLines = slRes.data;
+        if (posRes.data)   _positions    = posRes.data;
         if (empRes.data) {
             _employees = empRes.data.map(emp => {
                 // Lấy org active mới nhất
@@ -44,12 +46,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                               || activeOrg?.sub_teams?.sub_team_name
                               || '—';
                 return {
-                    id:       emp.employee_id,
-                    code:     emp.employee_code,
-                    name:     emp.full_name,
-                    title:    emp.positions?.position_name || '—',
-                    team:     teamName,
-                    workload: null  // sẽ tính sau khi load assignments
+                    id:         emp.employee_id,
+                    code:       emp.employee_code,
+                    name:       emp.full_name,
+                    title:      emp.positions?.position_name || '—',
+                    positionId: emp.position_id || null,
+                    team:       teamName,
+                    workload:   null  // sẽ tính sau khi load assignments
                 };
             });
         }
@@ -358,10 +361,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (reqRes.data && reqRes.data.length > 0) {
             requestId = reqRes.data[0].project_resource_request_id;
         } else {
-            // Tạo request mới
+            // Lấy position_id từ nhân viên đầu tiên được chọn
+            const firstEmpId = selected[0]?.dataset.id;
+            const firstEmp = _employees.find(e => e.id === firstEmpId);
+            // Fallback: position đầu tiên trong danh sách
+            const positionId = firstEmp?.positionId || _positions[0]?.position_id || null;
+
             const newReq = await DB.ResourceRequests.create({
                 project_id:  projectId,
-                position_id: _positions[0]?.position_id || null,
+                position_id: positionId,
                 quantity:    selected.length,
                 is_ot:       false,
                 description: 'Phân công từ giao diện'
