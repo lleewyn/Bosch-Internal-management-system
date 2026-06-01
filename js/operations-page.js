@@ -795,6 +795,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             customer_id:     customerId,
             service_line_id: serviceLineId,
             contract_name:   `Hợp đồng ${serviceLine?.service_line_name || ''} - ${customer?.company_name || ''}`.trim(),
+            signed_date:     startDate,
             start_date:      startDate,
             end_date:        endDate,
             contract_value:  contractValue,
