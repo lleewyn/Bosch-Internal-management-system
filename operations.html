@@ -393,10 +393,11 @@
 
                 <div class="form-group mb-15">
                     <label>File đính kèm (Bản hợp đồng đã ký) <span class="required-asterisk">*</span></label>
-                    <div style="border: 1px dashed #ccc; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); margin-top: 4px;">
-                        <span style="color: var(--text-muted); font-size: 13px; font-style: italic;"><i class="fa-regular fa-file-lines"></i> VD: contract_signed.pdf</span>
-                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--bosch-blue); cursor: pointer;"></i>
+                    <div id="opContractFileArea" style="border: 1px dashed #ccc; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); margin-top: 4px; cursor: pointer;">
+                        <span id="opContractFileName" style="color: var(--text-muted); font-size: 13px; font-style: italic;"><i class="fa-regular fa-file-lines"></i> VD: contract_signed.pdf</span>
+                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--bosch-blue);"></i>
                     </div>
+                    <input type="file" id="opContractFileInput" accept=".pdf,.doc,.docx" style="display: none;">
                 </div>
 
             </div>
@@ -499,7 +500,7 @@
 
                 <!-- File đính kèm -->
                 <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Tệp mô tả chi tiết</label>
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Tệp mô tả chi tiết <span class="required-asterisk">*</span></label>
                     <div id="opProjFileArea" style="border:1px dashed #ccc; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; background:#fafafa; cursor:pointer;">
                         <span id="opProjFileName" style="color:#9ca3af; font-size:13px; font-style:italic;"><i class="fa-regular fa-file-lines"></i> Chọn tệp đính kèm...</span>
                         <i class="fa-solid fa-arrow-up-from-bracket" style="color:#0078d4;"></i>
@@ -508,8 +509,8 @@
                 </div>
 
                 <!-- Phân công nhân sự -->
-                <div class="form-group mb-15">
-                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Phân công nhân sự</label>
+                <div class="form-group mb-15" id="opProjStaffSection">
+                    <label style="font-size: 11px; text-transform: uppercase; font-weight: 800;">Phân công nhân sự <span class="required-asterisk">*</span></label>
                     <div style="display:flex; align-items:center; gap:10px; border:1px solid #ddd; border-radius:6px; padding:10px 12px; background:white; min-height:44px;">
                         <div id="opProjStaffList" style="flex:1; display:flex; flex-wrap:wrap; gap:6px; min-height:22px;">
                             <span style="color:#9ca3af; font-size:13px; font-style:italic;">Chưa phân công nhân sự...</span>

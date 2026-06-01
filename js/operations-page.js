@@ -266,7 +266,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function openStaffAssignModal() {
         const projectModal = document.getElementById('projectModal');
         if (!projectModal) return;
-        const projectId = projectModal.dataset.projectId || '';
+        let projectId = projectModal.dataset.projectId || '';
+
+        // Nếu chưa có projectId (đang tạo mới), tự động lưu dự án trước
+        if (!projectId) {
+            showToast('Thông báo', 'Đang lưu dự án trước khi phân công...', 'info');
+            projectId = await saveProject(false);
+            if (!projectId) return; // lưu thất bại, dừng lại
+        }
+
+        // Lưu projectId vào staffAssignModal để saveStaffAssignments dùng độc lập
+        const staffModal = document.getElementById('staffAssignModal');
+        if (staffModal) staffModal.dataset.projectId = projectId;
 
         const tbody = document.getElementById('staffAssignTableBody');
         if (!tbody) return;
@@ -329,8 +340,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function saveStaffAssignments() {
+        const staffModal = document.getElementById('staffAssignModal');
         const projectModal = document.getElementById('projectModal');
-        const projectId = projectModal?.dataset.projectId || '';
+        // Ưu tiên lấy từ staffAssignModal.dataset (được set khi mở), fallback về projectModal
+        const projectId = staffModal?.dataset.projectId || projectModal?.dataset.projectId || '';
         if (!projectId) return showToast('Lỗi', 'Vui lòng lưu dự án trước khi phân công nhân sự.', 'error');
 
         // Lấy danh sách được chọn
@@ -699,6 +712,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (modal) modal.classList.remove('show');
     }
 
+    // ── File upload cho hợp đồng ─────────────────────────────────────────────
+    let _uploadedContractFileUrl = null;
+
     function populateContractModal(c) {
         const modal = document.getElementById('contractModal');
         if (!modal) return;
@@ -725,6 +741,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (modal.querySelector('#opContractValue')) modal.querySelector('#opContractValue').value = c?.contract_value || '';
         if (modal.querySelector('#otCheck')) modal.querySelector('#otCheck').checked = Boolean(c?.is_ot);
         modal.dataset.contractId = c?.contract_id || '';
+
+        // Reset file upload state
+        _uploadedContractFileUrl = null;
+        const fileInput = document.getElementById('opContractFileInput');
+        if (fileInput) fileInput.value = '';
+        const fileNameEl = document.getElementById('opContractFileName');
+        if (fileNameEl) {
+            if (c?.file_url) {
+                const fname = c.file_url.split('/').pop();
+                fileNameEl.innerHTML = `<i class="fa-solid fa-file-lines" style="color:#0078d4;margin-right:6px;"></i>${fname}`;
+                _uploadedContractFileUrl = c.file_url;
+            } else {
+                fileNameEl.innerHTML = '<i class="fa-regular fa-file-lines"></i> VD: contract_signed.pdf';
+            }
+        }
+
         modal.classList.add('show');
 
         modal.querySelector('.btn-update').onclick = saveContract;
@@ -756,6 +788,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             contract_value:  contractValue,
             is_ot:           isOt
         };
+
+        if (_uploadedContractFileUrl) {
+            payload.file_url = _uploadedContractFileUrl;
+        }
 
         let result;
         if (isEdit) {
@@ -812,10 +848,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('editProjectBtn')?.addEventListener('click', () => {
         if (!selected.projects) return showToast('Lỗi', 'Vui lòng chọn dự án.', 'error');
         populateProjectModal(_projects.find(x => x.project_id === selected.projects));
-    });    $('deleteProjectBtn')?.addEventListener('click', async () => {
+    });
+    $('deleteProjectBtn')?.addEventListener('click', async () => {
         if (!selected.projects) return showToast('Lỗi', 'Vui lòng chọn dự án.', 'error');
-        if (!confirm('Xóa dự án này?')) return;
-        const { error } = await DB.Projects.delete(selected.projects);
+        if (!confirm('Xóa dự án này? Thao tác sẽ xóa toàn bộ phân công nhân sự liên quan.')) return;
+
+        const projectId = selected.projects;
+
+        // Bước 1: Xóa project_assignments (FK → project_resource_requests)
+        await DB.Assignments.deleteByProject(projectId);
+
+        // Bước 2: Xóa project_resource_requests (FK → projects)
+        await DB.ResourceRequests.deleteByProject(projectId);
+
+        // Bước 3: Xóa project
+        const { error } = await DB.Projects.delete(projectId);
         if (error) return showToast('Lỗi', error.message, 'error');
         showToast('Thành công', 'Đã xóa dự án.');
         selected.projects = null;
@@ -881,44 +928,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.classList.add('show');
     }
 
-    $('saveProjectBtn')?.addEventListener('click', async () => {
+    // Trả về projectId nếu lưu thành công, null nếu lỗi
+    // closeAfter=true: đóng modal sau khi lưu (dùng cho nút Lưu)
+    // closeAfter=false: giữ modal mở (dùng khi lưu trước khi phân công)
+    async function saveProject(closeAfter = true) {
         const modal = document.getElementById('projectModal');
-        if (!modal) return;
+        if (!modal) return null;
         const projectId = modal.dataset.projectId || '';
         const projectName = modal.querySelector('#opProjName')?.value?.trim() || '';
         const contractId = modal.querySelector('#opProjContract')?.value || '';
         const startDate = modal.querySelector('#opProjStart')?.value || '';
         const endDate = modal.querySelector('#opProjEnd')?.value || '';
 
-        if (!projectName) return showToast('Lỗi', 'Vui lòng nhập tên dự án.', 'error');
-        if (!contractId) return showToast('Lỗi', 'Vui lòng chọn hợp đồng.', 'error');
-        if (!startDate || !endDate) return showToast('Lỗi', 'Vui lòng nhập đủ thời gian dự án.', 'error');
-        if (new Date(startDate) > new Date(endDate)) return showToast('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc.', 'error');
+        if (!projectName) { showToast('Lỗi', 'Vui lòng nhập tên dự án.', 'error'); return null; }
+        if (!contractId)  { showToast('Lỗi', 'Vui lòng chọn hợp đồng.', 'error'); return null; }
+        if (!startDate || !endDate) { showToast('Lỗi', 'Vui lòng nhập đủ thời gian dự án.', 'error'); return null; }
+        if (new Date(startDate) > new Date(endDate)) { showToast('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc.', 'error'); return null; }
+
+        // Các trường bắt buộc chỉ check khi bấm Lưu hoàn tất (không check khi auto-save trước phân công)
+        if (closeAfter) {
+            if (!_uploadedFileUrl) { showToast('Lỗi', 'Vui lòng tải lên tệp mô tả chi tiết.', 'error'); return null; }
+            if (!_currentProjectAssignments.length) { showToast('Lỗi', 'Vui lòng phân công ít nhất 1 nhân sự cho dự án.', 'error'); return null; }
+        }
 
         const contract = _contracts.find(x => x.contract_id === contractId);
-        if (!contract) return showToast('Lỗi', 'Hợp đồng chọn không hợp lệ.', 'error');
+        if (!contract) { showToast('Lỗi', 'Hợp đồng chọn không hợp lệ.', 'error'); return null; }
         const contractStart = contract.start_date ? new Date(contract.start_date) : null;
-        const contractEnd = contract.end_date ? new Date(contract.end_date) : null;
-        const projectStart = new Date(startDate);
-        const projectEnd = new Date(endDate);
+        const contractEnd   = contract.end_date   ? new Date(contract.end_date)   : null;
+        const projectStart  = new Date(startDate);
+        const projectEnd    = new Date(endDate);
         if (contractStart && projectStart < contractStart) {
-            return showToast('Lỗi', 'Ngày bắt đầu dự án phải nằm trong hiệu lực hợp đồng.', 'error');
+            showToast('Lỗi', 'Ngày bắt đầu dự án phải nằm trong hiệu lực hợp đồng.', 'error'); return null;
         }
         if (contractEnd && projectEnd > contractEnd) {
-            return showToast('Lỗi', 'Ngày kết thúc dự án phải không vượt quá ngày hết hạn hợp đồng.', 'error');
+            showToast('Lỗi', 'Ngày kết thúc dự án phải không vượt quá ngày hết hạn hợp đồng.', 'error'); return null;
         }
 
         const payload = {
             project_name: projectName,
             contract_id:  contractId,
+            customer_id:  contract.customer_id,
             start_date:   startDate,
             end_date:     endDate,
             description:  '',
             progress_percent: 0
         };
-        // file_url chỉ lưu nếu cột tồn tại trong DB
-        // Chạy: ALTER TABLE projects ADD COLUMN IF NOT EXISTS file_url TEXT;
-        // if (_uploadedFileUrl) payload.file_url = _uploadedFileUrl;
 
         let result;
         if (projectId) {
@@ -928,10 +982,62 @@ document.addEventListener('DOMContentLoaded', async () => {
             result = await DB.Projects.create(payload);
         }
 
-        if (result.error) return showToast('Lỗi', result.error.message, 'error');
+        if (result.error) { showToast('Lỗi', result.error.message, 'error'); return null; }
+
+        const savedId = projectId || result.data?.project_id;
+        modal.dataset.projectId = savedId; // cập nhật lại dataset với ID mới
+
         showToast('Thành công', projectId ? 'Đã cập nhật dự án.' : 'Đã tạo dự án mới.');
-        closeModal('projectModal');
-        await loadAll();
+
+        if (closeAfter) {
+            closeModal('projectModal');
+            await loadAll();
+        } else {
+            // Reload data ngầm để cache cập nhật, không đóng modal
+            const [contRes, projRes] = await Promise.all([DB.Contracts.getAll(), DB.Projects.getAll()]);
+            if (contRes.data) _contracts = contRes.data;
+            if (projRes.data) _projects  = projRes.data;
+        }
+
+        return savedId;
+    }
+
+    $('saveProjectBtn')?.addEventListener('click', () => saveProject(true));
+
+    // ── File upload cho hợp đồng — event listeners ───────────────────────────
+    $('opContractFileArea')?.addEventListener('click', () => {
+        $('opContractFileInput')?.click();
+    });
+
+    $('opContractFileInput')?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const fileNameEl = $('opContractFileName');
+        if (fileNameEl) fileNameEl.textContent = `⏳ Đang tải lên: ${file.name}`;
+
+        function sanitizeFileName(name) {
+            return name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/gi, 'd')
+                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .replace(/_+/g, '_');
+        }
+
+        const safeName = sanitizeFileName(file.name);
+        const path = `contracts/${Date.now()}_${safeName}`;
+        const { url, error } = await DB.Storage.uploadFile('project-files', path, file);
+
+        if (error) {
+            if (fileNameEl) fileNameEl.textContent = '❌ Tải lên thất bại';
+            showToast('Lỗi', 'Không thể tải file lên: ' + error.message, 'error');
+            _uploadedContractFileUrl = null;
+        } else {
+            if (fileNameEl) fileNameEl.innerHTML = `<i class="fa-solid fa-file-lines" style="color:#0078d4;margin-right:6px;"></i>${file.name}`;
+            _uploadedContractFileUrl = url;
+            showToast('Thành công', 'Đã tải file lên thành công.');
+        }
     });
 
     // ── File upload cho dự án ─────────────────────────────────────────────────

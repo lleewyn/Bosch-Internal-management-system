@@ -432,6 +432,14 @@ window.DB = (() => {
                 .select()
                 .single()
             );
+        },
+
+        async deleteByProject(projectId) {
+            return query(sb => sb
+                .from('project_resource_requests')
+                .delete()
+                .eq('project_id', projectId)
+            );
         }
     };
 
