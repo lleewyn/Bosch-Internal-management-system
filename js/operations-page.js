@@ -780,9 +780,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (contractValue <= 0) return showToast('Lỗi', 'Vui lòng nhập giá trị hợp đồng hợp lệ.', 'error');
         if (parseDateOnly(startDate) > parseDateOnly(endDate)) return showToast('Lỗi', 'Ngày hiệu lực phải nhỏ hơn ngày hết hạn.', 'error');
 
+        const customer = _customers.find(x => x.customer_id === customerId);
+        const serviceLine = _serviceLines.find(x => x.service_line_id === serviceLineId);
+
         const payload = {
             customer_id:     customerId,
             service_line_id: serviceLineId,
+            contract_name:   `Hợp đồng ${serviceLine?.service_line_name || ''} - ${customer?.company_name || ''}`.trim(),
             start_date:      startDate,
             end_date:        endDate,
             contract_value:  contractValue,
