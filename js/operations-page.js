@@ -965,12 +965,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const payload = {
-            project_name: projectName,
-            contract_id:  contractId,
-            customer_id:  contract.customer_id,
-            start_date:   startDate,
-            end_date:     endDate,
-            description:  '',
+            project_name:     projectName,
+            contract_id:      contractId,
+            customer_id:      contract.customer_id,
+            start_date:       startDate,
+            end_date:         endDate,
+            priority:         'medium',
+            description:      '',
             progress_percent: 0
         };
 
